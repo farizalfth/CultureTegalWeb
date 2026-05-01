@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    /* Menghilangkan Footer khusus di halaman ini */
+    footer, .footer-custom {
+        display: none !important;
+    }
+
+    body {
+        background: linear-gradient(135deg, #fdf8f2 0%, #f2e8da 100%);
+        min-height: 100vh;
+    }
+
+    .login-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 60px 20px;
+    }
+
+    .login-card {
+        width: 100%;
+        max-width: 420px;
+        background: white;
+        padding: 50px;
+        border-radius: 40px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.05);
+        animation: fadeInScale 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes fadeInScale {
+        from { opacity: 0; transform: scale(0.9); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
+    /* Animasi Input yang lebih bagus */
+    .form-floating input {
+        border: none;
+        border-bottom: 2px solid #eee;
+        border-radius: 0;
+        padding-left: 0;
+        padding-right: 0;
+        box-shadow: none !important;
+        transition: all 0.3s ease;
+    }
+
+    .form-floating input:focus {
+        border-bottom-color: #D35400;
+        background-color: transparent;
+    }
+
+    .form-floating label {
+        padding-left: 0;
+        color: #aaa;
+        transition: 0.3s;
+    }
+
+    .form-floating input:focus + label, 
+    .form-floating input:not(:placeholder-shown) + label {
+        color: #D35400 !important;
+        transform: scale(0.85) translateY(-30px) translateX(-5px);
+    }
+
+    .btn-login-submit {
+        background: #D35400;
+        color: white;
+        border: none;
+        padding: 15px;
+        border-radius: 20px;
+        width: 100%;
+        font-weight: 700;
+        transition: 0.4s;
+        margin-top: 30px;
+        letter-spacing: 1px;
+    }
+
+    .btn-login-submit:hover {
+        background: #A04000;
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(211, 84, 0, 0.3);
+        color: white;
+    }
+
+    .text-orange { color: #D35400; }
+</style>
+
+<div class="login-wrapper">
+    <div class="login-card">
+        <div class="text-center mb-5">
+            <div class="mb-3 d-inline-block p-3 bg-light rounded-circle" style="animation: pulse 2s infinite;">
+                <i class="fa fa-shield-alt fa-3x text-orange"></i>
+            </div>
+            <h3 class="fw-bold mt-2">Admin Area</h3>
+            <p class="text-muted small">Kelola platform Tegal Culture</p>
+        </div>
+
+        <!-- Notifikasi Login Gagal/Flash -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }} border-0 py-2 small text-center mb-4 rounded-pill">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <form method="POST">
+            <div class="form-floating mb-4">
+                <input type="text" name="username" class="form-control" id="userInput" placeholder="Username" required autocomplete="off">
+                <label for="userInput">Username</label>
+            </div>
+            <div class="form-floating mb-4">
+                <input type="password" name="password" class="form-control" id="passInput" placeholder="Password" required>
+                <label for="passInput">Password</label>
+            </div>
+            <button type="submit" class="btn btn-login-submit">MASUK SEKARANG</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    /* Efek getar dikit kalau input salah (opsional) */
+    const inputs = document.querySelectorAll('.form-control');
+    inputs.forEach(input => {
+        input.addEventListener('focus', () => {
+            input.parentElement.classList.add('active');
+        });
+    });
+</script>
+
+<style>
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+</style>
+{% endblock %}

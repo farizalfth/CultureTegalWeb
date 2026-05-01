@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container section-padding">
+    <!-- Bagian Utama: Tentang Tegal Culture -->
+    <div class="row align-items-center mb-5 mt-4">
+        
+        <!-- Kolom Kiri: Teks & List Ikon -->
+        <div class="col-lg-6 pe-lg-5" data-aos="fade-right">
+            <h1 class="fw-800 display-5 mb-4">Tentang <span class="text-orange">Tegal Culture</span></h1>
+            <p class="text-muted fs-5 mb-5" style="max-width: 550px;">
+                Tegal Culture adalah platform digital yang bertujuan untuk memperkenalkan dan melestarikan budaya, sejarah, kuliner, dan potensi lokal Kota Tegal kepada dunia.
+            </p>
+            
+            <!-- List Ikon (DILURUSKAN) -->
+            <div class="d-flex flex-column gap-4">
+                <div class="d-flex align-items-center gap-4 icon-list-item">
+                    <div class="icon-circle shadow-sm">
+                        <i class="fas fa-landmark"></i>
+                    </div>
+                    <span class="fw-bold fs-5">Melestarikan Budaya</span>
+                </div>
+                
+                <div class="d-flex align-items-center gap-4 icon-list-item">
+                    <div class="icon-circle shadow-sm">
+                        <i class="fas fa-shopping-bag"></i>
+                    </div>
+                    <span class="fw-bold fs-5">Mendukung UMKM Lokal</span>
+                </div>
+                
+                <div class="d-flex align-items-center gap-4 icon-list-item">
+                    <div class="icon-circle shadow-sm">
+                        <i class="fas fa-info-circle"></i>
+                    </div>
+                    <span class="fw-bold fs-5">Informasi Terpercaya</span>
+                </div>
+                
+                <div class="d-flex align-items-center gap-4 icon-list-item">
+                    <div class="icon-circle shadow-sm">
+                        <i class="fas fa-hand-pointer"></i>
+                    </div>
+                    <span class="fw-bold fs-5">Pengalaman Interaktif</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Kolom Kanan: Simulasi Gambar Budaya Tegal -->
+        <div class="col-lg-6 mt-5 mt-lg-0" data-aos="fade-left">
+            <div class="img-wrapper-tentang position-relative">
+                <!-- Simulasi Gambar Budaya (Contoh Menara Air Tegal/Arsitektur) -->
+                <img src="https://media-cdn.tripadvisor.com/media/photo-s/1c/7e/c4/81/balai-kota-tegal-ornamen.jpg" 
+                     class="img-fluid rounded-5 shadow-lg border-white-thick float-animation" 
+                     alt="Ilustrasi Budaya Tegal">
+                
+                <!-- Ornamen Dekoratif di Belakang -->
+                <div class="decor-box"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section Misi Kami (Bawah) -->
+    <div class="bg-pure-white rounded-5 p-5 mt-5 shadow-sm text-center" data-aos="zoom-in">
+        <h2 class="fw-bold mb-5">Misi Kami</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <i class="fas fa-history fa-3x text-orange"></i>
+                </div>
+                <h5 class="fw-bold">Warisan Budaya</h5>
+                <p class="small text-muted px-4">Melestarikan warisan budaya leluhur Kota Tegal agar tetap hidup.</p>
+            </div>
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <i class="fas fa-store-alt fa-3x text-orange"></i>
+                </div>
+                <h5 class="fw-bold">Pemberdayaan UMKM</h5>
+                <p class="small text-muted px-4">Mendorong ekonomi lokal melalui eksposur digital UMKM.</p>
+            </div>
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <i class="fas fa-heart fa-3x text-orange"></i>
+                </div>
+                <h5 class="fw-bold">Generasi Muda</h5>
+                <p class="small text-muted px-4">Menanamkan rasa cinta budaya pada generasi Z dan milenial.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

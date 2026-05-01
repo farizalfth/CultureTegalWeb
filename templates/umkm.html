@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container section-padding">
+    <div class="row align-items-center mb-5">
+        <div class="col-md-6" data-aos="fade-right">
+            <h2 class="fw-bold">UMKM Unggulan</h2>
+        </div>
+        <div class="col-md-6 text-md-end" data-aos="fade-left">
+            <input type="text" class="form-control rounded-pill d-inline-block w-75 shadow-sm" placeholder="Cari produk...">
+        </div>
+    </div>
+
+    <!-- Filter UMKM -->
+    <div class="d-flex gap-2 mb-5 flex-wrap" data-aos="fade-up">
+        <button class="btn btn-warning rounded-pill px-4">Semua</button>
+        <button class="btn btn-outline-dark rounded-pill px-4">Makanan</button>
+        <button class="btn btn-outline-dark rounded-pill px-4">Minuman</button>
+        <button class="btn btn-outline-dark rounded-pill px-4">Kerajinan</button>
+        <button class="btn btn-outline-dark rounded-pill px-4">Fashion</button>
+    </div>
+
+    <!-- Product Grid -->
+    <div class="row g-4">
+        {% for p in produks %}
+        <div class="col-md-4 col-lg-4" data-aos="zoom-in" data-aos-delay="{{ loop.index * 50 }}">
+            <div class="card card-hover border-0 shadow-sm p-3 h-100" style="border-radius: 25px;">
+                <img src="{{ p.img }}" alt="{{ p.nama }}" class="card-img-top rounded-4 mb-3" style="height: 250px; object-fit: cover;">
+                <div class="card-body p-0">
+                    <p class="text-warning small mb-1"><i class="fa fa-star me-1"></i>{{ p.rating }}</p>
+                    <h5 class="fw-bold mb-2">{{ p.nama }}</h5>
+                    <p class="fw-bold text-orange fs-5">{{ p.harga }}</p>
+                    <button class="btn btn-orange w-100 rounded-pill mt-2 btn-custom">Lihat Produk</button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

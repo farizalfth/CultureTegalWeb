@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container section-padding">
+    <h2 class="fw-bold mb-4" data-aos="fade-right">Event Budaya</h2>
+    
+    <!-- Filter -->
+    <div class="d-flex gap-2 mb-5 flex-wrap" data-aos="fade-up">
+        <button class="btn btn-warning rounded-pill px-4">Semua</button>
+        <button class="btn btn-outline-dark rounded-pill px-4">Budaya</button>
+        <button class="btn btn-outline-dark rounded-pill px-4">Pariwisata</button>
+        <button class="btn btn-outline-dark rounded-pill px-4">UMKM</button>
+        <button class="btn btn-outline-dark rounded-pill px-4">Festival</button>
+    </div>
+
+    <!-- Event List -->
+    <div class="row g-4">
+        {% for e in events %}
+        <div class="col-12" data-aos="fade-up">
+            <div class="card border-0 shadow-sm rounded-5 overflow-hidden p-3 card-hover">
+                <div class="row align-items-center">
+                    <div class="col-md-4">
+                        <img src="{{ e.img }}" alt="{{ e.nama }}" class="img-fluid rounded-4 shadow-sm" style="height: 200px; width: 100%; object-fit: cover;">
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h4 class="fw-bold">{{ e.nama }}</h4>
+                            <p class="text-orange mb-1 small fw-bold"><i class="fa fa-calendar me-2"></i>{{ e.tgl }}</p>
+                            <p class="text-muted mb-2 small"><i class="fa fa-map-marker-alt me-2"></i>{{ e.lokasi }}</p>
+                            <p class="text-muted small">{{ e.desc }}</p>
+                            <button class="btn btn-orange rounded-pill px-4 btn-custom">Ikuti Event →</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

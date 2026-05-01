@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container section-padding">
+    
+    <!-- HEADER SECTION -->
+    <div class="row align-items-end mb-5" data-aos="fade-up">
+        <div class="col-md-8">
+            <h1 class="fw-800 display-4 mb-0">Jelajah <span class="text-orange">Budaya</span></h1>
+            <p class="text-muted mt-2 fs-5">Temukan pesona sejarah, tradisi, dan keindahan alam di setiap sudut Kota Tegal.</p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <span class="badge bg-white text-dark shadow-sm py-2 px-3 rounded-pill border">
+                <i class="fas fa-map-marker-alt text-orange me-2"></i> 12 Lokasi Ditemukan
+            </span>
+        </div>
+    </div>
+
+    <!-- FILTER & SEARCH TOOLBAR -->
+    <div class="row g-3 mb-5 align-items-center">
+        <!-- Filter Buttons -->
+        <div class="col-lg-8" data-aos="fade-right">
+            <div class="d-flex gap-2 flex-wrap">
+                <button class="btn btn-warning btn-custom shadow-sm px-4">Semua</button>
+                <button class="btn btn-white btn-custom border shadow-sm px-4">Sejarah</button>
+                <button class="btn btn-white btn-custom border shadow-sm px-4">Budaya</button>
+                <button class="btn btn-white btn-custom border shadow-sm px-4">Kuliner</button>
+                <button class="btn btn-white btn-custom border shadow-sm px-4">Alam</button>
+            </div>
+        </div>
+        <!-- Search Input -->
+        <div class="col-lg-4" data-aos="fade-left">
+            <div class="input-group shadow-sm rounded-pill overflow-hidden border">
+                <span class="input-group-text bg-white border-0 ps-4">
+                    <i class="fas fa-search text-muted"></i>
+                </span>
+                <input type="text" class="form-control border-0 py-3" placeholder="Cari destinasi...">
+            </div>
+        </div>
+    </div>
+
+    <!-- GRID KARTU DESTINASI -->
+    <div class="row g-4">
+        {% for item in items %}
+        <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="{{ loop.index * 100 }}">
+            <div class="card card-hover shadow-sm border-0 h-100 p-0 overflow-hidden" style="border-radius: 25px;">
+                <!-- Image Wrapper -->
+                <div class="position-relative">
+                    <img src="https://images.unsplash.com/photo-1596422846543-75c6fc18a593?auto=format&fit=crop&q=80&w=600" 
+                         class="card-img-top" style="height: 240px; object-fit: cover;" alt="{{ item.nama }}">
+                    <div class="position-absolute top-0 end-0 m-3">
+                        <span class="badge bg-white text-dark shadow-sm py-2 px-3 rounded-pill fw-bold">
+                            <i class="fas fa-tag text-{{ item.color }} me-1"></i> {{ item.kat }}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-body p-4">
+                    <h4 class="fw-bold mb-2">{{ item.nama }}</h4>
+                    <p class="text-muted mb-4 small" style="line-height: 1.6;">{{ item.desc }}</p>
+                    
+                    <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                        <a href="#" class="text-orange fw-bold text-decoration-none btn-link">
+                            Lihat Detail <i class="fas fa-arrow-right ms-2 arrow-icon"></i>
+                        </a>
+                        <div class="text-muted">
+                            <i class="far fa-heart pointer"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- PAGINATION (Sesuai Gambar) -->
+    <div class="d-flex justify-content-center mt-5 pt-4" data-aos="fade-up">
+        <nav>
+            <ul class="pagination gap-2">
+                <li class="page-item active"><a class="page-link rounded-3 border-0 shadow-sm" href="#">1</a></li>
+                <li class="page-item"><a class="page-link rounded-3 border-0 shadow-sm text-dark" href="#">2</a></li>
+                <li class="page-item"><a class="page-link rounded-3 border-0 shadow-sm text-dark" href="#">3</a></li>
+                <li class="page-item"><a class="page-link rounded-pill border-0 shadow-sm text-dark px-4" href="#">Next</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- PETA EKSPLORASI -->
+    <div class="mt-5 pt-5" data-aos="zoom-in">
+        <div class="bg-pure-white p-4 p-md-5 rounded-5 shadow-lg border">
+            <div class="row align-items-center mb-4">
+                <div class="col-md-6">
+                    <h3 class="fw-bold mb-1"><i class="fas fa-map-marked-alt text-orange me-2"></i> Eksplorasi Lokasi</h3>
+                    <p class="text-muted mb-0">Navigasi titik sejarah dan budaya secara real-time.</p>
+                </div>
+                <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                    <button class="btn btn-outline-orange rounded-pill btn-sm">Buka di Google Maps</button>
+                </div>
+            </div>
+            
+            <div class="rounded-4 overflow-hidden border">
+                <iframe 
+                    title="Peta Kota Tegal"
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d63375.4053860477!2d109.10091380963174!3d-6.871587829285072!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e6fb9b2756855b3%3A0x3030bfbcaf77010!2sKota%20Tegal%2C%20Jawa%20Tengah!5e0!3m2!1sid!2sid!4v1714555000000!5m2!1sid!2sid" 
+                    width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy">
+                </iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Tambahan CSS Khusus Halaman Jelajah */
+    .btn-white {
+        background-color: #fff;
+        color: #333;
+    }
+    .btn-white:hover {
+        background-color: var(--bg-cream);
+        color: var(--accent-orange);
+    }
+    .fw-800 { font-weight: 800; }
+    
+    .btn-link .arrow-icon {
+        transition: transform 0.3s ease;
+    }
+    .btn-link:hover .arrow-icon {
+        transform: translateX(8px);
+    }
+    
+    .pagination .page-link {
+        padding: 12px 20px;
+        font-weight: 600;
+        transition: 0.3s;
+    }
+    .pagination .page-item.active .page-link {
+        background-color: var(--accent-orange);
+        color: white;
+    }
+
+    .btn-outline-orange {
+        border: 2px solid var(--accent-orange);
+        color: var(--accent-orange);
+        font-weight: 600;
+        transition: 0.3s;
+    }
+    .btn-outline-orange:hover {
+        background-color: var(--accent-orange);
+        color: white;
+    }
+</style>
+{% endblock %}
