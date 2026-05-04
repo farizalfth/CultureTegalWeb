@@ -139,6 +139,24 @@ def umkm():
 def tentang():
     return render_template('tentang.html')
 
+# --- Kelola Budaya ---
+@app.route('/admin/budaya')
+def manage_budaya():
+    if not session.get('logged_in'): return redirect(url_for('login'))
+    # Query ambil data budaya saja
+    return render_template('admin/manage_items.html', type="Budaya")
+
+# --- Kelola Event ---
+@app.route('/admin/event')
+def manage_event():
+    # Query ambil data event
+    return render_template('admin/manage_items.html', type="Event")
+
+# --- Pengaturan ---
+@app.route('/admin/settings')
+def admin_settings():
+    return render_template('admin/settings.html')
+
 # --- 4. MAIN RUNNER ---
 if __name__ == '__main__':
     app.run(debug=True)

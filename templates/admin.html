@@ -3,105 +3,369 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - Tegal Culture</title>
+    <title>Admin Dashboard - Tegal Culture</title>
+    <!-- Framework & Fonts -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <style>
-        :root { --primary: #D35400; --dark: #2c3e50; --sidebar-w: 260px; }
-        body { background-color: #f8f9fa; font-family: 'Plus Jakarta Sans', sans-serif; }
-        
-        /* Sidebar Styling */
-        .sidebar { width: var(--sidebar-w); height: 100vh; position: fixed; background: var(--dark); color: white; transition: 0.3s; }
-        .sidebar .nav-link { color: rgba(255,255,255,0.7); padding: 15px 25px; border-radius: 0; transition: 0.3s; }
-        .sidebar .nav-link:hover, .sidebar .nav-link.active { background: rgba(255,255,255,0.1); color: white; border-left: 4px solid var(--primary); }
-        
-        /* Main Content */
-        .main-content { margin-left: var(--sidebar-w); padding: 40px; }
-        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
-        
-        .stat-card { border: none; border-radius: 20px; transition: 0.3s; background: white; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        :root {
+            --primary: #D35400;
+            --secondary-brown: #3a2218;
+            --bg-light: #f9f6f2;
+            --card-shadow: 0 10px 30px rgba(0,0,0,0.04);
+            --sidebar-overlay: rgba(58, 34, 24, 0.75); 
+        }
+
+        body { background-color: var(--bg-light); font-family: 'Plus Jakarta Sans', sans-serif; overflow-x: hidden; }
+
+        /* --- SIDEBAR STYLING --- */
+        .sidebar {
+            width: 260px; height: 100vh; position: fixed;
+            background: linear-gradient(var(--sidebar-overlay), var(--sidebar-overlay)), 
+                        url('/static/img/3.png');
+            background-size: cover; background-position: center;
+            color: white; z-index: 1000; transition: 0.3s;
+        }
+
+        .sidebar-brand { padding: 25px; display: flex; align-items: center; gap: 12px; }
+        .tc-logo-small {
+            width: 38px; height: 38px; background: var(--secondary-brown);
+            transform: rotate(45deg); border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 2px 2px 0px var(--primary);
+        }
+        .tc-inner { transform: rotate(-45deg); font-weight: 800; font-size: 0.9rem; color: #ffcc00; }
+        .brand-name { line-height: 1; }
+        .brand-name span:first-child { display: block; font-weight: 800; font-size: 1.1rem; letter-spacing: 1px; }
+        .brand-name span:last-child { color: var(--primary); font-size: 0.7rem; font-weight: 700; letter-spacing: 2px; }
+
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.7); padding: 12px 25px; margin: 4px 15px;
+            border-radius: 12px; font-weight: 500; transition: 0.3s; cursor: pointer;
+        }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active { 
+            background-color: white; color: var(--primary); box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .sidebar .logout-btn { position: absolute; bottom: 30px; width: calc(100% - 30px); }
+
+        /* --- MAIN CONTENT --- */
+        .main-content { margin-left: 260px; padding: 30px; }
+        .admin-card { background: white; border-radius: 25px; padding: 25px; box-shadow: var(--card-shadow); border: none; }
+        .stat-card { background: white; border-radius: 20px; padding: 22px; border: none; box-shadow: var(--card-shadow); transition: 0.3s; }
         .stat-card:hover { transform: translateY(-5px); }
-        .icon-box { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+        .icon-box { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; margin-bottom: 12px; }
+        
+        .content-section { display: none; animation: fadeIn 0.5s ease; }
+        .content-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Chart Wrappers */
+        .chart-wrapper { position: relative; height: 220px; width: 100%; }
+        
+        /* Table & CRUD Styles */
+        .table-custom thead th { background: #f8f9fa; border: none; color: #888; font-size: 0.8rem; text-transform: uppercase; padding: 15px; }
+        .table-custom tbody td { vertical-align: middle; padding: 15px; border-bottom: 1px solid #f1f1f1; }
+        .img-table { width: 45px; height: 45px; border-radius: 10px; object-fit: cover; }
+        
+        /* Tombol CRUD Rapih */
+        .btn-crud-group { display: flex; gap: 8px; justify-content: center; }
+        .btn-action { width: 35px; height: 35px; border-radius: 10px; display: flex; align-items: center; justify-content: center; border: none; transition: 0.2s; }
+        .btn-edit { background: #e3f2fd; color: #0d6efd; }
+        .btn-edit:hover { background: #0d6efd; color: white; }
+        .btn-delete { background: #ffebee; color: #dc3545; }
+        .btn-delete:hover { background: #dc3545; color: white; }
+        .btn-view { background: #f5f5f5; color: #666; }
+        .btn-view:hover { background: #333; color: white; }
+
+        /* Settings Enhancement */
+        .settings-card { border-left: 5px solid var(--primary); }
+        .form-label-custom { font-weight: 700; color: var(--secondary-brown); font-size: 0.85rem; margin-bottom: 8px; }
+        .bg-orange-light { background: rgba(211, 84, 0, 0.1); color: var(--primary); }
     </style>
 </head>
 <body>
 
+    <!-- SIDEBAR -->
     <div class="sidebar">
-        <div class="p-4 text-center border-bottom border-secondary mb-3">
-            <h5 class="fw-bold m-0 text-white">TC ADMIN</h5>
-        </div>
-        <nav class="nav flex-column">
-            <a class="nav-link active" href="#"><i class="fa fa-home me-3"></i> Ringkasan</a>
-            <a class="nav-link" href="#"><i class="fa fa-landmark me-3"></i> Kelola Budaya</a>
-            <a class="nav-link" href="#"><i class="fa fa-calendar me-3"></i> Kelola Event</a>
-            <a class="nav-link" href="#"><i class="fa fa-shopping-bag me-3"></i> Kelola UMKM</a>
-            <div class="mt-auto p-4">
-                <a href="/logout" class="btn btn-outline-light w-100 rounded-pill"><i class="fa fa-sign-out-alt me-2"></i> Logout</a>
+        <div class="sidebar-brand">
+            <div class="tc-logo-small"><div class="tc-inner">TC</div></div>
+            <div class="brand-name">
+                <span>TEGAL</span>
+                <span>CULTURE</span>
             </div>
+        </div>
+        <small class="px-4 opacity-50 text-uppercase" style="font-size: 0.6rem; letter-spacing: 2px;">Admin Panel</small>
+        
+        <nav class="nav flex-column mt-3" id="sidebar-nav">
+            <a class="nav-link active" onclick="showSection('dashboard')"><i class="fa fa-th-large me-3"></i> Dashboard</a>
+            <a class="nav-link" onclick="showSection('budaya')"><i class="fa fa-landmark me-3"></i> Jelajah Budaya</a>
+            <a class="nav-link" onclick="showSection('event')"><i class="fa fa-calendar-alt me-3"></i> Event</a>
+            <a class="nav-link" onclick="showSection('umkm')"><i class="fa fa-store me-3"></i> UMKM</a>
+            <a class="nav-link" onclick="showSection('users')"><i class="fa fa-users me-3"></i> Users</a>
+            <a class="nav-link" onclick="showSection('settings')"><i class="fa fa-cog me-3"></i> Pengaturan</a>
         </nav>
+        <div class="logout-btn"><a href="/logout" class="nav-link"><i class="fa fa-sign-out-alt me-3"></i> Logout</a></div>
     </div>
 
+    <!-- MAIN CONTENT -->
     <div class="main-content">
-        <div class="top-bar">
-            <h3 class="fw-bold">Dashboard Overview</h3>
-            <div class="d-flex align-items-center">
-                <span class="me-3">Selamat Datang, <b>{{ session['username'] }}</b></span>
-                <img src="https://ui-avatars.com/api/?name=Admin&background=D35400&color=fff" class="rounded-circle" width="40" alt="Admin Avatar">
+        <!-- TOPBAR -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="search-container position-relative" style="width: 350px;">
+                <i class="fa fa-search position-absolute text-muted" style="left: 15px; top: 12px;"></i>
+                <input type="text" class="form-control border-0 shadow-sm rounded-pill ps-5" placeholder="Cari data...">
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <div class="text-end">
+                    <p class="m-0 fw-bold small">Admin Tegal Culture</p>
+                    <small class="text-muted" style="font-size: 0.7rem;">Super Admin</small>
+                </div>
+                <img src="https://ui-avatars.com/api/?name=Admin&background=D35400&color=fff" width="40" class="rounded-circle shadow-sm border">
             </div>
         </div>
 
-        <div class="row g-4 mb-5">
-            <div class="col-md-4">
-                <div class="stat-card d-flex align-items-center">
-                    <div class="icon-box bg-primary text-white me-3"><i class="fa fa-landmark"></i></div>
-                    <div><h6 class="text-muted m-0">Total Budaya</h6><h4 class="fw-bold m-0">24</h4></div>
+        <!-- SECTION: DASHBOARD -->
+        <div id="dashboard" class="content-section active">
+            <div class="row g-4 mb-4">
+                <div class="col-md-3">
+                    <div class="stat-card text-center">
+                        <div class="icon-box bg-danger-subtle text-danger mx-auto"><i class="fa fa-landmark"></i></div>
+                        <small class="text-muted">Total Budaya</small><h4 class="fw-bold m-0 mt-1">128</h4>
+                        <div class="small mt-2 text-success fw-bold">↑ 12%</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card text-center">
+                        <div class="icon-box bg-warning-subtle text-warning mx-auto"><i class="fa fa-calendar-check"></i></div>
+                        <small class="text-muted">Total Event</small><h4 class="fw-bold m-0 mt-1">35</h4>
+                        <div class="small mt-2 text-success fw-bold">↑ 8%</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card text-center">
+                        <div class="icon-box bg-success-subtle text-success mx-auto"><i class="fa fa-shopping-bag"></i></div>
+                        <small class="text-muted">Produk UMKM</small><h4 class="fw-bold m-0 mt-1">256</h4>
+                        <div class="small mt-2 text-success fw-bold">↑ 15%</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card text-center">
+                        <div class="icon-box bg-primary-subtle text-primary mx-auto"><i class="fa fa-users"></i></div>
+                        <small class="text-muted">User Aktif</small><h4 class="fw-bold m-0 mt-1">1.2k</h4>
+                        <div class="small mt-2 text-success fw-bold">↑ 18%</div>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="stat-card d-flex align-items-center">
-                    <div class="icon-box bg-success text-white me-3"><i class="fa fa-users"></i></div>
-                    <div><h6 class="text-muted m-0">Pengunjung</h6><h4 class="fw-bold m-0">1.2k</h4></div>
-                </div>
+
+            <div class="row g-4 mb-4">
+                <div class="col-lg-7"><div class="admin-card"><h6>Statistik Kunjungan</h6><div class="chart-wrapper"><canvas id="visitChart"></canvas></div></div></div>
+                <div class="col-lg-5"><div class="admin-card"><h6>Aktivitas Pengguna</h6><div class="chart-wrapper"><canvas id="activityChart"></canvas></div></div></div>
             </div>
-            <div class="col-md-4">
-                <div class="stat-card d-flex align-items-center">
-                    <div class="icon-box bg-warning text-white me-3"><i class="fa fa-star"></i></div>
-                    <div><h6 class="text-muted m-0">Review</h6><h4 class="fw-bold m-0">86</h4></div>
-                </div>
+
+            <div class="row g-4">
+                <div class="col-lg-4"><div class="admin-card h-100"><h6>Kategori Budaya</h6><div class="d-flex align-items-center mt-3"><div style="width:130px"><canvas id="donutChart"></canvas></div><ul class="list-unstyled ms-4 small mb-0"><li class="mb-1">Sejarah (35%)</li><li class="mb-1">Kuliner (25%)</li><li>Lainnya (40%)</li></ul></div></div></div>
+                <div class="col-lg-4"><div class="admin-card h-100"><h6>Sebaran Budaya</h6><div class="text-center my-3"><i class="fa fa-map-marked-alt fa-3x opacity-25"></i></div><div class="small"><div class="d-flex justify-content-between border-bottom pb-1"><span>Tegal Utara</span> <b>45</b></div></div></div></div>
+                <div class="col-lg-4"><div class="admin-card h-100"><h6>Aktivitas Terbaru</h6><div class="activity-item d-flex align-items-center mt-3"><div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center me-3" style="width:35px;height:35px"><i class="fa fa-plus"></i></div><div><p class="m-0 small fw-bold">Budaya baru</p><small class="text-muted">Gereja Blenduk - 10m lalu</small></div></div></div></div>
             </div>
         </div>
 
-        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-            <div class="p-4 border-bottom bg-white d-flex justify-content-between align-items-center">
-                <h5 class="fw-bold m-0">Tabel Kelola Data</h5>
-                <button class="btn btn-primary px-4 rounded-pill btn-sm">+ Tambah Data</button>
+        <!-- SECTION: JELAJAH BUDAYA -->
+        <div id="budaya" class="content-section">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="fw-800 m-0">Kelola Jelajah Budaya</h3>
+                <button class="btn btn-warning rounded-pill px-4 fw-bold text-white shadow-sm border-0" style="background: var(--primary)">+ Tambah Budaya</button>
             </div>
-            <div class="table-responsive">
-                <table class="table table-hover m-0 align-middle">
-                    <thead class="table-light">
-                        <tr>
-                            <th class="ps-4">ID</th>
-                            <th>Nama Budaya</th>
-                            <th>Kategori</th>
-                            <th class="text-end pe-4">Aksi</th>
-                        </tr>
-                    </thead>
+            <div class="admin-card p-0 overflow-hidden">
+                <table class="table table-custom mb-0">
+                    <thead><tr><th>Gambar</th><th>Nama</th><th>Kategori</th><th>Status</th><th class="text-center">Aksi</th></tr></thead>
                     <tbody>
-                        {% for b in budaya %}
                         <tr>
-                            <td class="ps-4">#{{ b.id }}</td>
-                            <td class="fw-semibold">{{ b.nama }}</td>
-                            <td><span class="badge bg-light text-dark border">{{ b.kategori }}</span></td>
-                            <td class="text-end pe-4">
-                                <button class="btn btn-sm btn-light"><i class="fa fa-edit text-primary"></i></button>
-                                <button class="btn btn-sm btn-light"><i class="fa fa-trash text-danger"></i></button>
+                            <td><img src="https://via.placeholder.com/50" class="img-table"></td>
+                            <td><b>Gereja Blenduk</b></td>
+                            <td><span class="badge bg-info-subtle text-info border">Sejarah</span></td>
+                            <td><span class="text-success small fw-bold">Aktif</span></td>
+                            <td>
+                                <div class="btn-crud-group">
+                                    <button class="btn-action btn-edit" title="Edit"><i class="fa fa-edit"></i></button>
+                                    <button class="btn-action btn-delete" title="Hapus"><i class="fa fa-trash"></i></button>
+                                </div>
                             </td>
                         </tr>
-                        {% endfor %}
                     </tbody>
                 </table>
             </div>
         </div>
+
+        <!-- SECTION: EVENT -->
+        <div id="event" class="content-section">
+            <div class="d-flex justify-content-between align-items-center mb-4"><h3 class="fw-800 m-0">Manajemen Event</h3><button class="btn btn-warning rounded-pill px-4 fw-bold text-white shadow-sm border-0" style="background: var(--primary)">+ Buat Event</button></div>
+            <div class="admin-card p-0 overflow-hidden">
+                <table class="table table-custom mb-0">
+                    <thead><tr><th>Event</th><th>Tanggal</th><th>Lokasi</th><th class="text-center">Aksi</th></tr></thead>
+                    <tbody>
+                        <tr>
+                            <td><b>Festival Bahari 2024</b></td><td>20 Mei 2024</td><td>PAI</td>
+                            <td>
+                                <div class="btn-crud-group">
+                                    <button class="btn-action btn-edit"><i class="fa fa-edit"></i></button>
+                                    <button class="btn-action btn-delete"><i class="fa fa-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- SECTION: UMKM (CRUD LENGKAP) -->
+        <div id="umkm" class="content-section">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="fw-800 m-0">Produk UMKM</h3>
+                <button class="btn btn-warning rounded-pill px-4 fw-bold text-white shadow-sm border-0" style="background: var(--primary)">+ Tambah Produk</button>
+            </div>
+            <div class="admin-card p-0 overflow-hidden">
+                <table class="table table-custom mb-0">
+                    <thead><tr><th>Produk</th><th>Pemilik</th><th>Harga</th><th>Rating</th><th class="text-center">Aksi</th></tr></thead>
+                    <tbody>
+                        <tr>
+                            <td><div class="d-flex align-items-center"><img src="https://via.placeholder.com/50" class="img-table me-3"><b>Batik Mega</b></div></td>
+                            <td>Toko Lestari</td><td>Rp 150.000</td><td class="text-warning"><i class="fa fa-star"></i> 4.8</td>
+                            <td>
+                                <div class="btn-crud-group">
+                                    <button class="btn-action btn-edit"><i class="fa fa-edit"></i></button>
+                                    <button class="btn-action btn-delete"><i class="fa fa-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- SECTION: USERS -->
+        <div id="users" class="content-section">
+            <div class="d-flex justify-content-between align-items-center mb-4"><h3 class="fw-800 m-0">Daftar Pengguna</h3><button class="btn btn-dark rounded-pill px-4 btn-sm">+ Admin Baru</button></div>
+            <div class="admin-card p-0 overflow-hidden">
+                <table class="table table-custom mb-0">
+                    <thead><tr><th>User</th><th>Email</th><th>Status</th><th class="text-center">Aksi</th></tr></thead>
+                    <tbody>
+                        <tr>
+                            <td><div class="d-flex align-items-center"><img src="https://ui-avatars.com/api/?name=User" class="img-table me-3"><b>Ahmad Fauzi</b></div></td>
+                            <td>ahmad@gmail.com</td><td><span class="text-success small fw-bold">Online</span></td>
+                            <td>
+                                <div class="btn-crud-group">
+                                    <button class="btn-action btn-view"><i class="fa fa-cog"></i></button>
+                                    <button class="btn-action btn-delete"><i class="fa fa-user-times"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- SECTION: PENGATURAN (ANTI MONOTON) -->
+        <div id="settings" class="content-section">
+            <h3 class="fw-800 mb-4">Pengaturan Sistem</h3>
+            <div class="row g-4">
+                <div class="col-lg-7">
+                    <div class="admin-card settings-card">
+                        <h6 class="fw-bold mb-4 text-orange"><i class="fa fa-globe me-2"></i> Identitas Website</h6>
+                        <form>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label-custom">Nama Website</label>
+                                    <input type="text" class="form-control rounded-3 border-0 bg-light" value="Tegal Culture">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label-custom">Email Admin Utama</label>
+                                    <input type="email" class="form-control rounded-3 border-0 bg-light" value="admin@tegalculture.id">
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label-custom">Deskripsi SEO Platform</label>
+                                <textarea class="form-control rounded-3 border-0 bg-light" rows="4">Wadah eksplorasi kekayaan budaya Kota Tegal...</textarea>
+                            </div>
+                            <button type="button" class="btn btn-warning rounded-pill px-5 text-white fw-bold shadow-sm" style="background: var(--primary); border:none">Simpan Identitas</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-lg-5">
+                    <div class="admin-card mb-4 border-start border-5 border-info">
+                        <h6 class="fw-bold mb-4 text-info"><i class="fa fa-toggle-on me-2"></i> Mode Website</h6>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div><p class="m-0 fw-bold small">Maintenance Mode</p><small class="text-muted extra-small">Tutup akses publik</small></div>
+                            <div class="form-check form-switch"><input class="form-check-input" type="checkbox"></div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div><p class="m-0 fw-bold small">Pendaftaran UMKM</p><small class="text-muted extra-small">Buka registrasi partner</small></div>
+                            <div class="form-check form-switch"><input class="form-check-input" type="checkbox" checked></div>
+                        </div>
+                    </div>
+                    <div class="admin-card" style="background: var(--secondary-brown); color: white;">
+                        <h6 class="fw-bold mb-3"><i class="fa fa-shield-alt me-2"></i> Keamanan</h6>
+                        <button class="btn btn-sm btn-outline-light rounded-pill w-100 mb-2">Ubah Password Admin</button>
+                        <button class="btn btn-sm btn-outline-danger border-0 rounded-pill w-100">Bersihkan Sesi Aktif</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <!-- Scripts: Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        function showSection(id) {
+            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.sidebar .nav-link').forEach(l => l.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            const activeLink = Array.from(document.querySelectorAll('.sidebar .nav-link')).find(link => link.getAttribute('onclick').includes(id));
+            if(activeLink) activeLink.classList.add('active');
+        }
+
+        // PENTING: Inisialisasi Chart dipastikan ID elemen sesuai
+        window.onload = function() {
+            // 1. Visit Chart
+            const ctxVisit = document.getElementById('visitChart');
+            if(ctxVisit) {
+                const grad = ctxVisit.getContext('2d').createLinearGradient(0,0,0,300);
+                grad.addColorStop(0, 'rgba(211, 84, 0, 0.3)');
+                grad.addColorStop(1, 'rgba(211, 84, 0, 0)');
+                new Chart(ctxVisit, {
+                    type: 'line',
+                    data: {
+                        labels: ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'],
+                        datasets: [{ label: 'Visitors', data: [1200, 1600, 1400, 1800, 2200, 1750, 1600], borderColor: '#D35400', backgroundColor: grad, fill: true, tension: 0.4, pointRadius: 4 }]
+                    },
+                    options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } } }
+                });
+            }
+
+            // 2. Activity Chart
+            const ctxActivity = document.getElementById('activityChart');
+            if(ctxActivity) {
+                new Chart(ctxActivity, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'],
+                        datasets: [{ data: [60, 80, 55, 75, 95, 85, 70], backgroundColor: '#D35400', borderRadius: 8 }]
+                    },
+                    options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { grid: { display: false } } } }
+                });
+            }
+
+            // 3. Donut Chart
+            const ctxDonut = document.getElementById('donutChart');
+            if(ctxDonut) {
+                new Chart(ctxDonut, {
+                    type: 'doughnut',
+                    data: { datasets: [{ data: [35, 25, 40], backgroundColor: ['#D35400', '#3a2218', '#bdc3c7'], borderWidth: 0 }] },
+                    options: { cutout: '75%', plugins: { legend: { display: false } } }
+                });
+            }
+        };
+    </script>
 </body>
 </html>

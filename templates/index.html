@@ -46,8 +46,12 @@
             {% set categories = [('Sejarah', 'fas fa-landmark'), ('Kuliner', 'fas fa-utensils'), ('Event', 'fas fa-calendar'), ('Wisata', 'fas fa-map')] %}
             {% for name, icon in categories %}
             <div class="col-md-3" data-aos="fade-up" data-aos-delay="{{ loop.index * 100 }}">
+                <!-- Tambahkan text-center di card -->
                 <div class="card card-hover h-100 p-4 text-center border-0 shadow-sm">
-                    <div class="icon-circle"><i class="{{ icon }} fa-2x text-warning"></i></div>
+                    <!-- Tambahkan mx-auto untuk menengahkan lingkaran ikon -->
+                    <div class="icon-circle mx-auto mb-3">
+                        <i class="{{ icon }} fa-2x text-warning"></i>
+                    </div>
                     <h5 class="fw-bold">{{ name }}</h5>
                     <p class="small text-muted mb-0">Keunikan {{ name }} Tegal.</p>
                 </div>
