@@ -7,17 +7,21 @@
 
 :root {
     /* Color Palette */
+    --primary: #D35400;
+    --secondary-brown: #3a2218;
     --primary-brown: #5d2e0d;
-    --accent-orange: #D35400;
     --accent-yellow: #ffcc00;
-    --bg-cream: #fdf8f2;
+    --bg-light: #f9f6f2;
     --cream-tua: #f2e8da;
     --pure-white: #ffffff;
     
-    /* Animation & Shadows */
+    /* Overlay & Shadow */
+    --sidebar-overlay: rgba(58, 34, 24, 0.75); 
+    --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+    --shadow-heavy: 0 20px 40px rgba(0, 0, 0, 0.1);
+    
+    /* Animation Beziers */
     --transition-smooth: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
-    --shadow-soft: 0 10px 30px rgba(0,0,0,0.05);
-    --shadow-heavy: 0 20px 40px rgba(0,0,0,0.1);
 }
 
 * {
@@ -28,7 +32,7 @@
 
 body {
     font-family: 'Plus Jakarta Sans', sans-serif;
-    background-color: var(--bg-cream);
+    background-color: var(--bg-light);
     color: #333;
     overflow-x: hidden;
     line-height: 1.6;
@@ -37,183 +41,145 @@ body {
 
 /* 
 ================================================================
-2. REUSABLE COMPONENTS
+2. ADMIN LAYOUT & SIDEBAR
 ================================================================
 */
-.section-padding {
-    padding: 100px 0;
+.sidebar {
+    width: 260px;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: linear-gradient(var(--sidebar-overlay), var(--sidebar-overlay)), 
+                url('/static/img/3.png');
+    background-size: cover;
+    background-position: center;
+    color: white;
+    z-index: 1050;
+    transition: var(--transition-smooth);
 }
 
-.bg-pure-white {
-    background-color: var(--pure-white) !important;
+.main-content {
+    margin-left: 260px; /* Jarak aman agar tidak ketutup sidebar */
+    padding: 30px;
+    min-height: 100vh;
+    transition: var(--transition-smooth);
 }
 
-/* Custom Buttons */
-.btn-custom {
+/* Branding in Sidebar */
+.sidebar-brand { padding: 25px; display: flex; align-items: center; gap: 12px; }
+.tc-logo-small {
+    width: 38px; height: 38px; background: var(--secondary-brown);
+    transform: rotate(45deg); border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 2px 2px 0px var(--primary);
+}
+.tc-inner { transform: rotate(-45deg); font-weight: 800; font-size: 0.9rem; color: var(--accent-yellow); }
+
+/* Navigation Links */
+.sidebar .nav-link {
+    color: rgba(255, 255, 255, 0.7);
+    padding: 12px 25px;
+    margin: 4px 15px;
+    border-radius: 12px;
+    font-weight: 500;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.sidebar .nav-link:hover, 
+.sidebar .nav-link.active { 
+    background-color: var(--pure-white); 
+    color: var(--primary); 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+/* 
+================================================================
+3. REUSABLE UI COMPONENTS (CARDS, BUTTONS, TABLES)
+================================================================
+*/
+.admin-card {
+    background: var(--pure-white);
+    border-radius: 25px;
+    padding: 25px;
+    box-shadow: var(--card-shadow);
+    border: none;
+    margin-bottom: 25px;
+}
+
+.stat-card {
+    background: var(--pure-white);
+    border-radius: 20px;
+    padding: 22px;
+    box-shadow: var(--card-shadow);
+    transition: var(--transition-smooth);
+    border: none;
+}
+.stat-card:hover { transform: translateY(-8px); }
+
+/* Buttons */
+.btn-custom, .btn-login {
     transition: var(--transition-smooth);
     border-radius: 50px;
-    padding: 12px 32px;
+    padding: 10px 28px;
     font-weight: 700;
     border: none;
     display: inline-flex;
     align-items: center;
     gap: 8px;
-}
-
-.btn-custom:hover {
-    transform: translateY(-4px) scale(1.02);
-    box-shadow: 0 12px 24px rgba(211, 84, 0, 0.2);
-}
-
-/* Card Lift Animation */
-.card-hover {
-    transition: var(--transition-smooth);
-    border: none;
-    border-radius: 24px;
-    background: var(--pure-white);
-}
-
-.card-hover:hover {
-    transform: translateY(-12px);
-    box-shadow: var(--shadow-heavy);
-}
-
-/* Standard Circle Icon */
-.icon-circle {
-    width: 65px;
-    height: 65px;
-    background: var(--bg-cream);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: var(--transition-smooth);
-}
-
-.card-hover:hover .icon-circle {
-    background-color: var(--accent-orange);
+    text-decoration: none;
+    background-color: var(--primary);
     color: white !important;
 }
 
-/* 
-================================================================
-3. HEADER & LOGO TYPOGRAPHY
-================================================================
-*/
-.navbar {
-    background-color: rgba(255, 255, 255, 0.95) !important;
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
+.btn-custom:hover, .btn-login:hover {
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 10px 20px rgba(211, 84, 0, 0.3);
 }
 
-.tc-cultural-logo {
-    position: relative;
-    width: 42px;
-    height: 42px;
-    background-color: var(--primary-brown);
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transform: rotate(45deg);
-    box-shadow: 3px 3px 0px var(--accent-orange);
-    transition: var(--transition-smooth);
+/* CRUD Icons */
+.btn-crud-group { display: flex; gap: 8px; justify-content: center; }
+.btn-action { 
+    width: 36px; height: 36px; border-radius: 10px; 
+    display: flex; align-items: center; justify-content: center; 
+    border: none; transition: 0.2s; 
 }
+.btn-edit { background: #e3f2fd; color: #0d6efd; }
+.btn-edit:hover { background: #0d6efd; color: white; }
+.btn-delete { background: #ffebee; color: #dc3545; }
+.btn-delete:hover { background: #dc3545; color: white; }
 
-.logo-frame {
-    transform: rotate(-45deg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+/* Tables */
+.table-custom thead th {
+    background: #f8f9fa;
+    border: none;
+    color: #888;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 15px;
 }
-
-.char-t {
-    position: absolute;
-    width: 4px;
-    height: 20px;
-    background-color: var(--accent-yellow);
-    border-radius: 2px;
-}
-
-.char-t::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: -8px;
-    width: 20px;
-    height: 4px;
-    background-color: var(--accent-yellow);
-}
-
-.char-c {
-    position: absolute;
-    width: 26px;
-    height: 26px;
-    border: 3.5px solid var(--pure-white);
-    border-left-color: transparent;
-    border-radius: 50%;
-    transform: rotate(45deg);
-}
-
-.dots {
-    position: absolute;
-    width: 4px;
-    height: 4px;
-    background-color: var(--accent-yellow);
-    border-radius: 50%;
-}
-.top-left { top: 4px; left: 4px; }
-.bottom-right { bottom: 4px; right: 4px; }
-
-.navbar-brand:hover .tc-cultural-logo {
-    transform: rotate(45deg) scale(1.1);
-}
+.table-custom tbody td { vertical-align: middle; padding: 15px; border-bottom: 1px solid #f1f1f1; }
+.img-table { width: 50px; height: 50px; border-radius: 12px; object-fit: cover; }
 
 /* 
 ================================================================
-4. HERO SECTION
+4. PUBLIC PAGE STYLES (HERO & TENTANG)
 ================================================================
 */
 .hero-container {
     width: 100%;
     height: 85vh;
-    /* Gradasi: bawah gelap untuk teks, atas transparan untuk melihat tulisan di gambar */
-    background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.1) 60%, rgba(0,0,0,0) 100%), 
+    background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.1) 60%, rgba(0,0,0,0) 100%), 
                 url('/static/img/1.png');
     background-size: cover;
-    background-position: center top; /* Fokus ke area tulisan 'Budaya Tegal' di gambar */
-    background-repeat: no-repeat;
+    background-position: center top;
     display: flex;
     align-items: flex-end; 
     padding-bottom: 80px;
-    position: relative;
-    z-index: 1;
 }
 
-.hero-text-box {
-    max-width: 800px;
-    color: white;
-    /* Animasi masuk manual agar tidak bergantung hanya pada AOS */
-    animation: slideUpFade 1s ease-out forwards;
-}
-
-@keyframes slideUpFade {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.hero-title {
-    font-size: 3.8rem;
-    font-weight: 800;
-    line-height: 1.1;
-    text-shadow: 0 4px 10px rgba(0,0,0,0.3);
-}
-
-/* 
-================================================================
-5. TENTANG SECTION & IMAGES
-================================================================
-*/
 .img-small-tentang {
     max-width: 75%;
     height: auto;
@@ -223,127 +189,47 @@ body {
     animation: floatAnim 5s ease-in-out infinite;
 }
 
+/* 
+================================================================
+5. FORMS & SETTINGS
+================================================================
+*/
+.form-label-custom { font-weight: 700; color: var(--secondary-brown); font-size: 0.85rem; margin-bottom: 8px; }
+.form-control-custom {
+    border: 2px solid #eee !important;
+    transition: all 0.3s ease;
+}
+.form-control-custom:focus {
+    border-color: var(--primary) !important;
+    background: #fff !important;
+    box-shadow: 0 5px 15px rgba(211, 84, 0, 0.1);
+}
+
+/* 
+================================================================
+6. ANIMATIONS & FIXES
+================================================================
+*/
 @keyframes floatAnim {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-20px); }
 }
 
-/* 
-================================================================
-6. JELAJAH PAGE ELEMENTS (SEARCH, MAP, PAGINATION)
-================================================================
-*/
-.search-box .form-control {
-    border: 1px solid #eee;
-    padding: 12px 20px;
-    transition: var(--transition-smooth);
+@keyframes slideUpFade {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-.search-box .form-control:focus {
-    box-shadow: 0 5px 15px rgba(211, 84, 0, 0.1);
-    border-color: var(--accent-orange);
-}
+/* AOS Blank Fix */
+[data-aos] { transition-duration: 800ms !important; }
 
-/* Pagination Modern */
-.pagination-orange .page-link {
-    color: var(--primary-brown);
-    border: none;
-    margin: 0 4px;
-    padding: 12px 18px;
-    border-radius: 12px !important;
-    background: #fff;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.03);
-    font-weight: 600;
-}
+/* Utilities */
+.text-orange { color: var(--primary) !important; }
+.bg-orange-light { background: rgba(211, 84, 0, 0.1); color: var(--primary); }
+.badge { padding: 8px 14px; border-radius: 8px; font-weight: 600; }
 
-.pagination-orange .page-item.active .page-link {
-    background-color: var(--accent-orange);
-    color: white;
-    box-shadow: 0 8px 16px rgba(211, 84, 0, 0.2);
-}
-
-/* Google Map Frame */
-.map-container {
-    border: 10px solid var(--pure-white);
-    border-radius: 40px;
-    overflow: hidden;
-    box-shadow: var(--shadow-heavy);
-}
-
-/* 
-================================================================
-7. FOOTER & UTILITIES
-================================================================
-*/
-.footer-custom {
-    background-color: var(--cream-tua) !important;
-    color: var(--primary-brown);
-    padding: 80px 0 30px;
-}
-
-.footer-link {
-    color: var(--primary-brown);
-    text-decoration: none;
-    opacity: 0.8;
-    transition: var(--transition-smooth);
-    display: inline-block;
-    margin-bottom: 10px;
-}
-
-.footer-link:hover {
-    opacity: 1;
-    color: var(--accent-orange);
-    transform: translateX(6px);
-}
-
-/* Badge Categories */
-.badge {
-    padding: 8px 16px;
-    border-radius: 10px;
-    font-weight: 600;
-}
-
-.badge.bg-warning { background-color: #fff3e0 !important; color: #e67e22 !important; }
-.badge.bg-success { background-color: #e8f5e9 !important; color: #2ecc71 !important; }
-.badge.bg-info { background-color: #e3f2fd !important; color: #3498db !important; }
-.badge.bg-danger { background-color: #ffebee !important; color: #e74c3c !important; }
-
-/* 
-================================================================
-8. AOS BLANK SCREEN FIX
-================================================================
-*/
-/* Mencegah elemen tetap tersembunyi jika JavaScript/AOS gagal atau sebelum scroll */
-[data-aos] {
-    transition-duration: 800ms !important;
-}
-
-@media (max-width: 768px) {
-    .hero-title { font-size: 2.5rem; }
-    .hero-container { height: 70vh; }
-    .img-small-tentang { max-width: 90%; }
-}
-
-/* Warna Teks Utilitas */
-.text-orange { color: var(--accent-orange) !important; }
-.text-yellow { color: var(--accent-yellow) !important; }
-.fw-800 { font-weight: 800; }
-
-.btn-login {
-    background-color: var(--accent-orange) !important;
-    color: white !important;
-    border-radius: 50px;
-    padding: 10px 25px;
-    font-weight: 700;
-    border: none;
-    transition: all 0.4s ease;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-}
-
-.btn-login:hover {
-    transform: scale(1.05);
-    box-shadow: 0 8px 15px rgba(211, 84, 0, 0.3);
-    color: white !important;
+/* Responsive */
+@media (max-width: 992px) {
+    .sidebar { transform: translateX(-100%); }
+    .main-content { margin-left: 0; }
 }
