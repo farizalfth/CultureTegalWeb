@@ -325,7 +325,43 @@
         </div>
     </div>
 
-    <!-- MAIN CONTENT -->
+    <style>
+        .main-content {
+            padding: 25px;
+            min-height: 100vh;
+            background-color: #f8f9fa;
+            overflow-x: hidden;
+        }
+
+        .admin-card {
+            background: #fff;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            margin-bottom: 20px;
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .form-label-custom {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 5px;
+        }
+
+        .img-table {
+            object-fit: cover;
+            border-radius: 10px;
+        }
+    </style>
+
     <div class="main-content">
         <!-- TOPBAR -->
         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -483,535 +519,504 @@
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h3 class="fw-800 m-0">Kelola Jelajah Budaya</h3>
                 <button class="btn btn-warning rounded-pill px-4 fw-bold text-white shadow-sm border-0"
-                    style="background: var(--primary)" data-bs-toggle="modal" data-bs-target="#modalAddBudaya">
+                    data-bs-toggle="modal" data-bs-target="#modalAddBudaya">
                     <i class="fa fa-plus me-2"></i> Tambah Budaya
                 </button>
             </div>
             <div class="admin-card p-0 overflow-hidden">
-                <table class="table table-custom mb-0">
-                    <thead>
-                        <tr>
-                            <th class="ps-4">Gambar</th>
-                            <th>Nama</th>
-                            <th>Kategori</th>
-                            <th>Wilayah</th>
-                            <th class="text-center">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for b in budaya %}
-                        <tr>
-                            <td class="ps-4">
-                                <img src="{{ url_for('static', filename='uploads/' + b.gambar) }}" class="img-table"
-                                    style="width: 50px; height: 50px; object-fit: cover; border-radius: 10px;"
-                                    onerror="this.src='https://via.placeholder.com/50'">
-                            </td>
-                            <td><b>{{ b.nama }}</b></td>
-                            <td><span class="badge bg-info-subtle text-info border">{{ b.kategori }}</span></td>
-                            <td>{{ b.wilayah }}</td>
-                            <td class="text-center">
-                                <div class="btn-crud-group">
-                                    <button class="btn-action btn-edit" data-bs-toggle="modal"
+                <div class="table-responsive">
+                    <table class="table table-custom mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-4">Gambar</th>
+                                <th>Nama</th>
+                                <th>Kategori</th>
+                                <th>Wilayah</th>
+                                <th class="text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for b in budaya %}
+                            <tr>
+                                <td class="ps-4"><img src="{{ url_for('static', filename='uploads/' + b.gambar) }}"
+                                        width="50" height="50" class="img-table"
+                                        onerror="this.src='https://via.placeholder.com/50'"></td>
+                                <td><b>{{ b.nama }}</b></td>
+                                <td><span class="badge bg-info-subtle text-info border">{{ b.kategori }}</span></td>
+                                <td>{{ b.wilayah }}</td>
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-light border" data-bs-toggle="modal"
                                         data-bs-target="#modalEditBudaya{{ b.id }}"><i class="fa fa-edit"></i></button>
-                                    <button class="btn-action btn-delete" data-bs-toggle="modal"
+                                    <button class="btn btn-sm btn-danger-subtle text-danger" data-bs-toggle="modal"
                                         data-bs-target="#modalDelBudaya{{ b.id }}"><i class="fa fa-trash"></i></button>
-                                </div>
-                            </td>
-                        </tr>
+                                </td>
+                            </tr>
 
-                        <!-- MODAL EDIT BUDAYA -->
-                        <div class="modal fade" id="modalEditBudaya{{ b.id }}" tabindex="-1" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content rounded-5 border-0 shadow">
-                                    <div class="modal-header border-0 pb-0 px-4 pt-4">
-                                        <h5 class="fw-bold"><i class="fa fa-edit text-primary me-2"></i>Edit Budaya</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                    </div>
-                                    <form action="/admin/update_budaya/{{ b.id }}" method="POST"
-                                        enctype="multipart/form-data">
-                                        <div class="modal-body p-4">
-                                            <div class="mb-3">
-                                                <label class="form-label-custom">Nama Tempat</label>
-                                                <input type="text" name="nama"
-                                                    class="form-control rounded-3 border-0 bg-light py-2"
-                                                    value="{{ b.nama }}" required>
+                            <!-- MODAL EDIT BUDAYA -->
+                            <div class="modal fade" id="modalEditBudaya{{ b.id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content rounded-5 border-0 shadow">
+                                        <div class="modal-header border-0 pb-0 px-4 pt-4">
+                                            <h5 class="fw-bold">Edit Budaya</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <form action="/admin/update_budaya/{{ b.id }}" method="POST"
+                                            enctype="multipart/form-data">
+                                            <div class="modal-body p-4">
+                                                <div class="mb-3">
+                                                    <label class="form-label-custom">Nama Tempat</label>
+                                                    <input type="text" name="nama"
+                                                        class="form-control rounded-3 border-0 bg-light"
+                                                        value="{{ b.nama }}" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label-custom">Kategori</label>
+                                                    <select name="kategori"
+                                                        class="form-select rounded-3 border-0 bg-light">
+                                                        <option value="Sejarah" {{ 'selected' if b.kategori=='Sejarah'
+                                                            }}>Sejarah</option>
+                                                        <option value="Budaya" {{ 'selected' if b.kategori=='Budaya' }}>
+                                                            Budaya</option>
+                                                        <option value="Kuliner" {{ 'selected' if b.kategori=='Kuliner'
+                                                            }}>Kuliner</option>
+                                                        <option value="Alam" {{ 'selected' if b.kategori=='Alam' }}>Alam
+                                                        </option>
+                                                    </select>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label-custom">Wilayah</label>
+                                                    <input type="text" name="wilayah"
+                                                        class="form-control rounded-3 border-0 bg-light"
+                                                        value="{{ b.wilayah }}" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label-custom">Ganti Foto (Opsional)</label>
+                                                    <input type="file" name="gambar"
+                                                        class="form-control bg-light border-0" accept="image/*">
+                                                </div>
                                             </div>
-                                            <div class="mb-3">
-                                                <label class="form-label-custom">Kategori</label>
-                                                <select name="kategori"
-                                                    class="form-select rounded-3 border-0 bg-light py-2">
-                                                    <option value="Sejarah" {{ 'selected' if b.kategori=='Sejarah' }}>
-                                                        Sejarah</option>
-                                                    <option value="Budaya" {{ 'selected' if b.kategori=='Budaya' }}>
-                                                        Budaya</option>
-                                                    <option value="Kuliner" {{ 'selected' if b.kategori=='Kuliner' }}>
-                                                        Kuliner</option>
-                                                    <option value="Alam" {{ 'selected' if b.kategori=='Alam' }}>Alam
-                                                    </option>
-                                                </select>
+                                            <div class="modal-footer border-0 px-4 pb-4">
+                                                <button type="submit"
+                                                    class="btn btn-primary w-100 rounded-pill fw-bold">Update
+                                                    Budaya</button>
                                             </div>
-                                            <div class="mb-3">
-                                                <label class="form-label-custom">Wilayah (Kecamatan)</label>
-                                                <input type="text" name="wilayah"
-                                                    class="form-control rounded-3 border-0 bg-light py-2"
-                                                    value="{{ b.wilayah }}" required>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label-custom">Ganti Foto (Opsional)</label>
-                                                <input type="file" name="gambar" class="form-control bg-light border-0"
-                                                    accept="image/*">
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer border-0 px-4 pb-4">
-                                            <button type="submit"
-                                                class="btn btn-primary w-100 rounded-pill fw-bold">Update
-                                                Budaya</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- MODAL HAPUS BUDAYA -->
-                        <div class="modal fade" id="modalDelBudaya{{ b.id }}" tabindex="-1" aria-hidden="true">
-                            <div class="modal-dialog modal-sm modal-dialog-centered">
-                                <div class="modal-content rounded-5 border-0 shadow text-center p-4">
-                                    <div class="text-danger mb-3" style="font-size: 3rem;"><i
-                                            class="fa fa-exclamation-circle"></i></div>
-                                    <h5 class="fw-bold">Hapus Data?</h5>
-                                    <p class="text-muted small">Anda akan menghapus <b>{{ b.nama }}</b></p>
-                                    <div class="d-flex gap-2 mt-3">
-                                        <button class="btn btn-light w-100 rounded-pill fw-bold"
-                                            data-bs-dismiss="modal">Batal</button>
-                                        <a href="/admin/delete_budaya/{{ b.id }}"
-                                            class="btn btn-danger w-100 rounded-pill fw-bold">Hapus</a>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        {% else %}
-                        <tr>
-                            <td colspan="5" class="text-center py-5">
-                                <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="80"
-                                    class="opacity-25 mb-3"><br>
-                                <p class="text-muted">Belum ada data budaya. Silakan tambah data baru.</p>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
 
-    <!-- SECTION: EVENT -->
-    <!-- SECTION: EVENT -->
-    <div id="event" class="content-section">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3 class="fw-800 m-0">Manajemen Event</h3>
-            <button class="btn btn-warning rounded-pill px-4 fw-bold text-white shadow-sm border-0"
-                style="background: var(--primary)" data-bs-toggle="modal" data-bs-target="#modalAddEvent">
-                <i class="fa fa-plus me-2"></i> Buat Event
-            </button>
-        </div>
-        <div class="admin-card p-0 overflow-hidden">
-            <table class="table table-custom mb-0">
-                <thead>
-                    <tr>
-                        <th class="ps-4">Poster</th>
-                        <th>Nama Event</th>
-                        <th>Tanggal</th>
-                        <th>Status</th>
-                        <th class="text-center">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for e in events %}
-                    <tr>
-                        <td class="ps-4">
-                            <img src="{{ url_for('static', filename='uploads/' + e.gambar) }}" class="img-table"
-                                style="width: 50px; height: 50px; object-fit: cover; border-radius: 10px;"
-                                onerror="this.src='https://via.placeholder.com/50'">
-                        </td>
-                        <td><b>{{ e.nama_event }}</b></td>
-                        <td>{{ e.tanggal }}</td>
-                        <td><span class="badge bg-success-subtle text-success border">{{ e.status }}</span></td>
-                        <td class="text-center">
-                            <div class="btn-crud-group">
-                                <button class="btn-action btn-edit" data-bs-toggle="modal"
-                                    data-bs-target="#modalEditEvent{{ e.id }}"><i class="fa fa-edit"></i></button>
-                                <button class="btn-action btn-delete" data-bs-toggle="modal"
-                                    data-bs-target="#modalDelEvent{{ e.id }}"><i class="fa fa-trash"></i></button>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <!-- MODAL EDIT EVENT -->
-                    <div class="modal fade" id="modalEditEvent{{ e.id }}" tabindex="-1" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content rounded-5 border-0 shadow">
-                                <div class="modal-header border-0 pb-0 px-4 pt-4">
-                                    <h5 class="fw-bold"><i class="fa fa-edit text-primary me-2"></i>Edit Event</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                </div>
-                                <form action="/admin/update_event/{{ e.id }}" method="POST"
-                                    enctype="multipart/form-data">
-                                    <div class="modal-body p-4">
-                                        <div class="mb-3">
-                                            <label class="form-label-custom">Nama Event</label>
-                                            <input type="text" name="nama_event"
-                                                class="form-control rounded-3 border-0 bg-light py-2"
-                                                value="{{ e.nama_event }}" required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label-custom">Tanggal</label>
-                                            <input type="text" name="tanggal"
-                                                class="form-control rounded-3 border-0 bg-light py-2"
-                                                value="{{ e.tanggal }}" required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label-custom">Lokasi</label>
-                                            <input type="text" name="lokasi"
-                                                class="form-control rounded-3 border-0 bg-light py-2"
-                                                value="{{ e.lokasi }}" required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label-custom">Status</label>
-                                            <select name="status" class="form-select rounded-3 border-0 bg-light py-2">
-                                                <option value="Akan Datang" {{ 'selected' if e.status=='Akan Datang' }}>
-                                                    Akan Datang</option>
-                                                <option value="Berlangsung" {{ 'selected' if e.status=='Berlangsung' }}>
-                                                    Berlangsung</option>
-                                                <option value="Selesai" {{ 'selected' if e.status=='Selesai' }}>Selesai
-                                                </option>
-                                            </select>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label-custom">Ganti Poster (Opsional)</label>
-                                            <input type="file" name="gambar" class="form-control bg-light border-0"
-                                                accept="image/*">
+                            <!-- MODAL HAPUS BUDAYA -->
+                            <div class="modal fade" id="modalDelBudaya{{ b.id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog modal-sm modal-dialog-centered">
+                                    <div class="modal-content rounded-5 border-0 shadow text-center p-4">
+                                        <div class="text-danger mb-3" style="font-size: 3rem;"><i
+                                                class="fa fa-exclamation-circle"></i></div>
+                                        <h5 class="fw-bold">Hapus Data?</h5>
+                                        <p class="text-muted small">Anda akan menghapus <b>{{ b.nama }}</b></p>
+                                        <div class="d-flex gap-2 mt-3">
+                                            <button class="btn btn-light w-100 rounded-pill fw-bold"
+                                                data-bs-dismiss="modal">Batal</button>
+                                            <a href="/admin/delete_budaya/{{ b.id }}"
+                                                class="btn btn-danger w-100 rounded-pill fw-bold">Hapus</a>
                                         </div>
                                     </div>
-                                    <div class="modal-footer border-0 px-4 pb-4">
-                                        <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold">Update
-                                            Event</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- MODAL HAPUS EVENT -->
-                    <div class="modal fade" id="modalDelEvent{{ e.id }}" tabindex="-1" aria-hidden="true">
-                        <div class="modal-dialog modal-sm modal-dialog-centered">
-                            <div class="modal-content rounded-5 border-0 shadow text-center p-4">
-                                <div class="text-danger mb-3" style="font-size: 3rem;"><i
-                                        class="fa fa-exclamation-circle"></i></div>
-                                <h5 class="fw-bold">Hapus Event?</h5>
-                                <p class="text-muted small">Hapus <b>{{ e.nama_event }}</b>?</p>
-                                <div class="d-flex gap-2 mt-3">
-                                    <button class="btn btn-light w-100 rounded-pill fw-bold"
-                                        data-bs-dismiss="modal">Batal</button>
-                                    <a href="/admin/delete_event/{{ e.id }}"
-                                        class="btn btn-danger w-100 rounded-pill fw-bold">Hapus</a>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                    {% else %}
-                    <tr>
-                        <td colspan="5" class="text-center py-5 text-muted">Belum ada event terjadwal.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-    </div>
-
-    <!-- SECTION: UMKM -->
-    <div id="umkm" class="content-section">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3 class="fw-800 m-0">Produk UMKM</h3>
-            <button class="btn btn-warning rounded-pill px-4 fw-bold text-white shadow-sm border-0"
-                style="background: var(--primary)" data-bs-toggle="modal" data-bs-target="#modalAddUMKM">
-                <i class="fa fa-plus me-2"></i> Tambah Produk
-            </button>
-        </div>
-        <div class="admin-card p-0 overflow-hidden">
-            <table class="table table-custom mb-0">
-                <thead>
-                    <tr>
-                        <th class="ps-4">Gambar</th>
-                        <th>Produk</th>
-                        <th>Pemilik</th>
-                        <th>Harga</th>
-                        <th class="text-center">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for u in umkm %}
-                    <tr>
-                        <td class="ps-4">
-                            <img src="{{ url_for('static', filename='uploads/' + u.gambar) }}" class="img-table"
-                                style="width: 50px; height: 50px; object-fit: cover; border-radius: 10px;"
-                                onerror="this.src='https://via.placeholder.com/50'">
-                        </td>
-                        <td><b>{{ u.produk }}</b></td>
-                        <td>{{ u.pemilik }}</td>
-                        <td>{{ u.harga }}</td>
-                        <td class="text-center">
-                            <div class="btn-crud-group">
-                                <button class="btn-action btn-edit" data-bs-toggle="modal"
-                                    data-bs-target="#modalEditUMKM{{ u.id }}"><i class="fa fa-edit"></i></button>
-                                <button class="btn-action btn-delete" data-bs-toggle="modal"
-                                    data-bs-target="#modalDelUMKM{{ u.id }}"><i class="fa fa-trash"></i></button>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <!-- MODAL EDIT UMKM -->
-                    <div class="modal fade" id="modalEditUMKM{{ u.id }}" tabindex="-1" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content rounded-5 border-0 shadow">
-                                <div class="modal-header border-0 pb-0 px-4 pt-4">
-                                    <h5 class="fw-bold"><i class="fa fa-shopping-bag text-primary me-2"></i>Edit Produk
-                                    </h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                </div>
-                                <form action="/admin/update_umkm/{{ u.id }}" method="POST"
-                                    enctype="multipart/form-data">
-                                    <div class="modal-body p-4">
-                                        <div class="mb-3">
-                                            <label class="form-label-custom">Nama Produk</label>
-                                            <input type="text" name="produk"
-                                                class="form-control rounded-3 border-0 bg-light" value="{{ u.produk }}"
-                                                required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label-custom">Pemilik</label>
-                                            <input type="text" name="pemilik"
-                                                class="form-control rounded-3 border-0 bg-light" value="{{ u.pemilik }}"
-                                                required>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-6 mb-3"><label class="form-label-custom">Harga</label><input
-                                                    type="text" name="harga"
-                                                    class="form-control rounded-3 border-0 bg-light"
-                                                    value="{{ u.harga }}" required></div>
-                                            <div class="col-6 mb-3"><label
-                                                    class="form-label-custom">Rating</label><input type="number"
-                                                    step="0.1" name="rating"
-                                                    class="form-control rounded-3 border-0 bg-light"
-                                                    value="{{ u.rating }}" required></div>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label-custom">Foto Produk</label>
-                                            <input type="file" name="gambar" class="form-control bg-light border-0"
-                                                accept="image/*">
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer border-0 px-4 pb-4">
-                                        <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold">Update
-                                            Produk</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- MODAL HAPUS UMKM -->
-                    <div class="modal fade" id="modalDelUMKM{{ u.id }}" tabindex="-1" aria-hidden="true">
-                        <div class="modal-dialog modal-sm modal-dialog-centered">
-                            <div class="modal-content rounded-5 border-0 shadow text-center p-4">
-                                <div class="text-danger mb-3" style="font-size: 3rem;"><i class="fa fa-trash-alt"></i>
-                                </div>
-                                <h5 class="fw-bold">Hapus Produk?</h5>
-                                <div class="d-flex gap-2 mt-3">
-                                    <button class="btn btn-light w-100 rounded-pill fw-bold"
-                                        data-bs-dismiss="modal">Batal</button>
-                                    <a href="/admin/delete_umkm/{{ u.id }}"
-                                        class="btn btn-danger w-100 rounded-pill fw-bold">Hapus</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% else %}
-                    <tr>
-                        <td colspan="5" class="text-center py-5 text-muted">Belum ada produk UMKM.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-    </div>
-
-    <!-- SECTION: USERS -->
-    <div id="users" class="content-section">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3 class="fw-800 m-0">Daftar Pengguna</h3>
-            <button class="btn btn-dark rounded-pill px-4 btn-sm" data-bs-toggle="modal" data-bs-target="#modalAddUser">
-                <i class="fa fa-plus me-2"></i> Admin Baru
-            </button>
-        </div>
-        <div class="admin-card p-0 overflow-hidden">
-            <table class="table table-custom mb-0">
-                <thead>
-                    <tr>
-                        <th class="ps-4">Profil</th>
-                        <th>Username</th>
-                        <th>Email</th>
-                        <th class="text-center">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for user in users %}
-                    <tr>
-                        <td class="ps-4">
-                            <img src="{{ url_for('static', filename='uploads/' + user.gambar) }}"
-                                class="img-table rounded-circle" style="width: 45px; height: 45px; object-fit: cover;"
-                                onerror="this.src='https://ui-avatars.com/api/?name={{ user.username }}'">
-                        </td>
-                        <td><b>{{ user.username }}</b></td>
-                        <td>{{ user.email }}</td>
-                        <td class="text-center">
-                            <div class="btn-crud-group">
-                                <button class="btn-action btn-edit" data-bs-toggle="modal"
-                                    data-bs-target="#modalEditUser{{ user.id }}"><i class="fa fa-cog"></i></button>
-                                <button class="btn-action btn-delete" data-bs-toggle="modal"
-                                    data-bs-target="#modalDelUser{{ user.id }}"><i
-                                        class="fa fa-user-times"></i></button>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <!-- MODAL EDIT USER -->
-                    <div class="modal fade" id="modalEditUser{{ user.id }}" tabindex="-1" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content rounded-5 border-0 shadow">
-                                <div class="modal-header border-0 pb-0 px-4 pt-4">
-                                    <h5 class="fw-bold"><i class="fa fa-user-shield text-primary me-2"></i>Edit Admin
-                                    </h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                </div>
-                                <form action="/admin/update_user/{{ user.id }}" method="POST"
-                                    enctype="multipart/form-data">
-                                    <div class="modal-body p-4">
-                                        <div class="mb-3">
-                                            <label class="form-label-custom">Username</label>
-                                            <input type="text" name="username"
-                                                class="form-control rounded-3 border-0 bg-light"
-                                                value="{{ user.username }}" required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label-custom">Email</label>
-                                            <input type="email" name="email"
-                                                class="form-control rounded-3 border-0 bg-light"
-                                                value="{{ user.email }}" required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label-custom">Password (Kosongkan jika tidak
-                                                ganti)</label>
-                                            <input type="password" name="password"
-                                                class="form-control rounded-3 border-0 bg-light" placeholder="******">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label-custom">Foto Profil</label>
-                                            <input type="file" name="gambar" class="form-control bg-light border-0"
-                                                accept="image/*">
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer border-0 px-4 pb-4">
-                                        <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold">Update
-                                            Akun</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- MODAL HAPUS USER -->
-                    <div class="modal fade" id="modalDelUser{{ user.id }}" tabindex="-1" aria-hidden="true">
-                        <div class="modal-dialog modal-sm modal-dialog-centered">
-                            <div class="modal-content rounded-5 border-0 shadow text-center p-4">
-                                <div class="text-danger mb-3" style="font-size: 3.5rem;"><i
-                                        class="fa fa-user-minus"></i></div>
-                                <h5 class="fw-bold">Hapus Akun?</h5>
-                                <div class="d-flex gap-2 mt-3">
-                                    <button class="btn btn-light w-100 rounded-pill fw-bold"
-                                        data-bs-dismiss="modal">Batal</button>
-                                    <a href="/admin/delete_user/{{ user.id }}"
-                                        class="btn btn-danger w-100 rounded-pill fw-bold">Hapus</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-    </div>
-
-    <!-- SECTION: PENGATURAN -->
-    <div id="settings" class="content-section">
-        <h3 class="fw-800 mb-4">Pengaturan Sistem</h3>
-        <div class="row g-4">
-            <div class="col-lg-7">
-                <div class="admin-card border-start border-5 border-warning p-4">
-                    <h6 class="fw-bold mb-4 text-orange"><i class="fa fa-globe me-2"></i> Identitas Website</h6>
-                    <form action="/admin/update_settings" method="POST">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label-custom">Nama Website</label>
-                                <input type="text" name="site_name"
-                                    class="form-control rounded-3 border-0 bg-light py-2" value="Tegal Culture">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label-custom">Email Admin Utama</label>
-                                <input type="email" name="admin_email"
-                                    class="form-control rounded-3 border-0 bg-light py-2" value="admin@tegalculture.id">
-                            </div>
-                        </div>
-                        <div class="mb-4">
-                            <label class="form-label-custom">Deskripsi SEO Platform</label>
-                            <textarea name="site_desc" class="form-control rounded-3 border-0 bg-light"
-                                rows="4">Wadah eksplorasi kekayaan budaya Kota Tegal...</textarea>
-                        </div>
-                        <button type="submit" class="btn btn-warning rounded-pill px-5 text-white fw-bold shadow-sm"
-                            style="background: var(--primary); border:none">Simpan Perubahan</button>
-                    </form>
-                </div>
-            </div>
-            <div class="col-lg-5">
-                <div class="admin-card mb-4 border-start border-5 border-info p-4">
-                    <h6 class="fw-bold mb-4 text-info"><i class="fa fa-server me-2"></i> Status Platform</h6>
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <div>
-                            <p class="m-0 fw-bold small">Maintenance Mode</p>
-                            <small class="text-muted extra-small">Tutup akses publik sementara</small>
-                        </div>
-                        <div class="form-check form-switch"><input class="form-check-input" type="checkbox"></div>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <p class="m-0 fw-bold small">Pendaftaran UMKM</p>
-                            <small class="text-muted extra-small">Buka registrasi partner baru</small>
-                        </div>
-                        <div class="form-check form-switch"><input class="form-check-input" type="checkbox" checked>
-                        </div>
-                    </div>
-                </div>
-                <div class="admin-card p-4" style="background: var(--secondary-brown); color: white;">
-                    <h6 class="fw-bold mb-3"><i class="fa fa-shield-alt me-2"></i> Keamanan Akun</h6>
-                    <p class="small opacity-75">Ganti password secara berkala untuk menjaga keamanan data.</p>
-                    <button class="btn btn-sm btn-outline-light rounded-pill px-4">Ganti Password</button>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
-    </div>
-    </div>
+
+        <!-- SECTION: EVENT -->
+        <div id="event" class="content-section">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="fw-800 m-0">Manajemen Event</h3>
+                <!-- Tombol Tambah Event -->
+                <button class="btn btn-warning rounded-pill px-4 fw-bold text-white shadow-sm border-0"
+                    style="background: var(--primary)" data-bs-toggle="modal" data-bs-target="#modalAddEvent">
+                    <i class="fa fa-plus me-2"></i> Buat Event
+                </button>
+            </div>
+
+            <div class="admin-card p-0 overflow-hidden">
+                <div class="table-responsive">
+                    <table class="table table-custom mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-4">POSTER</th>
+                                <th>NAMA EVENT</th>
+                                <th>TANGGAL</th>
+                                <th>LOKASI</th> <!-- KOLOM BARU DI GAMBAR 2 -->
+                                <th>STATUS</th>
+                                <th class="text-center">AKSI</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for e in events %}
+                            <tr>
+                                <td class="ps-4">
+                                    <img src="{{ url_for('static', filename='uploads/' + e.gambar) }}" class="img-table"
+                                        style="width: 50px; height: 50px; object-fit: cover; border-radius: 10px;"
+                                        onerror="this.src='https://via.placeholder.com/50'">
+                                </td>
+                                <td><b>{{ e.nama_event }}</b></td>
+                                <td>{{ e.tanggal }}</td>
+                                <td>{{ e.lokasi }}</td> <!-- MENAMPILKAN DATA LOKASI -->
+                                <td><span class="badge bg-success-subtle text-success border">{{ e.status }}</span></td>
+                                <td class="text-center">
+                                    <div class="btn-crud-group">
+                                        <button class="btn-action btn-edit" data-bs-toggle="modal"
+                                            data-bs-target="#modalEditEvent{{ e.id }}"><i
+                                                class="fa fa-edit"></i></button>
+                                        <button class="btn-action btn-delete" data-bs-toggle="modal"
+                                            data-bs-target="#modalDelEvent{{ e.id }}"><i
+                                                class="fa fa-trash"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- MODAL EDIT EVENT (Tetap ada lokasinya) -->
+                            <div class="modal fade" id="modalEditEvent{{ e.id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content rounded-5 border-0 shadow">
+                                        <div class="modal-header border-0 pb-0 px-4 pt-4">
+                                            <h5 class="fw-bold"><i class="fa fa-edit text-primary me-2"></i>Edit Event
+                                            </h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <form action="/admin/update_event/{{ e.id }}" method="POST"
+                                            enctype="multipart/form-data">
+                                            <div class="modal-body p-4">
+                                                <div class="mb-3">
+                                                    <label class="form-label-custom">Nama Event</label>
+                                                    <input type="text" name="nama_event"
+                                                        class="form-control rounded-3 border-0 bg-light py-2"
+                                                        value="{{ e.nama_event }}" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label-custom">Tanggal</label>
+                                                    <input type="text" name="tanggal"
+                                                        class="form-control rounded-3 border-0 bg-light py-2"
+                                                        value="{{ e.tanggal }}" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label-custom">Lokasi</label>
+                                                    <input type="text" name="lokasi"
+                                                        class="form-control rounded-3 border-0 bg-light py-2"
+                                                        value="{{ e.lokasi }}" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label-custom">Status</label>
+                                                    <select name="status"
+                                                        class="form-select rounded-3 border-0 bg-light py-2">
+                                                        <option value="Akan Datang" {{ 'selected' if
+                                                            e.status=='Akan Datang' }}>Akan Datang</option>
+                                                        <option value="Berlangsung" {{ 'selected' if
+                                                            e.status=='Berlangsung' }}>Berlangsung</option>
+                                                        <option value="Selesai" {{ 'selected' if e.status=='Selesai' }}>
+                                                            Selesai</option>
+                                                    </select>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label-custom">Ganti Poster (Opsional)</label>
+                                                    <input type="file" name="gambar"
+                                                        class="form-control bg-light border-0" accept="image/*">
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer border-0 px-4 pb-4">
+                                                <button type="submit"
+                                                    class="btn btn-primary w-100 rounded-pill fw-bold">Update
+                                                    Event</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- MODAL HAPUS EVENT -->
+                            <div class="modal fade" id="modalDelEvent{{ e.id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog modal-sm modal-dialog-centered">
+                                    <div class="modal-content rounded-5 border-0 shadow text-center p-4">
+                                        <div class="text-danger mb-3" style="font-size: 3rem;"><i
+                                                class="fa fa-exclamation-circle"></i></div>
+                                        <h5 class="fw-bold">Hapus Event?</h5>
+                                        <p class="text-muted small">Hapus <b>{{ e.nama_event }}</b>?</p>
+                                        <div class="d-flex gap-2 mt-3">
+                                            <button class="btn btn-light w-100 rounded-pill fw-bold"
+                                                data-bs-dismiss="modal">Batal</button>
+                                            <a href="/admin/delete_event/{{ e.id }}"
+                                                class="btn btn-danger w-100 rounded-pill fw-bold">Hapus</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center py-5 text-muted">Belum ada event terjadwal.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION: UMKM -->
+        <div id="umkm" class="content-section">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="fw-800 m-0">Produk UMKM</h3>
+                <button class="btn btn-warning rounded-pill px-4 fw-bold text-white shadow-sm border-0"
+                    style="background: var(--primary)" data-bs-toggle="modal" data-bs-target="#modalAddUMKM">
+                    <i class="fa fa-plus me-2"></i> Tambah Produk
+                </button>
+            </div>
+            <div class="admin-card p-0 overflow-hidden">
+                <div class="table-responsive">
+                    <table class="table table-custom mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-4">GAMBAR</th>
+                                <th>PRODUK</th>
+                                <th>PEMILIK</th>
+                                <th>HARGA</th>
+                                <th>RATING</th> <!-- KOLOM BARU DI GAMBAR 2 -->
+                                <th class="text-center">AKSI</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for u in umkm %}
+                            <tr>
+                                <td class="ps-4">
+                                    <img src="{{ url_for('static', filename='uploads/' + u.gambar) }}" class="img-table"
+                                        style="width: 50px; height: 50px; object-fit: cover; border-radius: 10px;"
+                                        onerror="this.src='https://via.placeholder.com/50'">
+                                </td>
+                                <td><b>{{ u.produk }}</b></td>
+                                <td>{{ u.pemilik }}</td>
+                                <td>Rp {{ u.harga }}</td>
+                                <td>
+                                    <span class="fw-bold text-warning">
+                                        <i class="fa fa-star me-1"></i>{{ u.rating }}
+                                    </span>
+                                </td> <!-- DATA RATING TAMPIL DI SINI -->
+                                <td class="text-center">
+                                    <div class="btn-crud-group">
+                                        <button class="btn-action btn-edit" data-bs-toggle="modal"
+                                            data-bs-target="#modalEditUMKM{{ u.id }}"><i
+                                                class="fa fa-edit"></i></button>
+                                        <button class="btn-action btn-delete" data-bs-toggle="modal"
+                                            data-bs-target="#modalDelUMKM{{ u.id }}"><i
+                                                class="fa fa-trash"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- MODAL EDIT UMKM -->
+                            <div class="modal fade" id="modalEditUMKM{{ u.id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content rounded-5 border-0 shadow">
+                                        <div class="modal-header border-0 pb-0 px-4 pt-4">
+                                            <h5 class="fw-bold"><i class="fa fa-shopping-bag text-primary me-2"></i>Edit
+                                                Produk</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <form action="/admin/update_umkm/{{ u.id }}" method="POST"
+                                            enctype="multipart/form-data">
+                                            <div class="modal-body p-4">
+                                                <div class="mb-3">
+                                                    <label class="form-label-custom">Nama Produk</label>
+                                                    <input type="text" name="produk"
+                                                        class="form-control rounded-3 border-0 bg-light"
+                                                        value="{{ u.produk }}" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label-custom">Pemilik</label>
+                                                    <input type="text" name="pemilik"
+                                                        class="form-control rounded-3 border-0 bg-light"
+                                                        value="{{ u.pemilik }}" required>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-6 mb-3">
+                                                        <label class="form-label-custom">Harga</label>
+                                                        <input type="text" name="harga"
+                                                            class="form-control rounded-3 border-0 bg-light"
+                                                            value="{{ u.harga }}" required>
+                                                    </div>
+                                                    <div class="col-6 mb-3">
+                                                        <label class="form-label-custom">Rating</label>
+                                                        <input type="number" step="0.1" name="rating"
+                                                            class="form-control rounded-3 border-0 bg-light"
+                                                            value="{{ u.rating }}" required>
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label-custom">Foto Produk</label>
+                                                    <input type="file" name="gambar"
+                                                        class="form-control bg-light border-0" accept="image/*">
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer border-0 px-4 pb-4">
+                                                <button type="submit"
+                                                    class="btn btn-primary w-100 rounded-pill fw-bold">Update
+                                                    Produk</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- MODAL HAPUS UMKM -->
+                            <div class="modal fade" id="modalDelUMKM{{ u.id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog modal-sm modal-dialog-centered">
+                                    <div class="modal-content rounded-5 border-0 shadow text-center p-4">
+                                        <div class="text-danger mb-3" style="font-size: 3rem;"><i
+                                                class="fa fa-trash-alt"></i></div>
+                                        <h5 class="fw-bold">Hapus Produk?</h5>
+                                        <div class="d-flex gap-2 mt-3">
+                                            <button class="btn btn-light w-100 rounded-pill fw-bold"
+                                                data-bs-dismiss="modal">Batal</button>
+                                            <a href="/admin/delete_umkm/{{ u.id }}"
+                                                class="btn btn-danger w-100 rounded-pill fw-bold">Hapus</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center py-5 text-muted">Belum ada produk UMKM.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION: USERS -->
+        <div id="users" class="content-section">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="fw-800 m-0">Daftar Pengguna</h3>
+                <button class="btn btn-dark rounded-pill px-4 btn-sm" data-bs-toggle="modal"
+                    data-bs-target="#modalAddUser">
+                    <i class="fa fa-plus me-2"></i> Admin Baru
+                </button>
+            </div>
+            <div class="admin-card p-0 overflow-hidden">
+                <div class="table-responsive">
+                    <table class="table table-custom mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-4">Profil</th>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th class="text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                            <tr>
+                                <td class="ps-4"><img src="{{ url_for('static', filename='uploads/' + user.gambar) }}"
+                                        class="rounded-circle" width="40" height="40" style="object-fit:cover;"
+                                        onerror="this.src='https://ui-avatars.com/api/?name={{ user.username }}'"></td>
+                                <td><b>{{ user.username }}</b></td>
+                                <td>{{ user.email }}</td>
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-light border" data-bs-toggle="modal"
+                                        data-bs-target="#modalEditUser{{ user.id }}"><i class="fa fa-cog"></i></button>
+                                    <button class="btn btn-sm btn-danger-subtle text-danger" data-bs-toggle="modal"
+                                        data-bs-target="#modalDelUser{{ user.id }}"><i
+                                            class="fa fa-user-times"></i></button>
+                                </td>
+                            </tr>
+
+                            <!-- MODAL EDIT USER -->
+                            <div class="modal fade" id="modalEditUser{{ user.id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content rounded-5 border-0 shadow">
+                                        <div class="modal-header border-0 pb-0 px-4 pt-4">
+                                            <h5 class="fw-bold">Edit Admin</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <form action="/admin/update_user/{{ user.id }}" method="POST"
+                                            enctype="multipart/form-data">
+                                            <div class="modal-body p-4">
+                                                <div class="mb-3"><label
+                                                        class="form-label-custom">Username</label><input type="text"
+                                                        name="username" class="form-control rounded-3 border-0 bg-light"
+                                                        value="{{ user.username }}" required></div>
+                                                <div class="mb-3"><label class="form-label-custom">Email</label><input
+                                                        type="email" name="email"
+                                                        class="form-control rounded-3 border-0 bg-light"
+                                                        value="{{ user.email }}" required></div>
+                                                <div class="mb-3"><label class="form-label-custom">Password Baru
+                                                        (Opsional)</label><input type="password" name="password"
+                                                        class="form-control rounded-3 border-0 bg-light"
+                                                        placeholder="******"></div>
+                                                <div class="mb-3"><label class="form-label-custom">Foto
+                                                        Profil</label><input type="file" name="gambar"
+                                                        class="form-control bg-light border-0" accept="image/*"></div>
+                                            </div>
+                                            <div class="modal-footer border-0 px-4 pb-4"><button type="submit"
+                                                    class="btn btn-primary w-100 rounded-pill fw-bold">Update
+                                                    Akun</button></div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- MODAL HAPUS USER -->
+                            <div class="modal fade" id="modalDelUser{{ user.id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog modal-sm modal-dialog-centered">
+                                    <div class="modal-content rounded-5 border-0 shadow text-center p-4">
+                                        <div class="text-danger mb-3" style="font-size: 3.5rem;"><i
+                                                class="fa fa-user-minus"></i></div>
+                                        <h5 class="fw-bold">Hapus Akun?</h5>
+                                        <div class="d-flex gap-2 mt-3">
+                                            <button class="btn btn-light w-100 rounded-pill fw-bold"
+                                                data-bs-dismiss="modal">Batal</button>
+                                            <a href="/admin/delete_user/{{ user.id }}"
+                                                class="btn btn-danger w-100 rounded-pill fw-bold">Hapus</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION: PENGATURAN -->
+        <div id="settings" class="content-section">
+            <h3 class="fw-800 mb-4">Pengaturan Sistem</h3>
+            <div class="row g-4">
+                <div class="col-lg-7">
+                    <div class="admin-card border-start border-5 border-warning">
+                        <h6 class="fw-bold mb-4 text-orange">Identitas Website</h6>
+                        <form action="/admin/update_settings" method="POST">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label-custom">Nama Website</label>
+                                    <input type="text" name="site_name" class="form-control rounded-3 border-0 bg-light"
+                                        value="Tegal Culture">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label-custom">Email Admin</label>
+                                    <input type="email" name="admin_email"
+                                        class="form-control rounded-3 border-0 bg-light" value="admin@tegalculture.id">
+                                </div>
+                            </div>
+                            <button type="submit"
+                                class="btn btn-warning rounded-pill px-5 text-white fw-bold shadow-sm">Simpan</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> <!-- PENUTUP MAIN CONTENT YANG BENAR -->
 
     <!-- Masukkan Chart.js versi terstabil -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -1106,83 +1111,74 @@
          SEMUA MODAL CRUD (TAMBAH DATA)
          ====================================================== -->
 
-    <!-- 1. MODAL TAMBAH BUDAYA -->
-    <div class="modal fade" id="modalAddBudaya" tabindex="-1" aria-labelledby="modalAddBudayaLabel" aria-hidden="true">
+    <!-- MODAL TAMBAH BUDAYA -->
+    <div class="modal fade" id="modalAddBudaya" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content rounded-5 border-0 shadow-lg">
 
-                <!-- Header Modal -->
+                <!-- Header -->
                 <div class="modal-header border-0 pb-0 px-4 pt-4">
                     <div class="d-flex align-items-center">
-                        <div class="icon-box bg-orange-light me-3 mb-0" style="width: 45px; height: 45px;">
-                            <i class="fa fa-landmark text-orange"></i>
+                        <div class="rounded-circle bg-warning-subtle d-flex align-items-center justify-content-center me-3"
+                            style="width: 45px; height: 45px;">
+                            <i class="fa fa-landmark text-warning"></i>
                         </div>
-                        <h5 class="fw-bold m-0" id="modalAddBudayaLabel">Tambah Budaya Baru</h5>
+                        <h5 class="fw-bold m-0">Tambah Budaya Baru</h5>
                     </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
-                <!-- Form Start (PENTING: Gunakan enctype untuk upload file) -->
-                <form action="/admin/add_budaya" method="POST" enctype="multipart/form-data">
+                <!-- Form Start -->
+                <form action="{{ url_for('add_budaya') }}" method="POST" enctype="multipart/form-data">
                     <div class="modal-body p-4">
-
-                        <!-- Input Nama Tempat -->
+                        <!-- Input Nama -->
                         <div class="mb-3">
-                            <label class="form-label-custom">Nama Tempat / Budaya</label>
-                            <input type="text" name="nama"
-                                class="form-control form-control-custom rounded-3 bg-light py-2"
-                                placeholder="Contest: Menara Air Tegal" required>
+                            <label class="form-label-custom fw-bold mb-2">Nama Tempat / Budaya</label>
+                            <input type="text" name="nama" class="form-control rounded-3 border-0 bg-light py-2"
+                                placeholder="Contoh: Menara Air Tegal" required>
                         </div>
 
                         <div class="row">
                             <!-- Input Kategori -->
                             <div class="col-md-6 mb-3">
-                                <label class="form-label-custom">Kategori</label>
-                                <select name="kategori"
-                                    class="form-select form-control-custom rounded-3 border-0 bg-light py-2">
+                                <label class="form-label-custom fw-bold mb-2">Kategori</label>
+                                <select name="kategori" class="form-select rounded-3 border-0 bg-light py-2" required>
                                     <option value="Sejarah">Sejarah</option>
                                     <option value="Budaya">Budaya</option>
                                     <option value="Kuliner">Kuliner</option>
                                     <option value="Alam">Alam</option>
                                 </select>
                             </div>
-
                             <!-- Input Wilayah -->
                             <div class="col-md-6 mb-3">
-                                <label class="form-label-custom">Wilayah (Kecamatan)</label>
-                                <input type="text" name="wilayah"
-                                    class="form-control form-control-custom rounded-3 bg-light py-2"
-                                    placeholder="Tegal Timur" required>
+                                <label class="form-label-custom fw-bold mb-2">Wilayah (Kecamatan)</label>
+                                <input type="text" name="wilayah" class="form-control rounded-3 border-0 bg-light py-2"
+                                    placeholder="Contoh: Tegal Timur" required>
                             </div>
                         </div>
 
-                        <!-- Input Upload Gambar -->
+                        <!-- Input Gambar -->
                         <div class="mb-2">
-                            <label class="form-label-custom">Foto Unggulan</label>
-                            <div class="input-group">
-                                <input type="file" name="gambar"
-                                    class="form-control form-control-custom bg-light rounded-3" id="inputGroupFile02"
-                                    accept="image/*" required>
-                            </div>
-                            <small class="text-muted extra-small mt-1 d-block">
+                            <label class="form-label-custom fw-bold mb-2">Foto Unggulan</label>
+                            <input type="file" name="gambar" class="form-control bg-light border-0 rounded-3"
+                                accept="image/*" required>
+                            <small class="text-muted d-block mt-2">
                                 <i class="fa fa-info-circle me-1"></i> Format: JPG, PNG. Maksimal 2MB.
                             </small>
                         </div>
-
                     </div>
 
-                    <!-- Footer / Tombol Aksi -->
+                    <!-- Footer / Tombol -->
                     <div class="modal-footer border-0 px-4 pb-4 pt-0">
-                        <button type="button" class="btn btn-light rounded-pill px-4 fw-bold text-muted border-0 me-2"
+                        <button type="button" class="btn btn-light rounded-pill px-4 fw-bold"
                             data-bs-dismiss="modal">Batal</button>
                         <button type="submit"
-                            class="btn btn-warning flex-grow-1 rounded-pill fw-bold text-white btn-save-anim shadow-sm"
-                            style="background: var(--primary)">
+                            class="btn btn-warning flex-grow-1 rounded-pill fw-bold text-white shadow-sm"
+                            style="background: #D35400;">
                             <i class="fa fa-save me-2"></i>Simpan Data Budaya
                         </button>
                     </div>
                 </form>
-
             </div>
         </div>
     </div>

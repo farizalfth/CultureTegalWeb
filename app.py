@@ -124,58 +124,81 @@ def admin_dashboard():
         return redirect(url_for('login'))
     
     conn = get_db_connection()
-    data = {'budaya': [], 'events': [], 'umkm': [], 'users': []} # Default kosong
+    # Inisialisasi default dengan angka 0 agar template tidak error
+    data = {
+        'budaya': [], 'events': [], 'umkm': [], 'users': [],
+        'count_budaya': 0, 'count_event': 0, 'count_umkm': 0, 'count_users': 0
+    }
     
     if conn:
         try:
+            # Gunakan dictionary=True agar data bisa dipanggil dengan b.nama di HTML
             cursor = conn.cursor(dictionary=True)
             
             # AMBIL DATA BUDAYA
             cursor.execute("SELECT * FROM budaya ORDER BY id DESC")
             data['budaya'] = cursor.fetchall()
+            data['count_budaya'] = len(data['budaya'])
             
-            # AMBIL DATA EVENT, UMKM, DLL
+            # AMBIL DATA EVENT
             cursor.execute("SELECT * FROM events ORDER BY id DESC")
             data['events'] = cursor.fetchall()
+            data['count_event'] = len(data['events'])
+            
+            # AMBIL DATA UMKM
             cursor.execute("SELECT * FROM umkm ORDER BY id DESC")
             data['umkm'] = cursor.fetchall()
+            data['count_umkm'] = len(data['umkm'])
+            
+            # AMBIL DATA USERS
             cursor.execute("SELECT * FROM users ORDER BY id DESC")
             data['users'] = cursor.fetchall()
-
-            # HITUNG TOTAL (Untuk Kartu Statistik)
-            data['count_budaya'] = len(data['budaya'])
-            data['count_event'] = len(data['events'])
-            data['count_umkm'] = len(data['umkm'])
             data['count_users'] = len(data['users'])
             
             cursor.close()
         except Exception as e:
-            print(f"Error Database: {e}")
+            print(f"Error Database Dashboard: {e}")
         finally:
-            conn.close() # WAJIB ditutup agar server tidak hang
+            conn.close()
             
     return render_template('admin.html', **data)
 
-# --- CRUD: TAMBAH DATA ---
-
+# --- CRUD: TAMBAH DATA BUDAYA ---
 @app.route('/admin/add_budaya', methods=['POST'])
 def add_budaya():
-    if not session.get('logged_in'): return redirect(url_for('login'))
+    if not session.get('logged_in'): 
+        return redirect(url_for('login'))
     
+    # 1. Tangkap Data Form
+    nama = request.form.get('nama')
+    kategori = request.form.get('kategori')
+    wilayah = request.form.get('wilayah')
     file = request.files.get('gambar')
-    filename = save_image(file) # Pastikan fungsi save_image sudah ada di app.py Anda
     
+    # 2. Proses Gambar
+    if file and file.filename != '':
+        # Pastikan fungsi save_image Anda mengembalikan string nama file saja
+        filename = save_image(file) 
+    else:
+        filename = 'default.jpg'
+    
+    # 3. Eksekusi Database
     conn = get_db_connection()
-    try:
-        cursor = conn.cursor()
-        cursor.execute("INSERT INTO budaya (nama, kategori, wilayah, gambar) VALUES (%s, %s, %s, %s)", 
-                       (request.form['nama'], request.form['kategori'], request.form['wilayah'], filename))
-        conn.commit()
-        flash('Data Budaya Berhasil Disimpan!', 'success')
-    except Exception as e:
-        flash(f'Gagal: {str(e)}', 'danger')
-    finally:
-        conn.close()
+    if conn:
+        try:
+            cursor = conn.cursor()
+            query = "INSERT INTO budaya (nama, kategori, wilayah, gambar) VALUES (%s, %s, %s, %s)"
+            cursor.execute(query, (nama, kategori, wilayah, filename))
+            conn.commit()
+            cursor.close()
+            flash('Data Budaya Berhasil Disimpan!', 'success')
+        except Exception as e:
+            print(f"Error Add Budaya: {e}")
+            flash(f'Gagal Simpan: {str(e)}', 'danger')
+        finally:
+            conn.close()
+            
+    # Kembali ke tab budaya menggunakan anchor
     return redirect(url_for('admin_dashboard', _anchor='budaya'))
 
 @app.route('/admin/add_event', methods=['POST'])
