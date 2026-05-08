@@ -294,6 +294,17 @@
             color: var(--primary);
         }
     </style>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        /* Ukuran kontainer peta */
+        #mapTegal {
+            height: 200px;
+            width: 100%;
+            border-radius: 15px;
+            z-index: 1;
+        }
+    </style>
 </head>
 
 <body>
@@ -475,20 +486,24 @@
                 <div class="col-lg-4">
                     <div class="admin-card h-100">
                         <h6 class="fw-bold mb-4">Sebaran Budaya Per Wilayah</h6>
-                        <div class="text-center mb-3">
-                            <i class="fa fa-map-marked-alt fa-3x opacity-25"></i>
-                        </div>
+                        <div id="mapTegal" class="mb-3 shadow-sm"></div> <!-- Peta muncul di sini -->
                         <div class="small">
-                            <div class="d-flex justify-content-between border-bottom pb-2 mb-2"><span>Tegal Utara</span>
+                            <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
+                                <span><i class="fas fa-map-marker-alt text-danger me-1"></i> Tegal Utara</span>
                                 <b>45</b>
                             </div>
-                            <div class="d-flex justify-content-between border-bottom pb-2 mb-2"><span>Tegal Timur</span>
+                            <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
+                                <span><i class="fas fa-map-marker-alt text-danger me-1"></i> Tegal Timur</span>
                                 <b>32</b>
                             </div>
-                            <div class="d-flex justify-content-between border-bottom pb-2 mb-2"><span>Tegal Barat</span>
+                            <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
+                                <span><i class="fas fa-map-marker-alt text-danger me-1"></i> Tegal Barat</span>
                                 <b>25</b>
                             </div>
-                            <div class="d-flex justify-content-between"><span>Margadana</span> <b>26</b></div>
+                            <div class="d-flex justify-content-between">
+                                <span><i class="fas fa-map-marker-alt text-danger me-1"></i> Tegal Selatan</span>
+                                <b>26</b>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -499,15 +514,17 @@
                             <h6 class="fw-bold m-0">Aktivitas Terbaru</h6>
                             <a href="#" class="extra-small fw-bold text-orange text-decoration-none">Lihat Semua</a>
                         </div>
-                        <div class="activity-item d-flex align-items-center mt-3">
-                            <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center me-3"
-                                style="width:35px;height:35px">
-                                <i class="fa fa-plus"></i>
+                        <div class="activity-list small">
+                            {% for log in logs %}
+                            <div class="activity-item d-flex align-items-center mb-3">
+                                <div class="icon-circle bg-success-subtle text-success me-3"><i class="fa fa-bolt"></i>
+                                </div>
+                                <div>
+                                    <p class="m-0 small fw-bold">{{ log.pesan }}</p>
+                                    <small class="text-muted">{{ log.waktu.strftime('%H:%M') }}</small>
+                                </div>
                             </div>
-                            <div>
-                                <p class="m-0 small fw-bold">Budaya baru ditambahkan</p>
-                                <small class="text-muted">Gereja Blenduk - 10m lalu</small>
-                            </div>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
@@ -519,86 +536,203 @@
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h3 class="fw-800 m-0">Kelola Jelajah Budaya</h3>
                 <button class="btn btn-warning rounded-pill px-4 fw-bold text-white shadow-sm border-0"
-                    data-bs-toggle="modal" data-bs-target="#modalAddBudaya">
+                    style="background: var(--primary)" data-bs-toggle="modal" data-bs-target="#modalAddBudaya">
                     <i class="fa fa-plus me-2"></i> Tambah Budaya
                 </button>
             </div>
+
             <div class="admin-card p-0 overflow-hidden">
                 <div class="table-responsive">
                     <table class="table table-custom mb-0">
                         <thead>
                             <tr>
                                 <th class="ps-4">Gambar</th>
-                                <th>Nama</th>
+                                <th>Nama Tempat</th>
                                 <th>Kategori</th>
                                 <th>Wilayah</th>
+                                <th>Lat</th>
+                                <th>Lon</th>
                                 <th class="text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
+                        <tbody>
                             {% for b in budaya %}
                             <tr>
-                                <td class="ps-4"><img src="{{ url_for('static', filename='uploads/' + b.gambar) }}"
-                                        width="50" height="50" class="img-table"
-                                        onerror="this.src='https://via.placeholder.com/50'"></td>
-                                <td><b>{{ b.nama }}</b></td>
-                                <td><span class="badge bg-info-subtle text-info border">{{ b.kategori }}</span></td>
-                                <td>{{ b.wilayah }}</td>
+                                <td class="ps-4">
+                                    <img src="{{ url_for('static', filename='uploads/' + b.gambar) }}" width="60"
+                                        height="60" class="rounded-3 shadow-sm" style="object-fit: cover;"
+                                        onerror="this.src='https://via.placeholder.com/60'">
+                                </td>
+                                <td>
+                                    <!-- HAPUS LABEL ID, Sisakan Nama Tempat saja -->
+                                    <div class="fw-bold">{{ b.nama }}</div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-info-subtle text-info border px-3 py-2 rounded-pill">
+                                        {{ b.kategori }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <!-- GANTI KOORDINAT MENJADI NAMA KECAMATAN -->
+                                    <i class="fas fa-map-marker-alt text-danger me-1 small"></i> {{ b.deskripsi }}
+                                </td>
+                                <td>
+                                    <span
+                                        class="badge bg-secondary-subtle text-secondary border px-3 py-2 rounded-pill">
+                                        {{ b.lat }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span
+                                        class="badge bg-secondary-subtle text-secondary border px-3 py-2 rounded-pill">
+                                        {{ b.lng }}
+                                    </span>
+                                </td>
                                 <td class="text-center">
-                                    <button class="btn btn-sm btn-light border" data-bs-toggle="modal"
-                                        data-bs-target="#modalEditBudaya{{ b.id }}"><i class="fa fa-edit"></i></button>
-                                    <button class="btn btn-sm btn-danger-subtle text-danger" data-bs-toggle="modal"
-                                        data-bs-target="#modalDelBudaya{{ b.id }}"><i class="fa fa-trash"></i></button>
+                                    <div class="btn-crud-group">
+                                        <button class="btn btn-action btn-edit" data-bs-toggle="modal"
+                                            data-bs-target="#modalEditBudaya{{ b.id }}">
+                                            <i class="fa fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-action btn-delete" data-bs-toggle="modal"
+                                            data-bs-target="#modalDelBudaya{{ b.id }}">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
 
                             <!-- MODAL EDIT BUDAYA -->
                             <div class="modal fade" id="modalEditBudaya{{ b.id }}" tabindex="-1" aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-centered">
-                                    <div class="modal-content rounded-5 border-0 shadow">
+                                    <div class="modal-content rounded-5 border-0 shadow-lg">
                                         <div class="modal-header border-0 pb-0 px-4 pt-4">
-                                            <h5 class="fw-bold">Edit Budaya</h5>
+                                            <h5 class="fw-bold"><i class="fa fa-edit text-primary me-2"></i>Edit Budaya
+                                            </h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                         </div>
                                         <form action="/admin/update_budaya/{{ b.id }}" method="POST"
                                             enctype="multipart/form-data">
-                                            <div class="modal-body p-4">
+                                            <div class="modal-body p-4 text-start">
                                                 <div class="mb-3">
-                                                    <label class="form-label-custom">Nama Tempat</label>
+                                                    <label class="fw-bold small mb-2">Nama Tempat</label>
                                                     <input type="text" name="nama"
-                                                        class="form-control rounded-3 border-0 bg-light"
+                                                        class="form-control rounded-3 border-0 bg-light py-2"
                                                         value="{{ b.nama }}" required>
                                                 </div>
-                                                <div class="mb-3">
-                                                    <label class="form-label-custom">Kategori</label>
-                                                    <select name="kategori"
-                                                        class="form-select rounded-3 border-0 bg-light">
-                                                        <option value="Sejarah" {{ 'selected' if b.kategori=='Sejarah'
-                                                            }}>Sejarah</option>
-                                                        <option value="Budaya" {{ 'selected' if b.kategori=='Budaya' }}>
-                                                            Budaya</option>
-                                                        <option value="Kuliner" {{ 'selected' if b.kategori=='Kuliner'
-                                                            }}>Kuliner</option>
-                                                        <option value="Alam" {{ 'selected' if b.kategori=='Alam' }}>Alam
-                                                        </option>
-                                                    </select>
+
+                                                <div class="row">
+                                                    <div class="col-md-6 mb-3">
+                                                        <label class="fw-bold small mb-2">Kategori</label>
+                                                        <select name="kategori"
+                                                            class="form-select rounded-3 border-0 bg-light py-2">
+                                                            <option value="Sejarah" {{ 'selected' if
+                                                                b.kategori=='Sejarah' }}>Sejarah</option>
+                                                            <option value="Budaya" {{ 'selected' if b.kategori=='Budaya'
+                                                                }}>Budaya</option>
+                                                            <option value="Kuliner" {{ 'selected' if
+                                                                b.kategori=='Kuliner' }}>Kuliner</option>
+                                                            <option value="Alam" {{ 'selected' if b.kategori=='Alam' }}>
+                                                                Alam</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-6 mb-3">
+                                                        <label class="fw-bold small mb-2">Wilayah (Kecamatan)</label>
+                                                        <!-- Dropdown Kecamatan Lengkap (Kota & Kabupaten Tegal) -->
+                                                        <select name="deskripsi"
+                                                            class="form-select rounded-3 border-0 bg-light py-2"
+                                                            onchange="updateCoordsEdit('{{ b.id }}', this.value)"
+                                                            required>
+
+                                                            <option value="">-- Pilih Kecamatan --</option>
+
+                                                            <optgroup label="Kota Tegal">
+                                                                <option value="Margadana" {{ 'selected' if
+                                                                    b.deskripsi=='Margadana' }}>Margadana</option>
+                                                                <option value="Tegal Barat" {{ 'selected' if
+                                                                    b.deskripsi=='Tegal Barat' }}>Tegal Barat</option>
+                                                                <option value="Tegal Selatan" {{ 'selected' if
+                                                                    b.deskripsi=='Tegal Selatan' }}>Tegal Selatan
+                                                                </option>
+                                                                <option value="Tegal Timur" {{ 'selected' if
+                                                                    b.deskripsi=='Tegal Timur' }}>Tegal Timur</option>
+                                                            </optgroup>
+
+                                                            <optgroup label="Kabupaten Tegal">
+                                                                <option value="Adiwerna" {{ 'selected' if
+                                                                    b.deskripsi=='Adiwerna' }}>Adiwerna</option>
+                                                                <option value="Balapulang" {{ 'selected' if
+                                                                    b.deskripsi=='Balapulang' }}>Balapulang</option>
+                                                                <option value="Bojong" {{ 'selected' if
+                                                                    b.deskripsi=='Bojong' }}>Bojong</option>
+                                                                <option value="Bumijawa" {{ 'selected' if
+                                                                    b.deskripsi=='Bumijawa' }}>Bumijawa</option>
+                                                                <option value="Dukuhturi" {{ 'selected' if
+                                                                    b.deskripsi=='Dukuhturi' }}>Dukuhturi</option>
+                                                                <option value="Dukuhwaru" {{ 'selected' if
+                                                                    b.deskripsi=='Dukuhwaru' }}>Dukuhwaru</option>
+                                                                <option value="Jatinegara" {{ 'selected' if
+                                                                    b.deskripsi=='Jatinegara' }}>Jatinegara</option>
+                                                                <option value="Kedungbanteng" {{ 'selected' if
+                                                                    b.deskripsi=='Kedungbanteng' }}>Kedungbanteng
+                                                                </option>
+                                                                <option value="Kramat" {{ 'selected' if
+                                                                    b.deskripsi=='Kramat' }}>Kramat</option>
+                                                                <option value="Lebaksiu" {{ 'selected' if
+                                                                    b.deskripsi=='Lebaksiu' }}>Lebaksiu</option>
+                                                                <option value="Margasari" {{ 'selected' if
+                                                                    b.deskripsi=='Margasari' }}>Margasari</option>
+                                                                <option value="Pagarbarang" {{ 'selected' if
+                                                                    b.deskripsi=='Pagarbarang' }}>Pagarbarang</option>
+                                                                <option value="Pangkah" {{ 'selected' if
+                                                                    b.deskripsi=='Pangkah' }}>Pangkah</option>
+                                                                <option value="Slawi" {{ 'selected' if
+                                                                    b.deskripsi=='Slawi' }}>Slawi</option>
+                                                                <option value="Suradadi" {{ 'selected' if
+                                                                    b.deskripsi=='Suradadi' }}>Suradadi</option>
+                                                                <option value="Talang" {{ 'selected' if
+                                                                    b.deskripsi=='Talang' }}>Talang</option>
+                                                                <option value="Tarub" {{ 'selected' if
+                                                                    b.deskripsi=='Tarub' }}>Tarub</option>
+                                                                <option value="Warureja" {{ 'selected' if
+                                                                    b.deskripsi=='Warureja' }}>Warureja</option>
+                                                            </optgroup>
+                                                        </select>
+                                                    </div>
                                                 </div>
-                                                <div class="mb-3">
-                                                    <label class="form-label-custom">Wilayah</label>
-                                                    <input type="text" name="wilayah"
-                                                        class="form-control rounded-3 border-0 bg-light"
-                                                        value="{{ b.wilayah }}" required>
+
+                                                <div class="row mb-3">
+                                                    <div class="col-6">
+                                                        <label class="extra-small fw-bold text-muted">Lat</label>
+                                                        <input type="text" name="lat" id="editLat{{ b.id }}"
+                                                            class="form-control form-control-sm border-0 bg-light"
+                                                            value="{{ b.lat }}" readonly>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <label class="extra-small fw-bold text-muted">Lng</label>
+                                                        <input type="text" name="lng" id="editLng{{ b.id }}"
+                                                            class="form-control form-control-sm border-0 bg-light"
+                                                            value="{{ b.lng }}" readonly>
+                                                    </div>
                                                 </div>
+
                                                 <div class="mb-3">
-                                                    <label class="form-label-custom">Ganti Foto (Opsional)</label>
-                                                    <input type="file" name="gambar"
-                                                        class="form-control bg-light border-0" accept="image/*">
+                                                    <label class="fw-bold small mb-2">Ganti Foto (Opsional)</label>
+                                                    <div class="d-flex align-items-center bg-light p-2 rounded-3">
+                                                        <img src="{{ url_for('static', filename='uploads/' + b.gambar) }}"
+                                                            width="40" height="40"
+                                                            class="rounded-2 me-2 border shadow-sm">
+                                                        <input type="file" name="gambar"
+                                                            class="form-control border-0 bg-transparent"
+                                                            accept="image/*">
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="modal-footer border-0 px-4 pb-4">
                                                 <button type="submit"
-                                                    class="btn btn-primary w-100 rounded-pill fw-bold">Update
-                                                    Budaya</button>
+                                                    class="btn btn-primary w-100 rounded-pill fw-bold shadow-sm">Update
+                                                    Data Budaya</button>
                                             </div>
                                         </form>
                                     </div>
@@ -610,14 +744,16 @@
                                 <div class="modal-dialog modal-sm modal-dialog-centered">
                                     <div class="modal-content rounded-5 border-0 shadow text-center p-4">
                                         <div class="text-danger mb-3" style="font-size: 3rem;"><i
-                                                class="fa fa-exclamation-circle"></i></div>
+                                                class="fa fa-exclamation-circle animate__animated animate__shakeX"></i>
+                                        </div>
                                         <h5 class="fw-bold">Hapus Data?</h5>
-                                        <p class="text-muted small">Anda akan menghapus <b>{{ b.nama }}</b></p>
+                                        <p class="text-muted small">Anda akan menghapus secara permanen data <br><b>{{
+                                                b.nama }}</b></p>
                                         <div class="d-flex gap-2 mt-3">
                                             <button class="btn btn-light w-100 rounded-pill fw-bold"
                                                 data-bs-dismiss="modal">Batal</button>
                                             <a href="/admin/delete_budaya/{{ b.id }}"
-                                                class="btn btn-danger w-100 rounded-pill fw-bold">Hapus</a>
+                                                class="btn btn-danger w-100 rounded-pill fw-bold text-white text-decoration-none d-flex align-items-center justify-content-center shadow-sm">Hapus</a>
                                         </div>
                                     </div>
                                 </div>
@@ -628,6 +764,21 @@
                 </div>
             </div>
         </div>
+
+        <!-- JAVASCRIPT TAMBAHAN UNTUK KOORDINAT EDIT -->
+        <script>
+            function updateCoordsEdit(id, kecamatan) {
+                if (!kecamatan) return;
+                fetch('/get_coords/' + kecamatan)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data) {
+                            document.getElementById('editLat' + id).value = data.latitude;
+                            document.getElementById('editLng' + id).value = data.longitude;
+                        }
+                    });
+            }
+        </script>
 
         <!-- SECTION: EVENT -->
         <div id="event" class="content-section">
@@ -1018,10 +1169,9 @@
         </div>
     </div> <!-- PENUTUP MAIN CONTENT YANG BENAR -->
 
-    <!-- Masukkan Chart.js versi terstabil -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <script>
+     <script>
         // Fungsi Navigasi
         function showSection(id) {
             document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
@@ -1115,8 +1265,6 @@
     <div class="modal fade" id="modalAddBudaya" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content rounded-5 border-0 shadow-lg">
-
-                <!-- Header -->
                 <div class="modal-header border-0 pb-0 px-4 pt-4">
                     <div class="d-flex align-items-center">
                         <div class="rounded-circle bg-warning-subtle d-flex align-items-center justify-content-center me-3"
@@ -1128,20 +1276,17 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
-                <!-- Form Start -->
                 <form action="{{ url_for('add_budaya') }}" method="POST" enctype="multipart/form-data">
                     <div class="modal-body p-4">
-                        <!-- Input Nama -->
                         <div class="mb-3">
-                            <label class="form-label-custom fw-bold mb-2">Nama Tempat / Budaya</label>
+                            <label class="fw-bold mb-2">Nama Tempat / Budaya</label>
                             <input type="text" name="nama" class="form-control rounded-3 border-0 bg-light py-2"
-                                placeholder="Contoh: Menara Air Tegal" required>
+                                required>
                         </div>
 
                         <div class="row">
-                            <!-- Input Kategori -->
                             <div class="col-md-6 mb-3">
-                                <label class="form-label-custom fw-bold mb-2">Kategori</label>
+                                <label class="fw-bold mb-2">Kategori</label>
                                 <select name="kategori" class="form-select rounded-3 border-0 bg-light py-2" required>
                                     <option value="Sejarah">Sejarah</option>
                                     <option value="Budaya">Budaya</option>
@@ -1149,26 +1294,22 @@
                                     <option value="Alam">Alam</option>
                                 </select>
                             </div>
-                            <!-- Input Wilayah -->
                             <div class="col-md-6 mb-3">
-                                <label class="form-label-custom fw-bold mb-2">Wilayah (Kecamatan)</label>
-                                <input type="text" name="wilayah" class="form-control rounded-3 border-0 bg-light py-2"
+                                <!-- GANTI DARI WILAYAH KE DESKRIPSI -->
+                                <label class="fw-bold mb-2">Wilayah / Deskripsi</label>
+                                <input type="text" name="deskripsi"
+                                    class="form-control rounded-3 border-0 bg-light py-2"
                                     placeholder="Contoh: Tegal Timur" required>
                             </div>
                         </div>
 
-                        <!-- Input Gambar -->
                         <div class="mb-2">
-                            <label class="form-label-custom fw-bold mb-2">Foto Unggulan</label>
+                            <label class="fw-bold mb-2">Foto Unggulan</label>
                             <input type="file" name="gambar" class="form-control bg-light border-0 rounded-3"
                                 accept="image/*" required>
-                            <small class="text-muted d-block mt-2">
-                                <i class="fa fa-info-circle me-1"></i> Format: JPG, PNG. Maksimal 2MB.
-                            </small>
                         </div>
                     </div>
 
-                    <!-- Footer / Tombol -->
                     <div class="modal-footer border-0 px-4 pb-4 pt-0">
                         <button type="button" class="btn btn-light rounded-pill px-4 fw-bold"
                             data-bs-dismiss="modal">Batal</button>
@@ -1328,6 +1469,40 @@
 
     <!-- Script Bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // 1. Konversi Koordinat dari permintaan Anda ke Decimal Degree
+            // Batas Utara (LS 6°50'41") -> -6.8447
+            // Batas Selatan (LS 7°15'30") -> -7.2583
+            // Batas Barat (BT 108°57'6") -> 108.9516
+            // Batas Timur (BT 109°21'30") -> 109.3583
+
+            var southWest = L.latLng(-7.2583, 108.9516);
+            var northEast = L.latLng(-6.8447, 109.3583);
+            var tegalBounds = L.latLngBounds(southWest, northEast);
+
+            // 2. Inisialisasi Peta (Tanpa Markers)
+            var map = L.map('mapTegal', {
+                center: [-7.0515, 109.1550], // Titik tengah hasil rata-rata koordinat Anda
+                zoom: 11,
+                maxBounds: tegalBounds,      // Kunci pergeseran peta di area Tegal
+                maxBoundsViscosity: 1.0,     // Peta akan "mental" kembali jika digeser keluar batas
+                minZoom: 11,                 // Mencegah zoom out terlalu jauh keluar Tegal
+                zoomControl: true            // Tetap izinkan zoom in untuk detail
+            });
+
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OpenStreetMap &copy; CartoDB',
+                subdomains: 'abcd',
+                maxZoom: 19
+            }).addTo(map);
+        });
+
+    </script>
 </body>
 
 </html>
