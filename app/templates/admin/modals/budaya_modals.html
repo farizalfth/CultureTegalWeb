@@ -1,0 +1,286 @@
+<div class="modal fade" id="modalAddBudaya" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 24px;">
+            <div class="modal-header border-0 px-4 pt-4">
+                <div class="d-flex align-items-center">
+                    <div class="bg-orange-light p-2 rounded-3 me-3"><i class="fa fa-plus text-orange"></i></div>
+                    <h5 class="modal-title fw-800">Tambah Budaya Baru</h5>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('admin_bp.add_budaya') }}" method="POST" enctype="multipart/form-data">
+                <div class="modal-body p-4">
+                    <div class="row g-4">
+                        <div class="col-lg-7">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label-custom">Nama Tempat</label>
+                                    <input type="text" name="nama_tempat" class="form-control form-control-custom" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label-custom">Subtitle</label>
+                                    <input type="text" name="subtitle" class="form-control form-control-custom">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label-custom">Kategori</label>
+                                    <select name="kategori" class="form-select form-control-custom" required>
+                                        <option value="Sejarah">Sejarah</option>
+                                        <option value="Tradisi">Tradisi</option>
+                                        <option value="Kuliner">Kuliner</option>
+                                        <option value="Wisata">Wisata</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label-custom">Tahun</label>
+                                    <input type="text" name="tahun_dibangun" class="form-control form-control-custom">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label-custom">Durasi</label>
+                                    <input type="text" name="durasi_kunjungan" class="form-control form-control-custom">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label-custom">Deskripsi</label>
+                                    <textarea name="deskripsi" class="form-control form-control-custom" rows="5" required></textarea>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label-custom">Fun Fact</label>
+                                    <textarea name="fun_fact" class="form-control form-control-custom" rows="2"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-5">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label-custom">Foto Utama</label>
+                                    <input type="file" name="gambar_utama" class="form-control form-control-custom" accept="image/*" required>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label-custom">Galeri (Multiple)</label>
+                                    <input type="file" name="gallery_images" class="form-control form-control-custom" accept="image/*" multiple>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label-custom">Lat</label>
+                                    <input type="text" name="latitude" class="form-control form-control-custom">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label-custom">Lon</label>
+                                    <input type="text" name="longitude" class="form-control form-control-custom">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label-custom">Jarak (km)</label>
+                                    <input type="text" name="jarak_estimasi" class="form-control form-control-custom">
+                                </div>
+                                <div class="col-12 mt-4">
+                                    <div class="form-check form-switch p-3 bg-light rounded-3 border">
+                                        <input class="form-check-input ms-0 me-3" type="checkbox" name="is_slider" id="addSlider">
+                                        <label class="form-check-label fw-bold text-dark" for="addSlider">Jadikan Banner Utama</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button type="submit" class="btn btn-warning rounded-pill px-5 py-2 fw-bold text-white shadow-sm" style="background: var(--primary);">Simpan Data</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% for b in budaya %}
+<div class="modal fade" id="modalEditBudaya{{ b.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 24px;">
+            <div class="modal-header border-0 px-4 pt-4">
+                <h5 class="modal-title fw-800">Edit: {{ b.nama_tempat }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('admin_bp.update_budaya', id=b.id) }}" method="POST" enctype="multipart/form-data">
+                <div class="modal-body p-4">
+                    <div class="row g-4">
+                        <div class="col-lg-7 border-end">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label-custom">Nama Tempat</label>
+                                    <input type="text" name="nama_tempat" class="form-control form-control-custom" value="{{ b.nama_tempat }}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label-custom">Subtitle</label>
+                                    <input type="text" name="subtitle" class="form-control form-control-custom" value="{{ b.subtitle or '' }}">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label-custom">Kategori</label>
+                                    <select name="kategori" class="form-select form-control-custom">
+                                        <option value="Sejarah" {% if b.kategori == 'Sejarah' %}selected{% endif %}>Sejarah</option>
+                                        <option value="Tradisi" {% if b.kategori == 'Tradisi' %}selected{% endif %}>Tradisi</option>
+                                        <option value="Kuliner" {% if b.kategori == 'Kuliner' %}selected{% endif %}>Kuliner</option>
+                                        <option value="Wisata" {% if b.kategori == 'Wisata' %}selected{% endif %}>Wisata</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label-custom">Tahun</label>
+                                    <input type="text" name="tahun_dibangun" class="form-control form-control-custom" value="{{ b.tahun_dibangun or '' }}">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label-custom">Durasi</label>
+                                    <input type="text" name="durasi_kunjungan" class="form-control form-control-custom" value="{{ b.durasi_kunjungan or '' }}">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label-custom">Deskripsi</label>
+                                    <textarea name="deskripsi" class="form-control form-control-custom" rows="5" required>{{ b.deskripsi }}</textarea>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label-custom">Fun Fact</label>
+                                    <textarea name="fun_fact" class="form-control form-control-custom" rows="2">{{ b.fun_fact or '' }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-5">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label-custom">Foto Utama</label>
+                                    <div class="mb-2">
+                                        <img src="{{ url_for('static', filename='uploads/' + b.image_url) if b.image_url else '' }}" 
+                                             style="width: 100%; height: 150px; object-fit: cover; border-radius: 15px; border: 2px solid #eee;">
+                                    </div>
+                                    <input type="file" name="gambar_utama" class="form-control form-control-custom" accept="image/*">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label-custom">Galeri Foto</label>
+                                    <div class="d-flex flex-wrap gap-2 mb-2 p-2 bg-light rounded-3 border">
+                                        {% if b.gallery %}
+                                            {% for img in b.gallery %}
+                                            <div class="position-relative gallery-item-container" style="width: 65px; height: 65px;">
+                                                <img src="{{ url_for('static', filename='uploads/' + img) }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+                                                <button type="button" onclick="deleteImageAjax('{{ b.id }}', '{{ img }}', this)"
+                                                        class="position-absolute d-flex align-items-center justify-content-center bg-danger text-white border-0" 
+                                                        style="top: -5px; right: -5px; width: 20px; height: 20px; border-radius: 50%; font-size: 10px; z-index: 10;">
+                                                    <i class="fa fa-times"></i>
+                                                </button>
+                                            </div>
+                                            {% endfor %}
+                                        {% else %}
+                                            <small class="text-muted italic">Kosong</small>
+                                        {% endif %}
+                                    </div>
+                                    <input type="file" name="gallery_images" class="form-control form-control-custom" accept="image/*" multiple>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label-custom">Lat</label>
+                                    <input type="text" name="latitude" class="form-control form-control-custom" value="{{ b.latitude }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label-custom">Lon</label>
+                                    <input type="text" name="longitude" class="form-control form-control-custom" value="{{ b.longitude }}">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label-custom">Jarak (km)</label>
+                                    <input type="text" name="jarak_estimasi" class="form-control form-control-custom" value="{{ b.jarak_estimasi or '' }}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-3 border-top d-flex justify-content-between align-items-center">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="is_slider" id="editSlider{{ b.id }}" {% if b.is_slider %}checked{% endif %}>
+                            <label class="form-check-label fw-bold text-dark" for="editSlider{{ b.id }}">Banner Utama</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary rounded-pill px-5 py-2 fw-bold">Update Data Budaya</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalDelBudaya{{ b.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-center p-5" style="border-radius: 24px;">
+            <div class="text-danger mb-4" style="font-size: 4rem;"><i class="fa fa-exclamation-triangle"></i></div>
+            <h3 class="fw-800">Hapus Data?</h3>
+            <p class="text-muted">Data <b>{{ b.nama_tempat }}</b> dan semua aset gambarnya akan dihapus permanen dari server.</p>
+            <div class="d-flex gap-3 mt-4">
+                <button class="btn btn-light w-100 rounded-pill py-2 fw-bold" data-bs-dismiss="modal">Batal</button>
+                <a href="{{ url_for('admin_bp.delete_budaya', id=b.id) }}" class="btn btn-danger w-100 rounded-pill py-2 fw-bold text-white text-decoration-none d-flex align-items-center justify-content-center">Ya, Hapus</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<script>
+document.querySelectorAll('form').forEach(form => {
+    form.addEventListener('submit', function(e) {
+        const submitBtn = this.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.classList.add('btn-loading');
+            submitBtn.disabled = true;
+        }
+        this.classList.add('is-submitting');
+    });
+});
+
+function deleteImageAjax(cultureId, filename, btnElement) {
+    Swal.fire({
+        title: 'Hapus Gambar?',
+        text: "File akan dihapus permanen dari server.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#D35400',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Ya, Hapus',
+        cancelButtonText: 'Batal',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: 'Memproses...',
+                html: 'Sedang menghapus file dari server.',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
+
+            fetch(`/appadministrator/delete_gallery_img/${cultureId}/${filename}`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    const container = btnElement.closest('.gallery-item-container');
+                    container.style.transform = 'scale(0)';
+                    container.style.transition = '0.3s';
+                    setTimeout(() => container.remove(), 300);
+                    Swal.fire({ title: 'Berhasil!', text: 'Gambar terhapus.', icon: 'success', timer: 1000, showConfirmButton: false });
+                } else {
+                    Swal.fire('Gagal!', data.message, 'error');
+                }
+            })
+            .catch(error => {
+                Swal.fire('Error!', 'Koneksi terputus.', 'error');
+            });
+        }
+    });
+}
+
+function confirmDelete(url, name) {
+    Swal.fire({
+        title: 'Hapus Data?',
+        html: `Anda akan menghapus <b>${name}</b> secara permanen.`,
+        icon: 'error',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Hapus Sekarang',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: 'Menghapus...',
+                didOpen: () => { Swal.showLoading(); }
+            });
+            window.location.href = url;
+        }
+    });
+}
+</script>

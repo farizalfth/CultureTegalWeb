@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Tegal Culture</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+
+<body>
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            <div class="tc-logo-small">
+                <div class="tc-inner">TC</div>
+            </div>
+            <div class="brand-name"><span>TEGAL</span><span>CULTURE</span></div>
+        </div>
+        <small class="px-4 opacity-50 text-uppercase" style="font-size: 0.6rem; letter-spacing: 2px;">Admin
+            Panel</small>
+        <nav class="nav flex-column mt-3" id="sidebar-nav">
+            <a class="nav-link active" onclick="showSection('dashboard')"><i class="fa fa-th-large me-3"></i>
+                Dashboard</a>
+            <a class="nav-link" onclick="showSection('budaya')"><i class="fa fa-landmark me-3"></i> Jelajah Budaya</a>
+            <a class="nav-link" onclick="showSection('event')"><i class="fa fa-calendar-alt me-3"></i> Event</a>
+            <a class="nav-link" onclick="showSection('umkm')"><i class="fa fa-store me-3"></i> UMKM</a>
+            <a class="nav-link" onclick="showSection('users')"><i class="fa fa-users me-3"></i> Users</a>
+            <a class="nav-link" onclick="showSection('settings')"><i class="fa fa-cog me-3"></i> Pengaturan</a>
+        </nav>
+        <div class="logout-btn"><a href="{{ url_for('admin_bp.logout') }}" class="nav-link"><i
+                    class="fa fa-sign-out-alt me-3"></i> Logout</a></div>
+    </div>
+
+    <div class="main-content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="search-container position-relative" style="width: 350px;">
+                <i class="fa fa-search position-absolute text-muted" style="left: 15px; top: 12px;"></i>
+                <input type="text" class="form-control border-0 shadow-sm rounded-pill ps-5" placeholder="Cari data...">
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <div class="text-end">
+                    <p class="m-0 fw-bold small">{{ session.get('nama', 'Admin') }}</p>
+                    <small class="text-muted" style="font-size: 0.7rem;">Super Admin</small>
+                </div>
+                <img src="https://ui-avatars.com/api/?name=Admin&background=D35400&color=fff" width="40"
+                    class="rounded-circle shadow-sm border">
+            </div>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} border-0 py-2 small mb-4 rounded-pill">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+         <script>
+        function showSection(id) {
+            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.sidebar .nav-link').forEach(l => l.classList.remove('active'));
+            const target = document.getElementById(id);
+            if (target) {
+                target.classList.add('active');
+                window.history.pushState(null, null, `#${id}`);
+            }
+            const activeLink = Array.from(document.querySelectorAll('.sidebar .nav-link')).find(link => link.getAttribute('onclick') && link.getAttribute('onclick').includes(id));
+            if (activeLink) activeLink.classList.add('active');
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const currentHash = window.location.hash.substring(1);
+            if (currentHash) {
+                showSection(currentHash);
+            }
+        });
+
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function() {
+                const submitBtn = this.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Memproses...';
+                    submitBtn.classList.add('btn-loading');
+                    submitBtn.disabled = true;
+                }
+            });
+        });
+
+        function confirmDelete(url, name) {
+            Swal.fire({
+                title: 'Hapus Data?',
+                html: `Anda akan menghapus secara permanen: <br><b>${name}</b>`,
+                icon: 'error',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Ya, Hapus',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({ title: 'Menghapus...', didOpen: () => { Swal.showLoading(); } });
+                    window.location.href = url;
+                }
+            });
+        }
+
+        document.addEventListener('click', function(e) {
+            const deleteBtn = e.target.closest('.btn-delete-user');
+            if (deleteBtn) {
+                const url = deleteBtn.getAttribute('data-url');
+                const name = deleteBtn.getAttribute('data-name');
+                confirmDelete(url, name);
+            }
+        });
+
+        document.querySelector('.search-container input').addEventListener('keyup', function() {
+            const searchText = this.value.toLowerCase();
+            const activeSection = document.querySelector('.content-section.active');
+            if (!activeSection) return;
+
+            const rows = activeSection.querySelectorAll('table tbody tr');
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchText)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+
+</html>

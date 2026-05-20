@@ -1,0 +1,154 @@
+<div class="modal fade" id="modalAddUMKM" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 24px;">
+            <div class="modal-header border-0 px-4 pt-4">
+                <div class="d-flex align-items-center">
+                    <div class="bg-orange-light p-2 rounded-3 me-3"><i class="fa fa-shopping-bag text-orange"></i></div>
+                    <h5 class="modal-title fw-800">Tambah Produk UMKM</h5>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('admin_bp.add_umkm') }}" method="POST" enctype="multipart/form-data">
+                <div class="modal-body p-4">
+                    <div class="row g-4">
+                        <div class="col-lg-7 border-end">
+                            <div class="row g-3">
+                                <div class="col-md-12">
+                                    <label class="form-label-custom">Nama Produk</label>
+                                    <input type="text" name="nama_produk" class="form-control form-control-custom" placeholder="Batik Tegalan" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label-custom">Harga</label>
+                                    <input type="text" name="harga" class="form-control form-control-custom" placeholder="150.000" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label-custom">Kategori</label>
+                                    <select name="kategori" class="form-select form-control-custom" required>
+                                        <option value="Kuliner">Kuliner</option>
+                                        <option value="Fashion">Fashion</option>
+                                        <option value="Kriya">Kriya</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label-custom">Deskripsi</label>
+                                    <textarea name="deskripsi" class="form-control form-control-custom" rows="4" required></textarea>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label-custom">Nama Toko</label>
+                                    <input type="text" name="nama_toko" class="form-control form-control-custom" required>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label-custom">Alamat Toko</label>
+                                    <textarea name="alamat_toko" class="form-control form-control-custom" rows="2" required></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-5">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label-custom">Foto Produk</label>
+                                    <input type="file" name="gambar_umkm" class="form-control form-control-custom" accept="image/*" required>
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="form-label-custom">Nomor WhatsApp</label>
+                                    <input type="text" name="no_whatsapp" class="form-control form-control-custom" placeholder="628123456789">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label-custom">Link Toko Eksternal</label>
+                                    <input type="url" name="link_eksternal" class="form-control form-control-custom" placeholder="https://shopee.co.id/toko">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label-custom">Rating (0-5)</label>
+                                    <input type="number" step="0.1" max="5" name="rating" class="form-control form-control-custom" value="0">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button type="submit" class="btn btn-warning rounded-pill px-5 py-2 fw-bold text-white shadow-sm" style="background: var(--primary);">Simpan Produk</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% for u in umkm %}
+<div class="modal fade" id="modalEditUMKM{{ u.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 24px;">
+            <div class="modal-header border-0 px-4 pt-4">
+                <h5 class="modal-title fw-800">Edit Produk: {{ u.nama_produk }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('admin_bp.update_umkm', id=u.id) }}" method="POST" enctype="multipart/form-data">
+                <div class="modal-body p-4">
+                    <div class="row g-4">
+                        <div class="col-lg-7 border-end">
+                            <div class="row g-3">
+                                <div class="col-md-12">
+                                    <label class="form-label-custom">Nama Produk</label>
+                                    <input type="text" name="nama_produk" class="form-control form-control-custom" value="{{ u.nama_produk }}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label-custom">Harga</label>
+                                    <input type="text" name="harga" class="form-control form-control-custom" value="{{ u.harga }}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label-custom">Kategori</label>
+                                    <select name="kategori" class="form-select form-control-custom">
+                                        <option value="Kuliner" {% if u.kategori == 'Kuliner' %}selected{% endif %}>Kuliner</option>
+                                        <option value="Fashion" {% if u.kategori == 'Fashion' %}selected{% endif %}>Fashion</option>
+                                        <option value="Kriya" {% if u.kategori == 'Kriya' %}selected{% endif %}>Kriya</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label-custom">Deskripsi</label>
+                                    <textarea name="deskripsi" class="form-control form-control-custom" rows="4" required>{{ u.deskripsi }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-5">
+                            <div class="row g-3">
+                                <div class="col-12 text-center">
+                                    <div class="mb-2">
+                                        <img src="{{ url_for('static', filename='uploads/' + u.image_url) if u.image_url else '' }}" style="width: 100%; height: 180px; object-fit: cover; border-radius: 15px; border: 2px solid #eee;">
+                                    </div>
+                                    <input type="file" name="gambar_umkm" class="form-control form-control-custom" accept="image/*">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label-custom">No WhatsApp</label>
+                                    <input type="text" name="no_whatsapp" class="form-control form-control-custom" value="{{ u.no_whatsapp or '' }}">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label-custom">Link Eksternal</label>
+                                    <input type="url" name="link_eksternal" class="form-control form-control-custom" value="{{ u.link_eksternal or '' }}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button type="submit" class="btn btn-primary rounded-pill px-5 py-2 fw-bold">Update Produk</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalDelUMKM{{ u.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-center p-5" style="border-radius: 24px;">
+            <div class="text-danger mb-4" style="font-size: 4rem;"><i class="fa fa-shopping-bag"></i></div>
+            <h3 class="fw-800">Hapus Produk?</h3>
+            <p class="text-muted small">Data produk <b>{{ u.nama_produk }}</b> akan dihapus permanen.</p>
+            <div class="d-flex gap-3 mt-4">
+                <button class="btn btn-light w-100 rounded-pill py-2 fw-bold" data-bs-dismiss="modal">Batal</button>
+                <button type="button" 
+                        onclick="confirmDelete('{{ url_for('admin_bp.delete_umkm', id=u.id) }}', '{{ u.nama_produk|replace("\'", "\\\'") }}')" 
+                        class="btn btn-danger w-100 rounded-pill py-2 fw-bold shadow-sm">Ya, Hapus</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}

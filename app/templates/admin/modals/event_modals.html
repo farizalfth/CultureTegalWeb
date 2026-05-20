@@ -1,0 +1,261 @@
+<div class="modal fade" id="modalAddEvent" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 24px;">
+            <div class="modal-header border-0 px-4 pt-4">
+                <h5 class="modal-title fw-800">Terbitkan Event Baru</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('admin_bp.add_event') }}" method="POST" enctype="multipart/form-data">
+                <div class="modal-body p-4">
+                    <div class="row g-4">
+                        <div class="col-lg-7 border-end">
+                            <div class="row g-3">
+                                <div class="col-md-12">
+                                    <label class="form-label-custom">Judul Event</label>
+                                    <input type="text" name="judul_event" class="form-control form-control-custom" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label-custom">Tanggal Mulai</label>
+                                    <input type="date" name="tanggal_mulai" class="form-control form-control-custom" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label-custom">Tanggal Selesai</label>
+                                    <input type="date" name="tanggal_selesai" class="form-control form-control-custom" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label-custom">Jam Mulai</label>
+                                    <input type="time" name="jam_mulai" class="form-control form-control-custom" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label-custom">Jam Selesai</label>
+                                    <input type="time" name="jam_selesai" class="form-control form-control-custom" required>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label-custom">Lokasi Singkat</label>
+                                    <input type="text" name="lokasi_singkat" class="form-control form-control-custom" placeholder="Alun-alun Tegal" required>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label-custom">Alamat Lengkap</label>
+                                    <textarea name="alamat_lengkap" class="form-control form-control-custom" rows="2" required></textarea>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label-custom">Deskripsi</label>
+                                    <textarea name="deskripsi" class="form-control form-control-custom" rows="3" required></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-5">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <div class="p-3 bg-light rounded-4 border">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" name="is_recurring" id="addRecurring">
+                                            <label class="form-check-label fw-bold" for="addRecurring">Event Berulang (Recurring)</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label-custom">Poster Event</label>
+                                    <input type="file" name="gambar_event" class="form-control form-control-custom" accept="image/*" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label-custom">Badge Top</label>
+                                    <input type="text" name="badge_top" class="form-control form-control-custom" placeholder="25">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label-custom">Badge Bottom</label>
+                                    <input type="text" name="badge_bottom" class="form-control form-control-custom" placeholder="Mei">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label-custom">Audience</label>
+                                    <input type="text" name="audience" class="form-control form-control-custom" placeholder="Umum">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label-custom">Harga Tiket</label>
+                                    <input type="text" name="harga_tiket" class="form-control form-control-custom" placeholder="Gratis">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label-custom">Latitude</label>
+                                    <input type="text" name="latitude" class="form-control form-control-custom" placeholder="-6.8xxx">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label-custom">Longitude</label>
+                                    <input type="text" name="longitude" class="form-control form-control-custom" placeholder="109.1xxx">
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="form-label-custom">Kategori / Status</label>
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <input type="text" name="kategori" class="form-control form-control-sm" placeholder="Festival">
+                                        </div>
+                                        <div class="col-6">
+                                            <select name="status" class="form-select form-control-sm">
+                                                <option value="Mendatang">Mendatang</option>
+                                                <option value="Sedang Berlangsung">Berlangsung</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button type="submit" class="btn btn-warning rounded-pill px-5 py-2 fw-bold text-white shadow-sm" style="background: var(--primary);">Simpan Event</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% for e in events %}
+<div class="modal fade" id="modalEditEvent{{ e.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 24px;">
+            <div class="modal-header border-0 px-4 pt-4">
+                <h5 class="modal-title fw-800">Edit Event: {{ e.judul_event }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('admin_bp.update_event', id=e.id) }}" method="POST" enctype="multipart/form-data">
+                <div class="modal-body p-4">
+                    <div class="row g-4">
+                        <div class="col-lg-7 border-end">
+                            <div class="row g-3">
+                                <div class="col-md-12">
+                                    <label class="form-label-custom">Judul Event</label>
+                                    <input type="text" name="judul_event" class="form-control form-control-custom" value="{{ e.judul_event }}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label-custom">Ubah Tanggal Mulai</label>
+                                    <input type="date" name="tanggal_mulai" class="form-control form-control-custom" value="{{ e.raw_date }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label-custom">Ubah Tanggal Selesai</label>
+                                    <input type="date" name="tanggal_selesai" class="form-control form-control-custom" value="{{ e.raw_end_date }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label-custom">Jam Mulai / Selesai</label>
+                                    <div class="row g-2">
+                                        <div class="col-6"><input type="time" name="jam_mulai" class="form-control form-control-custom"></div>
+                                        <div class="col-6"><input type="time" name="jam_selesai" class="form-control form-control-custom"></div>
+                                    </div>
+                                    <small class="text-muted">Kosongkan jika jam tidak berubah ({{ e.waktu_pelaksanaan }})</small>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label-custom">Lokasi Singkat</label>
+                                    <input type="text" name="lokasi_singkat" class="form-control form-control-custom" value="{{ e.lokasi_singkat }}" required>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label-custom">Alamat Lengkap</label>
+                                    <textarea name="alamat_lengkap" class="form-control form-control-custom" rows="2" required>{{ e.alamat_lengkap }}</textarea>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label-custom">Deskripsi</label>
+                                    <textarea name="deskripsi" class="form-control form-control-custom" rows="4" required>{{ e.deskripsi }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-5">
+                            <div class="row g-3">
+                                <div class="col-12 text-center">
+                                    <div class="mb-2">
+                                        <img src="{{ url_for('static', filename='uploads/' + e.image_url) if e.image_url else '' }}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 15px; border: 2px solid #eee;">
+                                    </div>
+                                    <input type="file" name="gambar_event" class="form-control form-control-custom" accept="image/*">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label-custom">Audience</label>
+                                    <input type="text" name="audience" class="form-control form-control-custom" value="{{ e.audience }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label-custom">Harga Tiket</label>
+                                    <input type="text" name="harga_tiket" class="form-control form-control-custom" value="{{ e.harga_tiket }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label-custom">Badge Top</label>
+                                    <input type="text" name="badge_top" class="form-control form-control-custom" value="{{ e.badge_top or '' }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label-custom">Badge Bottom</label>
+                                    <input type="text" name="badge_bottom" class="form-control form-control-custom" value="{{ e.badge_bottom or '' }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label-custom">Latitude</label>
+                                    <input type="text" name="latitude" class="form-control form-control-custom" value="{{ e.latitude }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label-custom">Longitude</label>
+                                    <input type="text" name="longitude" class="form-control form-control-custom" value="{{ e.longitude }}">
+                                </div>
+                                <div class="col-12">
+                                    <div class="p-3 bg-light rounded-4 border">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" name="is_recurring" id="editRecurring{{ e.id }}" {% if e.is_recurring %}checked{% endif %}>
+                                            <label class="form-check-label fw-bold" for="editRecurring{{ e.id }}">Event Berulang</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button type="submit" class="btn btn-primary rounded-pill px-5 py-2 fw-bold shadow-sm">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalDelEvent{{ e.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-center p-5" style="border-radius: 24px;">
+            <div class="text-danger mb-4" style="font-size: 4rem;"><i class="fa fa-calendar-times"></i></div>
+            <h3 class="fw-800">Hapus Event?</h3>
+            <p class="text-muted small">Tindakan ini permanen. Poster dan data event akan dihapus.</p>
+            <div class="d-flex gap-3 mt-4">
+                <button class="btn btn-light w-100 rounded-pill py-2 fw-bold" data-bs-dismiss="modal">Batal</button>
+                <button type="button"
+                        onclick="confirmDelete(this)"
+                        data-url="{{ url_for('admin_bp.delete_event', id=e.id) }}"
+                        data-title="{{ e.judul_event }}"
+                        class="btn btn-danger w-100 rounded-pill py-2 fw-bold shadow-sm">Ya, Hapus</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<script>
+document.querySelectorAll('form').forEach(form => {
+    form.addEventListener('submit', function() {
+        const submitBtn = this.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Memproses...';
+            submitBtn.classList.add('btn-loading');
+            submitBtn.disabled = true;
+        }
+    });
+});
+
+function confirmDelete(button) {
+    const url = button.getAttribute('data-url');
+    const name = button.getAttribute('data-title');
+
+    Swal.fire({
+        title: 'Hapus Event?',
+        html: `Anda akan menghapus event <b>${name}</b> secara permanen.`,
+        icon: 'error',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Ya, Hapus',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({ title: 'Menghapus...', didOpen: () => { Swal.showLoading(); } });
+            window.location.href = url;
+        }
+    });
+}
+</script>

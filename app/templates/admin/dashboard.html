@@ -1,0 +1,361 @@
+{% extends 'layouts/admin_base.html' %}
+
+{% block content %}
+<div id="dashboard" class="content-section active">
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="stat-card text-center">
+                <div class="icon-box bg-danger-subtle text-danger mx-auto"><i class="fa fa-landmark"></i></div>
+                <small class="text-muted small">Total Budaya</small>
+                <h4 class="fw-bold m-0 mt-1">{{ count_budaya }}</h4>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card text-center">
+                <div class="icon-box bg-warning-subtle text-warning mx-auto"><i class="fa fa-calendar-check"></i></div>
+                <small class="text-muted small">Total Event</small>
+                <h4 class="fw-bold m-0 mt-1">{{ count_event }}</h4>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card text-center">
+                <div class="icon-box bg-success-subtle text-success mx-auto"><i class="fa fa-shopping-bag"></i></div>
+                <small class="text-muted small">Produk UMKM</small>
+                <h4 class="fw-bold m-0 mt-1">{{ count_umkm }}</h4>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card text-center">
+                <div class="icon-box bg-primary-subtle text-primary mx-auto"><i class="fa fa-users"></i></div>
+                <small class="text-muted small">User Aktif</small>
+                <h4 class="fw-bold m-0 mt-1">{{ count_users }}</h4>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="budaya" class="content-section">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold m-0">Kelola Jelajah Budaya</h3>
+        <button class="btn btn-warning rounded-pill px-4 fw-bold text-white shadow-sm border-0"
+            style="background: var(--primary)" data-bs-toggle="modal" data-bs-target="#modalAddBudaya">
+            <i class="fa fa-plus me-2"></i> Tambah Budaya
+        </button>
+    </div>
+    <div class="admin-card p-0 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-custom mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4">Gambar</th>
+                        <th>Nama Tempat</th>
+                        <th>Kategori</th>
+                        <th>Lat</th>
+                        <th>Lon</th>
+                        <th class="text-center">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for b in budaya %}
+                    <tr>
+                        <td class="ps-4">
+                            <div class="img-wrapper shadow-sm border"
+                                style="width: 70px; height: 50px; border-radius: 12px; overflow: hidden; background: #eee;">
+                                {% if b.image_url %}
+                                <img src="{{ url_for('static', filename='uploads/' + b.image_url) }}"
+                                    style="width: 100%; height: 100%; object-fit: cover;"
+                                    onerror="this.src='https://via.placeholder.com/70x50?text=No+Img'">
+                                {% else %}
+                                <img src="https://via.placeholder.com/70x50?text=No+Img"
+                                    style="width: 100%; height: 100%; object-fit: cover;">
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="fw-bold text-dark">{{ b.nama_tempat }}</div>
+                            <small class="text-muted" style="font-size: 0.7rem;">{{ b.subtitle or '-' }}</small>
+                        </td>
+                        <td><span class="badge bg-orange-light text-orange">{{ b.kategori }}</span></td>
+                        <td><code class="small text-muted">{{ b.latitude }}</code></td>
+                        <td><code class="small text-muted">{{ b.longitude }}</code></td>
+                        <td class="text-center">
+                            <div class="btn-crud-group">
+                                <button class="btn-action btn-edit" data-bs-toggle="modal"
+                                    data-bs-target="#modalEditBudaya{{ b.id }}"><i class="fa fa-edit"></i></button>
+                                <button class="btn-action btn-delete" data-bs-toggle="modal"
+                                    data-bs-target="#modalDelBudaya{{ b.id }}"><i class="fa fa-trash"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="event" class="content-section">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold m-0">Manajemen Event</h3>
+        <button class="btn btn-warning rounded-pill px-4 fw-bold text-white shadow-sm border-0"
+            style="background: var(--primary)" data-bs-toggle="modal" data-bs-target="#modalAddEvent">
+            <i class="fa fa-plus me-2"></i> Buat Event
+        </button>
+    </div>
+    <div class="admin-card p-0 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-custom mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4">Poster</th>
+                        <th>Nama Event</th>
+                        <th>Tanggal</th>
+                        <th>Status</th>
+                        <th class="text-center">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for e in events %}
+                    <tr>
+                        <td class="ps-4">
+                            <div class="shadow-sm border"
+                                style="width: 50px; height: 50px; border-radius: 10px; overflow: hidden;">
+                                <img src="{{ url_for('static', filename='uploads/' + e.image_url) if e.image_url else 'https://via.placeholder.com/50' }}"
+                                    style="width:100%; height:100%; object-fit:cover;">
+                            </div>
+                        </td>
+                        <td><b>{{ e.judul_event }}</b><br><small class="text-muted">{{ e.kategori }}</small></td>
+                        <td><span class="small fw-bold text-dark">{{ e.tanggal_lengkap }}</span></td>
+                        <td><span
+                                class="badge {% if e.status == 'Sedang Berlangsung' %}bg-success{% else %}bg-warning{% endif %}-subtle text-dark border">{{
+                                e.status }}</span></td>
+                        <td class="text-center">
+                            <div class="btn-crud-group">
+                                <button class="btn-action btn-edit" data-bs-toggle="modal"
+                                    data-bs-target="#modalEditEvent{{ e.id }}"><i class="fa fa-edit"></i></button>
+                                <button class="btn-action btn-delete" data-bs-toggle="modal"
+                                    data-bs-target="#modalDelEvent{{ e.id }}"><i class="fa fa-trash"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="umkm" class="content-section">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold m-0">Produk UMKM</h3>
+        <button class="btn btn-warning rounded-pill px-4 fw-bold text-white shadow-sm border-0"
+            style="background: var(--primary)" data-bs-toggle="modal" data-bs-target="#modalAddUMKM">
+            <i class="fa fa-plus me-2"></i> Tambah Produk
+        </button>
+    </div>
+    <div class="admin-card p-0 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-custom mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4">Gambar</th>
+                        <th>Produk</th>
+                        <th>Toko</th>
+                        <th>Harga</th>
+                        <th class="text-center">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in umkm %}
+                    <tr>
+                        <td class="ps-4">
+                            <div class="shadow-sm border" style="width: 50px; height: 50px; border-radius: 10px; overflow: hidden;">
+                                <img src="{{ url_for('static', filename='uploads/' + u.image_url) if u.image_url else 'https://via.placeholder.com/50' }}" 
+                                     style="width:100%; height:100%; object-fit:cover;"
+                                     onerror="this.src='https://via.placeholder.com/50'">
+                            </div>
+                        </td>
+                        <td><b>{{ u.nama_produk }}</b></td>
+                        <td><span class="badge bg-light text-dark border">{{ u.nama_toko }}</span></td>
+                        <td><span class="text-orange fw-bold">Rp {{ u.harga }}</span></td>
+                        <td class="text-center">
+                            <div class="btn-crud-group">
+                                <button class="btn-action btn-edit" data-bs-toggle="modal"
+                                    data-bs-target="#modalEditUMKM{{ u.id }}"><i class="fa fa-edit"></i></button>
+                                <button class="btn-action btn-delete" data-bs-toggle="modal"
+                                    data-bs-target="#modalDelUMKM{{ u.id }}"><i class="fa fa-trash"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="users" class="content-section">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold m-0">Daftar Pengguna</h3>
+        <button class="btn btn-dark rounded-pill px-4 btn-sm" data-bs-toggle="modal" data-bs-target="#modalAddUser">
+            <i class="fa fa-plus me-2"></i> Tambah Admin
+        </button>
+    </div>
+    <div class="admin-card p-0 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-custom mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4">Profil</th>
+                        <th>Nama</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th class="text-center">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td class="ps-4">
+                            {% if user.profile_picture %}
+                            <img src="{{ url_for('static', filename='uploads/' + user.profile_picture) }}" 
+                                 class="rounded-circle border shadow-sm" width="35" height="35" style="object-fit: cover;">
+                            {% else %}
+                            <img src="https://ui-avatars.com/api/?name={{ user.nama }}&background=random"
+                                 class="rounded-circle border shadow-sm" width="35" height="35">
+                            {% endif %}
+                        </td>
+                        <td><b>{{ user.nama }}</b></td>
+                        <td><code class="text-muted">{{ user.email }}</code></td>
+                        <td>
+                            <span class="badge {% if user.role == 'admin' %}bg-dark{% else %}bg-secondary{% endif %}">
+                                {{ user.role|upper }}
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <div class="btn-crud-group">
+                                <button class="btn-action btn-edit" data-bs-toggle="modal" 
+                                        data-bs-target="#modalEditUser{{ user.id }}">
+                                    <i class="fa fa-cog"></i>
+                                </button>
+                                <button class="btn-action btn-delete btn-delete-user" type="button" 
+                                        data-url="{{ url_for('admin_bp.delete_user', id=user.id) }}" 
+                                        data-name="{{ user.nama }}">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="settings" class="content-section">
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="admin-card border-start border-5 border-primary mb-4">
+                <div class="d-flex align-items-center mb-4">
+                    <div class="bg-orange-light p-2 rounded-3 me-3">
+                        <i class="fa fa-user-cog text-orange"></i>
+                    </div>
+                    <h5 class="fw-bold m-0 text-dark">Pengaturan Akun Admin</h5>
+                </div>
+                <form action="{{ url_for('admin_bp.update_user', id=session.get('user_id')) }}" method="POST" enctype="multipart/form-data">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label-custom">Nama Lengkap Admin</label>
+                            <input type="text" name="nama" class="form-control form-control-custom" value="{{ session.get('nama') }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-custom">Ganti Foto Profil</label>
+                            <input type="file" name="profile_picture" class="form-control form-control-custom" accept="image/*">
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label-custom">Kata Sandi Baru (Kosongkan jika tidak ingin diubah)</label>
+                            <input type="password" name="password" class="form-control form-control-custom" placeholder="••••••••">
+                        </div>
+                    </div>
+                    <hr class="my-4 opacity-25">
+                    <button type="submit" class="btn btn-warning rounded-pill px-5 py-2 fw-bold text-white shadow-sm" style="background: var(--primary); border: none;">
+                        Perbarui Akun Saya
+                    </button>
+                </form>
+            </div>
+
+            <div class="admin-card border-start border-5 border-warning">
+                <div class="d-flex align-items-center mb-4">
+                    <div class="bg-orange-light p-2 rounded-3 me-3">
+                        <i class="fa fa-globe text-orange"></i>
+                    </div>
+                    <h5 class="fw-bold m-0 text-dark">Identitas Website (Metadata)</h5>
+                </div>
+                <form>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label-custom">Nama Platform</label>
+                            <input type="text" class="form-control form-control-custom" value="{{ config['SITE_NAME'] }}" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-custom">Email Resmi Korespondensi</label>
+                            <input type="email" class="form-control form-control-custom" value="{{ config['ADMIN_EMAIL'] }}" readonly>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label-custom">Slogan Platform</label>
+                            <input type="text" class="form-control form-control-custom" value="{{ config['SITE_SLOGAN'] }}" readonly>
+                        </div>
+                    </div>
+                    <hr class="my-4 opacity-25">
+                    <button type="button" class="btn btn-secondary rounded-pill px-5 py-2 fw-bold" disabled>
+                        Sistem Terkunci oleh Konfigurasi Config.py
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="admin-card h-100">
+                <div class="d-flex align-items-center mb-4">
+                    <div class="bg-light p-2 rounded-3 me-3 text-secondary">
+                        <i class="fa fa-server"></i>
+                    </div>
+                    <h5 class="fw-bold m-0 text-dark">Informasi Sistem</h5>
+                </div>
+                <div class="small">
+                    <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
+                        <span class="text-muted">Database Provider</span>
+                        <span class="fw-bold text-dark">Supabase (PostgreSQL)</span>
+                    </div>
+                    <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
+                        <span class="text-muted">Backend Engine</span>
+                        <span class="fw-bold text-dark">Flask (Python)</span>
+                    </div>
+                    <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
+                        <span class="text-muted">ORM Mapper</span>
+                        <span class="fw-bold text-dark">SQLAlchemy 2.0</span>
+                    </div>
+                    <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
+                        <span class="text-muted">Migration Engine</span>
+                        <span class="fw-bold text-dark">Alembic (Flask-Migrate)</span>
+                    </div>
+                    <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
+                        <span class="text-muted">Keamanan JWT</span>
+                        <span class="fw-bold text-dark">Asymmetric (P-256)</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Status Server</span>
+                        <span class="badge bg-success-subtle text-success border">ONLINE</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include 'admin/modals/budaya_modals.html' %}
+{% include 'admin/modals/event_modals.html' %}
+{% include 'admin/modals/umkm_modals.html' %}
+{% include 'admin/modals/user_modals.html' %}
+{% endblock %}
