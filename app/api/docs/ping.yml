@@ -1,0 +1,14 @@
+tags:
+  - System
+responses:
+  200:
+    description: API beroperasi dengan normal
+    schema:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        message:
+          type: string
+          example: API v1 is active.

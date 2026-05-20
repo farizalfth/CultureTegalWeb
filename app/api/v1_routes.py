@@ -1,14 +1,19 @@
+import os
 from flask import Blueprint, jsonify
+from flasgger import swag_from
 from app.models import CultureSite, Event, UMKM, User
 from app.services.auth_service import token_required
 
 api_v1 = Blueprint('api_v1', __name__, url_prefix='/api/v1')
+base_dir = os.path.dirname(os.path.abspath(__file__))
 
 @api_v1.route('/ping', methods=['GET'])
+@swag_from(os.path.join(base_dir, 'docs/ping.yml'))
 def ping():
     return jsonify({"status": "success", "message": "API v1 is active."}), 200
 
 @api_v1.route('/cultures', methods=['GET'])
+@swag_from(os.path.join(base_dir, 'docs/cultures.yml'))
 @token_required
 def get_cultures(current_user):
     try:
@@ -29,6 +34,7 @@ def get_cultures(current_user):
         return jsonify({"status": "error", "message": str(e)}), 500
 
 @api_v1.route('/events', methods=['GET'])
+@swag_from(os.path.join(base_dir, 'docs/events.yml'))
 @token_required
 def get_events(current_user):
     try:
@@ -52,6 +58,7 @@ def get_events(current_user):
         return jsonify({"status": "error", "message": str(e)}), 500
 
 @api_v1.route('/umkms', methods=['GET'])
+@swag_from(os.path.join(base_dir, 'docs/umkms.yml'))
 @token_required
 def get_umkms(current_user):
     try:
@@ -74,6 +81,7 @@ def get_umkms(current_user):
         return jsonify({"status": "error", "message": str(e)}), 500
 
 @api_v1.route('/profile', methods=['GET'])
+@swag_from(os.path.join(base_dir, 'docs/profile.yml'))
 @token_required
 def get_profile(current_user):
     try:
@@ -95,3 +103,4 @@ def get_profile(current_user):
         }), 200
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
+

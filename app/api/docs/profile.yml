@@ -1,0 +1,41 @@
+tags:
+  - User
+security:
+  - Bearer: []
+responses:
+  200:
+    description: Berhasil mengambil data profil
+    schema:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+              example: 550e8400-e29b-41d4-a716-446655440000
+            nama:
+              type: string
+              example: Nadhif
+            email:
+              type: string
+              example: user@email.com
+            profile_picture:
+              type: string
+              example: https://link-gambar.com/pic.jpg
+            points:
+              type: integer
+              example: 1250
+            total_xp:
+              type: integer
+              example: 5000
+            level:
+              type: integer
+              example: 5
+  401:
+    description: Token otorisasi tidak valid
+  404:
+    description: Profil tidak ditemukan di database

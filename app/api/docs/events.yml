@@ -1,0 +1,50 @@
+tags:
+  - Event
+security:
+  - Bearer: []
+responses:
+  200:
+    description: Berhasil mengambil data event
+    schema:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                example: 550e8400-e29b-41d4-a716-446655440000
+              title:
+                type: string
+                example: Festival Bahari
+              category:
+                type: string
+                example: Budaya
+              status:
+                type: string
+                example: Akan Datang
+              date:
+                type: string
+                example: Sabtu, 15 Juli 2026
+              time:
+                type: string
+                example: 08:00 - 15:00 WIB
+              location:
+                type: string
+                example: Alun-Alun Tegal
+              address:
+                type: string
+                example: Jl. Pancasila No. 1
+              image:
+                type: string
+                example: uploads/event.jpg
+              is_recurring:
+                type: boolean
+                example: false
+  401:
+    description: Token otorisasi tidak valid

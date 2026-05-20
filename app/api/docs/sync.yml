@@ -1,0 +1,43 @@
+tags:
+  - Authentication
+security:
+  - Bearer: []
+parameters:
+  - in: body
+    name: body
+    required: false
+    schema:
+      type: object
+      properties:
+        nama:
+          type: string
+          example: Nadhif
+        provider:
+          type: string
+          example: google
+        profile_picture:
+          type: string
+          example: https://link-gambar.com/pic.jpg
+responses:
+  200:
+    description: Sinkronisasi data pengguna berhasil
+    schema:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+              example: 550e8400-e29b-41d4-a716-446655440000
+            nama:
+              type: string
+              example: Nadhif
+            email:
+              type: string
+              example: user@email.com
+  401:
+    description: Token otorisasi tidak valid

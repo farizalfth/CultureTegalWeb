@@ -1,0 +1,41 @@
+tags:
+  - Culture
+security:
+  - Bearer: []
+responses:
+  200:
+    description: Berhasil mengambil data budaya
+    schema:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                example: 550e8400-e29b-41d4-a716-446655440000
+              title:
+                type: string
+                example: Kelenteng Tek Hay Kiong
+              subtitle:
+                type: string
+                example: Pusat Sejarah
+              category:
+                type: string
+                example: Sejarah
+              image:
+                type: string
+                example: uploads/169123456_image.png
+              latitude:
+                type: number
+                example: -6.8653
+              longitude:
+                type: number
+                example: 109.1402
+  401:
+    description: Token otorisasi tidak valid atau tidak ditemukan
