@@ -1,3 +1,4 @@
+import os
 from flask import Flask
 from flask_migrate import Migrate
 from flask_apscheduler import APScheduler
@@ -8,7 +9,6 @@ from datetime import date, timedelta
 
 migrate = Migrate()
 scheduler = APScheduler()
-swagger = Swagger()
 
 def update_recurring_events():
     with scheduler.app.app_context(): # type: ignore
@@ -22,8 +22,10 @@ def update_recurring_events():
         db.session.commit()
 
 def create_app():
-    app = Flask(_name_, static_folder='../static', template_folder='../templates')
+    app = Flask(__name__)
     app.config.from_object(Config)
+    
+    app.secret_key = os.getenv('JWT_SECRET_KEY', 'tegal_culture_secret_key')
 
     app.config['SWAGGER'] = {
         'title': 'Tegal Culture API',
@@ -31,9 +33,27 @@ def create_app():
         'description': 'Dokumentasi REST API untuk aplikasi mobile Tegal Culture.'
     }
 
+    swagger_template = {
+        "swagger": "2.0",
+        "info": {
+            "title": "Tegal Culture API",
+            "description": "Dokumentasi REST API untuk aplikasi mobile Tegal Culture.",
+            "version": "1.0.0"
+        },
+        "securityDefinitions": {
+            "Bearer": {
+                "type": "apiKey",
+                "name": "Authorization",
+                "in": "header",
+                "description": "Format pengisian: Bearer <Token_JWT_Supabase>"
+            }
+        }
+    }
+
     db.init_app(app)
     migrate.init_app(app, db)
-    swagger.init_app(app)
+    
+    Swagger(app, template=swagger_template)
 
     if not scheduler.running:
         scheduler.init_app(app)
