@@ -48,8 +48,8 @@
                     <p class="m-0 fw-bold small">{{ session.get('nama', 'Admin') }}</p>
                     <small class="text-muted" style="font-size: 0.7rem;">Super Admin</small>
                 </div>
-                <img src="https://ui-avatars.com/api/?name=Admin&background=D35400&color=fff" width="40"
-                    class="rounded-circle shadow-sm border">
+                <img src="https://ui-avatars.com/api/?name={{ session.get('nama', 'Admin') }}&background=D35400&color=fff"
+                    width="40" height="40" class="rounded-circle shadow-sm border" style="object-fit: cover;">
             </div>
         </div>
 
@@ -68,7 +68,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-         <script>
+    <script>
         function showSection(id) {
             document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.sidebar .nav-link').forEach(l => l.classList.remove('active'));
@@ -89,7 +89,7 @@
         });
 
         document.querySelectorAll('form').forEach(form => {
-            form.addEventListener('submit', function() {
+            form.addEventListener('submit', function () {
                 const submitBtn = this.querySelector('button[type="submit"]');
                 if (submitBtn) {
                     submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Memproses...';
@@ -117,7 +117,7 @@
             });
         }
 
-        document.addEventListener('click', function(e) {
+        document.addEventListener('click', function (e) {
             const deleteBtn = e.target.closest('.btn-delete-user');
             if (deleteBtn) {
                 const url = deleteBtn.getAttribute('data-url');
@@ -126,7 +126,7 @@
             }
         });
 
-        document.querySelector('.search-container input').addEventListener('keyup', function() {
+        document.querySelector('.search-container input').addEventListener('keyup', function () {
             const searchText = this.value.toLowerCase();
             const activeSection = document.querySelector('.content-section.active');
             if (!activeSection) return;

@@ -21,7 +21,8 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label-custom">Foto Profil</label>
-                        <input type="file" name="profile_picture" class="form-control form-control-custom" accept="image/*">
+                        <input type="file" name="profile_picture" class="form-control form-control-custom"
+                            accept="image/*">
                     </div>
                 </div>
                 <div class="modal-footer border-0 px-4 pb-4">
@@ -33,7 +34,6 @@
 </div>
 
 {% for u in users %}
-<!-- MODAL EDIT USER -->
 <div class="modal fade" id="modalEditUser{{ u.id }}" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="border-radius: 24px;">
@@ -44,53 +44,74 @@
             <form action="{{ url_for('admin_bp.update_user', id=u.id) }}" method="POST" enctype="multipart/form-data">
                 <div class="modal-body p-4 text-start">
                     <div class="text-center mb-4">
-                        <img src="{{ url_for('static', filename='uploads/' + u.profile_picture) if u.profile_picture else 'https://ui-avatars.com/api/?name=' + u.nama }}" 
-                             class="rounded-circle border shadow-sm" width="80" height="80" style="object-fit: cover;">
+                        {% if u.profile_picture %}
+                        {% if u.profile_picture.startswith('http') %}
+                        <img src="{{ u.profile_picture }}" class="rounded-circle border shadow-sm" width="80"
+                            height="80" style="object-fit: cover;">
+                        {% else %}
+                        
+                        <img src="{{ url_for('static', filename='uploads/' + u.profile_picture) }}"
+                            class="rounded-circle border shadow-sm" width="80" height="80" style="object-fit: cover;">
+                        {% endif %}
+                        {% else %}
+                        <img src="https://ui-avatars.com/api/?name={{ u.nama }}&background=random"
+                            class="rounded-circle border shadow-sm" width="80" height="80" style="object-fit: cover;">
+                        {% endif %}
                     </div>
                     <div class="mb-3">
                         <label class="form-label-custom">Nama Lengkap</label>
-                        <input type="text" name="nama" class="form-control form-control-custom" value="{{ u.nama }}" required>
+                        <input type="text" name="nama" class="form-control form-control-custom" value="{{ u.nama }}"
+                            required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label-custom">Email</label>
-                        <input type="email" name="email" class="form-control form-control-custom" value="{{ u.email }}" required>
+                        <input type="email" name="email" class="form-control form-control-custom" value="{{ u.email }}"
+                            required>
                     </div>
 
                     {% if u.role == 'admin' %}
                     <div class="mb-3">
                         <label class="form-label-custom">Password Baru (Kosongkan jika tidak diubah)</label>
-                        <input type="password" name="password" class="form-control form-control-custom" placeholder="••••••••">
+                        <input type="password" name="password" class="form-control form-control-custom"
+                            placeholder="••••••••">
                     </div>
                     {% else %}
                     <div class="row g-2 mb-3">
                         <div class="col-4">
                             <label class="form-label-custom">Poin</label>
-                            <input type="number" name="poin" class="form-control form-control-custom" value="{{ u.poin }}">
+                            <input type="number" name="poin" class="form-control form-control-custom"
+                                value="{{ u.poin }}">
                         </div>
                         <div class="col-4">
                             <label class="form-label-custom">Total XP</label>
-                            <input type="number" name="total_xp" class="form-control form-control-custom" value="{{ u.total_xp }}">
+                            <input type="number" name="total_xp" class="form-control form-control-custom"
+                                value="{{ u.total_xp }}">
                         </div>
                         <div class="col-4">
                             <label class="form-label-custom">Level</label>
-                            <input type="number" name="level" class="form-control form-control-custom" value="{{ u.level }}">
+                            <input type="number" name="level" class="form-control form-control-custom"
+                                value="{{ u.level }}">
                         </div>
                     </div>
                     <div class="p-3 bg-light rounded-4 border border-danger-subtle mb-3">
                         <div class="form-check form-switch d-flex justify-content-between align-items-center p-0">
-                            <label class="form-check-label fw-bold text-danger m-0" for="banCheck{{ u.id }}">Blokir Pengguna (Banned)</label>
-                            <input class="form-check-input ms-0" type="checkbox" name="is_banned" id="banCheck{{ u.id }}" {% if u.is_banned %}checked{% endif %}>
+                            <label class="form-check-label fw-bold text-danger m-0" for="banCheck{{ u.id }}">Blokir
+                                Pengguna (Banned)</label>
+                            <input class="form-check-input ms-0" type="checkbox" name="is_banned"
+                                id="banCheck{{ u.id }}" {% if u.is_banned %}checked{% endif %}>
                         </div>
                     </div>
                     {% endif %}
 
                     <div class="mb-3">
                         <label class="form-label-custom">Ganti Foto Profil</label>
-                        <input type="file" name="profile_picture" class="form-control form-control-custom" accept="image/*">
+                        <input type="file" name="profile_picture" class="form-control form-control-custom"
+                            accept="image/*">
                     </div>
                 </div>
                 <div class="modal-footer border-0 px-4 pb-4">
-                    <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 fw-bold shadow-sm">Simpan Perubahan</button>
+                    <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 fw-bold shadow-sm">Simpan
+                        Perubahan</button>
                 </div>
             </form>
         </div>

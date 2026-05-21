@@ -169,10 +169,11 @@
                     {% for u in umkm %}
                     <tr>
                         <td class="ps-4">
-                            <div class="shadow-sm border" style="width: 50px; height: 50px; border-radius: 10px; overflow: hidden;">
-                                <img src="{{ url_for('static', filename='uploads/' + u.image_url) if u.image_url else 'https://via.placeholder.com/50' }}" 
-                                     style="width:100%; height:100%; object-fit:cover;"
-                                     onerror="this.src='https://via.placeholder.com/50'">
+                            <div class="shadow-sm border"
+                                style="width: 50px; height: 50px; border-radius: 10px; overflow: hidden;">
+                                <img src="{{ url_for('static', filename='uploads/' + u.image_url) if u.image_url else 'https://via.placeholder.com/50' }}"
+                                    style="width:100%; height:100%; object-fit:cover;"
+                                    onerror="this.src='https://via.placeholder.com/50'">
                             </div>
                         </td>
                         <td><b>{{ u.nama_produk }}</b></td>
@@ -218,11 +219,17 @@
                     <tr>
                         <td class="ps-4">
                             {% if user.profile_picture %}
-                            <img src="{{ url_for('static', filename='uploads/' + user.profile_picture) }}" 
-                                 class="rounded-circle border shadow-sm" width="35" height="35" style="object-fit: cover;">
+                            {% if user.profile_picture.startswith('http') %}
+                            <img src="{{ user.profile_picture }}" class="rounded-circle border shadow-sm" width="35"
+                                height="35" style="object-fit: cover;">
+                            {% else %}
+                            <img src="{{ url_for('static', filename='uploads/' + user.profile_picture) }}"
+                                class="rounded-circle border shadow-sm" width="35" height="35"
+                                style="object-fit: cover;">
+                            {% endif %}
                             {% else %}
                             <img src="https://ui-avatars.com/api/?name={{ user.nama }}&background=random"
-                                 class="rounded-circle border shadow-sm" width="35" height="35">
+                                class="rounded-circle border shadow-sm" width="35" height="35">
                             {% endif %}
                         </td>
                         <td><b>{{ user.nama }}</b></td>
@@ -234,13 +241,13 @@
                         </td>
                         <td class="text-center">
                             <div class="btn-crud-group">
-                                <button class="btn-action btn-edit" data-bs-toggle="modal" 
-                                        data-bs-target="#modalEditUser{{ user.id }}">
+                                <button class="btn-action btn-edit" data-bs-toggle="modal"
+                                    data-bs-target="#modalEditUser{{ user.id }}">
                                     <i class="fa fa-cog"></i>
                                 </button>
-                                <button class="btn-action btn-delete btn-delete-user" type="button" 
-                                        data-url="{{ url_for('admin_bp.delete_user', id=user.id) }}" 
-                                        data-name="{{ user.nama }}">
+                                <button class="btn-action btn-delete btn-delete-user" type="button"
+                                    data-url="{{ url_for('admin_bp.delete_user', id=user.id) }}"
+                                    data-name="{{ user.nama }}">
                                     <i class="fa fa-trash"></i>
                                 </button>
                             </div>
@@ -263,23 +270,28 @@
                     </div>
                     <h5 class="fw-bold m-0 text-dark">Pengaturan Akun Admin</h5>
                 </div>
-                <form action="{{ url_for('admin_bp.update_user', id=session.get('user_id')) }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ url_for('admin_bp.update_user', id=session.get('user_id')) }}" method="POST"
+                    enctype="multipart/form-data">
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label-custom">Nama Lengkap Admin</label>
-                            <input type="text" name="nama" class="form-control form-control-custom" value="{{ session.get('nama') }}" required>
+                            <input type="text" name="nama" class="form-control form-control-custom"
+                                value="{{ session.get('nama') }}" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label-custom">Ganti Foto Profil</label>
-                            <input type="file" name="profile_picture" class="form-control form-control-custom" accept="image/*">
+                            <input type="file" name="profile_picture" class="form-control form-control-custom"
+                                accept="image/*">
                         </div>
                         <div class="col-md-12">
                             <label class="form-label-custom">Kata Sandi Baru (Kosongkan jika tidak ingin diubah)</label>
-                            <input type="password" name="password" class="form-control form-control-custom" placeholder="••••••••">
+                            <input type="password" name="password" class="form-control form-control-custom"
+                                placeholder="••••••••">
                         </div>
                     </div>
                     <hr class="my-4 opacity-25">
-                    <button type="submit" class="btn btn-warning rounded-pill px-5 py-2 fw-bold text-white shadow-sm" style="background: var(--primary); border: none;">
+                    <button type="submit" class="btn btn-warning rounded-pill px-5 py-2 fw-bold text-white shadow-sm"
+                        style="background: var(--primary); border: none;">
                         Perbarui Akun Saya
                     </button>
                 </form>
@@ -296,15 +308,18 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label-custom">Nama Platform</label>
-                            <input type="text" class="form-control form-control-custom" value="{{ config['SITE_NAME'] }}" readonly>
+                            <input type="text" class="form-control form-control-custom"
+                                value="{{ config['SITE_NAME'] }}" readonly>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label-custom">Email Resmi Korespondensi</label>
-                            <input type="email" class="form-control form-control-custom" value="{{ config['ADMIN_EMAIL'] }}" readonly>
+                            <input type="email" class="form-control form-control-custom"
+                                value="{{ config['ADMIN_EMAIL'] }}" readonly>
                         </div>
                         <div class="col-12">
                             <label class="form-label-custom">Slogan Platform</label>
-                            <input type="text" class="form-control form-control-custom" value="{{ config['SITE_SLOGAN'] }}" readonly>
+                            <input type="text" class="form-control form-control-custom"
+                                value="{{ config['SITE_SLOGAN'] }}" readonly>
                         </div>
                     </div>
                     <hr class="my-4 opacity-25">
