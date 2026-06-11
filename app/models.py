@@ -23,6 +23,7 @@ class User(db.Model):
     level = db.Column(db.Integer, default=1)
     role = db.Column(db.String(20), default='user')
     onesignal_id = db.Column(db.String(255), nullable=True)
+    is_banned = db.Column(db.Boolean, default=False)
 
 class CultureSite(db.Model):
     __tablename__ = 'culture_sites'
@@ -59,7 +60,7 @@ class Event(db.Model):
     status = db.Column(db.String(50), nullable=False)
     tanggal_lengkap = db.Column(db.String(100), nullable=False)
     raw_date = db.Column(db.Date, nullable=True)
-    raw_end_date = db.Column(db.Date, nullable=True) # type: ignore
+    raw_end_date = db.Column(db.Date, nullable=True)
     waktu_pelaksanaan = db.Column(db.String(100), nullable=False)
     lokasi_singkat = db.Column(db.String(100), nullable=False)
     alamat_lengkap = db.Column(db.Text, nullable=False)

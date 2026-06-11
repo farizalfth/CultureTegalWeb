@@ -1,10 +1,11 @@
+import os
+import traceback
 from functools import wraps
 from flask import request, jsonify
 from supabase import create_client, Client
 from config import Config
 
 supabase_url = Config.SUPABASE_URL.strip().rstrip('/') # type: ignore
-
 supabase: Client = create_client(supabase_url, Config.SUPABASE_SECRET_KEY) # type: ignore
 
 def token_required(f):
@@ -32,7 +33,8 @@ def token_required(f):
             if local_user.is_banned:
                 return jsonify({"status": "error", "message": "Your account has been suspended"}), 403
                 
-        except Exception:
+        except Exception as e:
+            print(traceback.format_exc())
             return jsonify({"status": "error", "message": "Invalid or expired token"}), 401
 
         return f(current_user, *args, **kwargs)
