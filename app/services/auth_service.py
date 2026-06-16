@@ -22,20 +22,33 @@ def token_required(f):
 
         try:
             user_response = supabase.auth.get_user(token)
-            current_user = user_response.user # type: ignore
+            supabase_user = user_response.user # type: ignore
             
-            from app.models import User
-            local_user = User.query.get(current_user.id)
+            from app.models import User, db
+            local_user = User.query.get(supabase_user.id)
+            
+            supabase_avatar = supabase_user.user_metadata.get('avatar_url')
             
             if not local_user:
-                return jsonify({"status": "error", "message": "User account has been deleted"}), 403
+                local_user = User(
+                    id=supabase_user.id, # type: ignore
+                    nama=supabase_user.user_metadata.get('full_name', 'User Baru'),# type: ignore
+                    email=supabase_user.email,# type: ignore
+                    profile_picture=supabase_avatar,# type: ignore
+                    poin=0# type: ignore
+                )
+                db.session.add(local_user)
+                db.session.commit()
+            else:
+                if not local_user.profile_picture and supabase_avatar:
+                    local_user.profile_picture = supabase_avatar
+                    db.session.commit()
                 
             if local_user.is_banned:
                 return jsonify({"status": "error", "message": "Your account has been suspended"}), 403
                 
         except Exception as e:
-            print(traceback.format_exc())
             return jsonify({"status": "error", "message": "Invalid or expired token"}), 401
 
-        return f(current_user, *args, **kwargs)
+        return f(local_user, *args, **kwargs)
     return decorated
