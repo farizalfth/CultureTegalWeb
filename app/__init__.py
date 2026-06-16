@@ -64,7 +64,9 @@ def create_app():
     from app.api.auth_routes import auth_api
     from app.web.public_routes import public_bp
     from app.web.admin_routes import admin_bp
+    from app.api.v1 import v1_bp
 
+    app.register_blueprint(v1_bp)
     app.register_blueprint(api_v1)
     app.register_blueprint(auth_api)
     app.register_blueprint(public_bp)
