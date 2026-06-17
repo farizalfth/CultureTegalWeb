@@ -1,0 +1,72 @@
+<div class="modal fade" id="modalAddFacility" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 24px;">
+            <div class="modal-header border-0 px-4 pt-4">
+                <div class="d-flex align-items-center">
+                    <div class="bg-orange-light p-2 rounded-3 me-3"><i class="fa fa-cog text-orange"></i></div>
+                    <h5 class="modal-title fw-800">Tambah Master Fasilitas</h5>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('admin_bp.add_facility') }}" method="POST">
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label-custom">Nama Fasilitas</label>
+                            <input type="text" name="nama_fasilitas" class="form-control form-control-custom"
+                                placeholder="Contoh: Akses Kursi Roda" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label-custom">Kunci Ikon (Sesuai List Flutter)</label>
+                            <select name="icon_key" class="form-select form-control-custom" required>
+                                <option value="general" selected>Layanan / Fasilitas Umum (General)</option>
+                                <option value="ibadah">Tempat Ibadah (Umum)</option>
+                                <option value="mosque">Masjid / Mushola</option>
+                                <option value="church">Gereja</option>
+                                <option value="temple">Candi / Pura / Vihara</option>
+                                <option value="parking">Area Parkir</option>
+                                <option value="toilet">Toilet / Kamar Mandi</option>
+                                <option value="restaurant">Kuliner / Warung / Resto</option>
+                                <option value="camera">Spot Foto / Selfie</option>
+                                <option value="store">Toko / Souvenir / UMKM</option>
+                                <option value="wifi">Akses WiFi / Internet</option>
+                                <option value="atm">Mesin ATM / Bank</option>
+                                <option value="wheelchair">Akses Kursi Roda</option>
+                                <option value="info">Pusat Informasi / Panduan</option>
+                                <option value="medical">Klinik / Pos P3K</option>
+                                <option value="security">Keamanan / Pos Jaga</option>
+                                <option value="ticket">Loket Tiket</option>
+                                <option value="charging">Stasiun Cas HP</option>
+                                <option value="recreation">Area Bermain Anak</option>
+                                <option value="nature">Wisata Alam / Pegunungan</option>
+                                <option value="rest_area">Saung / Gazebo / Pendopo</option>
+                                <option value="museum">Museum / Monumen / Sejarah</option>
+                                <option value="cleanliness">Tempat Sampah / Kebersihan</option>
+                                <option value="no_entry">Larangan / Area Terbatas</option>
+                                <option value="guide">Pemandu Wisata</option>
+                                <option value="locker">Loker / Penitipan Barang</option>
+                                <option value="hotel">Hotel / Penginapan / Homestay</option>
+                                <option value="pool">Kolam Renang / Pemandian</option>
+                                <option value="shower">Kamar Bilas / Ruang Ganti</option>
+                                <option value="shuttle">Shuttle / Mobil Wisata</option>
+                                <option value="camping">Camping Ground / Kemah</option>
+                                <option value="garden">Taman Bunga / Kebun</option>
+                                <option value="fauna">Area Satwa / Fauna</option>
+                                <option value="library">Perpustakaan / Ruang Baca</option>
+                                <option value="viewpoint">Gardu Pandang / Puncak</option>
+                                <option value="stage">Panggung Musik / Hiburan</option>
+                                <option value="boat">Sewa Perahu / Dermaga</option>
+                                <option value="bridge">Jembatan Gantung</option>
+                                <option value="adventure">Outbound / Petualangan</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button type="submit" class="btn btn-warning rounded-pill px-5 py-2 fw-bold text-white shadow-sm"
+                        style="background: var(--primary);">Simpan Master Fasilitas</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

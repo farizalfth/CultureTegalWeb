@@ -46,6 +46,12 @@ class CultureSite(db.Model):
     admin_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id'), nullable=True)
     facilities = db.relationship('Facility', secondary=culture_facilities, backref=db.backref('cultures', lazy='dynamic'))
 
+culture_facilities = db.Table('culture_facilities',
+    db.Column('culture_id', UUID(as_uuid=True), db.ForeignKey('culture_sites.id', ondelete='CASCADE'), primary_key=True),
+    db.Column('facility_id', UUID(as_uuid=True), db.ForeignKey('facilities.id', ondelete='CASCADE'), primary_key=True),
+    extend_existing=True
+)
+
 class Facility(db.Model):
     __tablename__ = 'facilities'
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
