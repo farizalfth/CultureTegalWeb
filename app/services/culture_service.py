@@ -256,3 +256,52 @@ class CultureService:
             db.session.rollback()
             logging.error(f"Error deleting review: {str(e)}")
             return False, str(e)
+        
+    @staticmethod
+    def get_paginated_reviews(site_id, page=1, per_page=10):
+        try:
+            def get_full_url(path):
+                if not path:
+                    return ""
+                if path.startswith('http://') or path.startswith('https://'):
+                    return path
+                clean_path = path.lstrip('/')
+                return f"{request.host_url}static/uploads/{clean_path}"
+
+            query = Review.query.filter_by(
+                target_type="culture_site",
+                target_id=site_id
+            ).order_by(Review.created_at.desc())
+
+            pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+
+            result = []
+            for rev in pagination.items:
+                user = User.query.get(rev.user_id)
+                user_name = user.nama if (user and hasattr(user, 'nama')) else "Anonim"
+                user_avatar = user.profile_picture if (user and hasattr(user, 'profile_picture') and user.profile_picture) else "https://i.pravatar.cc/150"
+
+                img_paths = parse_review_images(rev.review_image)
+                img_urls = [get_full_url(img) for img in img_paths]
+
+                result.append({
+                    "id": str(rev.id),
+                    "user_id": str(rev.user_id),
+                    "user_name": user_name,
+                    "user_avatar": user_avatar,
+                    "created_at": rev.created_at.isoformat() if rev.created_at else None,
+                    "rating": float(rev.rating),
+                    "komentar": rev.komentar,
+                    "review_images": img_urls
+                })
+
+            return {
+                "items": result,
+                "total": pagination.total,
+                "pages": pagination.pages,
+                "current_page": pagination.page,
+                "has_next": pagination.has_next
+            }
+        except Exception as e:
+            logging.error(f"Error fetching paginated reviews: {str(e)}")
+            raise e
