@@ -54,9 +54,6 @@ def get_culture_detail(current_user, site_id):
             "error": str(e)
         }), 500
     
-# app/api/v1/culture_routes.py
-
-# ... sesuaikan bagian metode add_review dan update_review sebagai berikut:
 
 @culture_v1_bp.route('/<string:site_id>/reviews', methods=['POST'])
 @token_required
@@ -155,3 +152,23 @@ def delete_review(current_user, site_id):
         }), 200
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
+    
+@culture_v1_bp.route('/<string:site_id>/reviews/list', methods=['GET'])
+@token_required
+def get_site_reviews(current_user, site_id):
+    try:
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', 10, type=int)
+        
+        data = CultureService.get_paginated_reviews(site_id, page=page, per_page=per_page)
+        return jsonify({
+            "status": "success",
+            "message": "Data ulasan berhasil dimuat",
+            "data": data
+        }), 200
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": "Terjadi kesalahan internal pada server",
+            "error": str(e)
+        }), 500
