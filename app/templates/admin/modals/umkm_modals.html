@@ -15,11 +15,13 @@
                             <div class="row g-3">
                                 <div class="col-md-12">
                                     <label class="form-label-custom">Nama Produk</label>
-                                    <input type="text" name="nama_produk" class="form-control form-control-custom" placeholder="Batik Tegalan" required>
+                                    <input type="text" name="nama_produk" class="form-control form-control-custom"
+                                        placeholder="Batik Tegalan" required>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label-custom">Harga</label>
-                                    <input type="text" name="harga" class="form-control form-control-custom" placeholder="150.000" required>
+                                    <input type="text" name="harga" class="form-control form-control-custom"
+                                        placeholder="150.000" required>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label-custom">Kategori</label>
@@ -31,42 +33,63 @@
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label-custom">Deskripsi</label>
-                                    <textarea name="deskripsi" class="form-control form-control-custom" rows="4" required></textarea>
+                                    <textarea name="deskripsi" class="form-control form-control-custom" rows="4"
+                                        required></textarea>
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label-custom">Nama Toko</label>
-                                    <input type="text" name="nama_toko" class="form-control form-control-custom" required>
+                                    <input type="text" name="nama_toko" class="form-control form-control-custom"
+                                        required>
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label-custom">Alamat Toko</label>
-                                    <textarea name="alamat_toko" class="form-control form-control-custom" rows="2" required></textarea>
+                                    <textarea name="alamat_toko" class="form-control form-control-custom" rows="2"
+                                        required></textarea>
                                 </div>
                             </div>
                         </div>
                         <div class="col-lg-5">
+
                             <div class="row g-3">
                                 <div class="col-12">
                                     <label class="form-label-custom">Foto Produk</label>
-                                    <input type="file" name="gambar_umkm" class="form-control form-control-custom" accept="image/*" required>
+                                    <input type="file" name="gambar_umkm" class="form-control form-control-custom"
+                                        accept="image/*" required>
                                 </div>
                                 <div class="col-md-12">
                                     <label class="form-label-custom">Nomor WhatsApp</label>
-                                    <input type="text" name="no_whatsapp" class="form-control form-control-custom" placeholder="628123456789">
+                                    <input type="text" name="no_whatsapp" class="form-control form-control-custom"
+                                        placeholder="628123456789">
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label-custom">Link Toko Eksternal</label>
-                                    <input type="url" name="link_eksternal" class="form-control form-control-custom" placeholder="https://shopee.co.id/toko">
+                                    <input type="url" name="link_eksternal" class="form-control form-control-custom"
+                                        placeholder="https://shopee.co.id/toko">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label-custom">Rating (0-5)</label>
-                                    <input type="number" step="0.1" max="5" name="rating" class="form-control form-control-custom" value="0">
+                                    <input type="number" step="0.1" max="5" name="rating"
+                                        class="form-control form-control-custom" value="0">
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-md-6">
+                                        <label class="form-label-custom">Latitude</label>
+                                        <input type="number" step="any" name="latitude"
+                                            class="form-control form-control-custom" placeholder="-6.869">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label-custom">Longitude</label>
+                                        <input type="number" step="any" name="longitude"
+                                            class="form-control form-control-custom" placeholder="109.137">
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer border-0 px-4 pb-4">
-                    <button type="submit" class="btn btn-warning rounded-pill px-5 py-2 fw-bold text-white shadow-sm" style="background: var(--primary);">Simpan Produk</button>
+                    <button type="submit" class="btn btn-warning rounded-pill px-5 py-2 fw-bold text-white shadow-sm"
+                        style="background: var(--primary);">Simpan Produk</button>
                 </div>
             </form>
         </div>
@@ -88,23 +111,29 @@
                             <div class="row g-3">
                                 <div class="col-md-12">
                                     <label class="form-label-custom">Nama Produk</label>
-                                    <input type="text" name="nama_produk" class="form-control form-control-custom" value="{{ u.nama_produk }}" required>
+                                    <input type="text" name="nama_produk" class="form-control form-control-custom"
+                                        value="{{ u.nama_produk }}" required>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label-custom">Harga</label>
-                                    <input type="text" name="harga" class="form-control form-control-custom" value="{{ u.harga }}" required>
+                                    <input type="text" name="harga" class="form-control form-control-custom"
+                                        value="{{ u.harga }}" required>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label-custom">Kategori</label>
                                     <select name="kategori" class="form-select form-control-custom">
-                                        <option value="Kuliner" {% if u.kategori == 'Kuliner' %}selected{% endif %}>Kuliner</option>
-                                        <option value="Fashion" {% if u.kategori == 'Fashion' %}selected{% endif %}>Fashion</option>
-                                        <option value="Kriya" {% if u.kategori == 'Kriya' %}selected{% endif %}>Kriya</option>
+                                        <option value="Kuliner" {% if u.kategori=='Kuliner' %}selected{% endif %}>
+                                            Kuliner</option>
+                                        <option value="Fashion" {% if u.kategori=='Fashion' %}selected{% endif %}>
+                                            Fashion</option>
+                                        <option value="Kriya" {% if u.kategori=='Kriya' %}selected{% endif %}>Kriya
+                                        </option>
                                     </select>
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label-custom">Deskripsi</label>
-                                    <textarea name="deskripsi" class="form-control form-control-custom" rows="4" required>{{ u.deskripsi }}</textarea>
+                                    <textarea name="deskripsi" class="form-control form-control-custom" rows="4"
+                                        required>{{ u.deskripsi }}</textarea>
                                 </div>
                             </div>
                         </div>
@@ -112,17 +141,35 @@
                             <div class="row g-3">
                                 <div class="col-12 text-center">
                                     <div class="mb-2">
-                                        <img src="{{ url_for('static', filename='uploads/' + u.image_url) if u.image_url else '' }}" style="width: 100%; height: 180px; object-fit: cover; border-radius: 15px; border: 2px solid #eee;">
+                                        <img src="{{ url_for('static', filename='uploads/' + u.image_url) if u.image_url else '' }}"
+                                            style="width: 100%; height: 180px; object-fit: cover; border-radius: 15px; border: 2px solid #eee;">
                                     </div>
-                                    <input type="file" name="gambar_umkm" class="form-control form-control-custom" accept="image/*">
+                                    <input type="file" name="gambar_umkm" class="form-control form-control-custom"
+                                        accept="image/*">
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label-custom">No WhatsApp</label>
-                                    <input type="text" name="no_whatsapp" class="form-control form-control-custom" value="{{ u.no_whatsapp or '' }}">
+                                    <input type="text" name="no_whatsapp" class="form-control form-control-custom"
+                                        value="{{ u.no_whatsapp or '' }}">
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label-custom">Link Eksternal</label>
-                                    <input type="url" name="link_eksternal" class="form-control form-control-custom" value="{{ u.link_eksternal or '' }}">
+                                    <input type="url" name="link_eksternal" class="form-control form-control-custom"
+                                        value="{{ u.link_eksternal or '' }}">
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-md-6">
+                                        <label class="form-label-custom">Latitude</label>
+                                        <input type="number" step="any" name="latitude"
+                                            class="form-control form-control-custom" value="{{ u.latitude or '' }}"
+                                            placeholder="-6.869">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label-custom">Longitude</label>
+                                        <input type="number" step="any" name="longitude"
+                                            class="form-control form-control-custom" value="{{ u.longitude or '' }}"
+                                            placeholder="109.137">
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -144,9 +191,10 @@
             <p class="text-muted small">Data produk <b>{{ u.nama_produk }}</b> akan dihapus permanen.</p>
             <div class="d-flex gap-3 mt-4">
                 <button class="btn btn-light w-100 rounded-pill py-2 fw-bold" data-bs-dismiss="modal">Batal</button>
-                <button type="button" 
-                        onclick="confirmDelete('{{ url_for('admin_bp.delete_umkm', id=u.id) }}', '{{ u.nama_produk|replace("\'", "\\\'") }}')" 
-                        class="btn btn-danger w-100 rounded-pill py-2 fw-bold shadow-sm">Ya, Hapus</button>
+                <button type="button"
+                    onclick="confirmDelete('{{ url_for('admin_bp.delete_umkm', id=u.id) }}', '{{ u.nama_produk|replace("
+                    \'", "\\\'" ) }}')" class="btn btn-danger w-100 rounded-pill py-2 fw-bold shadow-sm">Ya,
+                    Hapus</button>
             </div>
         </div>
     </div>

@@ -1,6 +1,8 @@
 import uuid
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects.postgresql import UUID, JSONB
+from flask import request, current_app
+from sqlalchemy import func
 
 db = SQLAlchemy()
 
@@ -92,10 +94,59 @@ class UMKM(db.Model):
     rating = db.Column(db.Float, default=0.0)
     image_url = db.Column(db.String(255), nullable=True)
     deskripsi = db.Column(db.Text, nullable=True)
+    latitude = db.Column(db.Float, nullable=True)
+    longitude = db.Column(db.Float, nullable=True)
     alamat_toko = db.Column(db.Text, nullable=True)
     no_whatsapp = db.Column(db.String(20), nullable=True)
     link_eksternal = db.Column(db.String(255), nullable=True)
     admin_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id'), nullable=True)
+
+    def to_dict(self):
+        image_url_full = None
+        if self.image_url:
+            if self.image_url.startswith(('http://', 'https://')):
+                image_url_full = self.image_url
+            else:
+                try:
+                    storage_type = current_app.config.get('STORAGE_TYPE', 'local')
+                except RuntimeError:
+                    storage_type = 'local'
+
+                if storage_type == 'local':
+                    try:
+                        image_url_full = f"{request.host_url.rstrip('/')}/static/uploads/{self.image_url}"
+                    except RuntimeError:
+                        fallback_url = current_app.config.get('LOCAL_STORAGE_BASE_URL', '')
+                        image_url_full = f"{fallback_url.rstrip('/')}/static/uploads/{self.image_url}"
+                elif storage_type in ['s3', 'supabase']:
+                    base_url = current_app.config.get('STORAGE_BASE_URL', '').rstrip('/')
+                    image_url_full = f"{base_url}/{self.image_url}"
+
+        avg_rating_query = db.session.query(func.avg(Review.rating), func.count(Review.id))\
+            .filter(Review.target_type == 'umkm', Review.target_id == self.id).first()
+            
+        db_avg = avg_rating_query[0] if avg_rating_query and avg_rating_query[0] is not None else None
+        review_count = avg_rating_query[1] if avg_rating_query else 0
+
+        final_rating = round(db_avg, 1) if db_avg is not None else self.rating
+
+        return {
+            'id': str(self.id),
+            'nama_produk': self.nama_produk,
+            'harga': self.harga,
+            'nama_toko': self.nama_toko,
+            'kategori': self.kategori,
+            'rating': final_rating, 
+            'review_count': review_count, 
+            'image_url': image_url_full, 
+            'deskripsi': self.deskripsi,
+            'latitude': self.latitude,
+            'longitude': self.longitude,
+            'alamat_toko': self.alamat_toko,
+            'no_whatsapp': self.no_whatsapp,
+            'link_eksternal': self.link_eksternal,
+            'admin_id': str(self.admin_id) if self.admin_id else None
+        }
 
 class News(db.Model):
     __tablename__ = 'news'

@@ -9,10 +9,11 @@ news_v1_bp = Blueprint('news_v1', __name__)
 def get_news(current_user):
     try:
         kategori = request.args.get('kategori', None)
+        search = request.args.get('search', None)
         page = request.args.get('page', 1, type=int)
         per_page = request.args.get('per_page', 10, type=int)
         
-        data = NewsService.get_paginated_news(kategori=kategori, page=page, per_page=per_page)
+        data = NewsService.get_paginated_news(kategori=kategori, search=search, page=page, per_page=per_page)
         
         return jsonify({
             "status": "success",

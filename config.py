@@ -16,3 +16,7 @@ class Config:
     SITE_NAME = os.getenv('SITE_NAME', 'Tegal Culture')
     ADMIN_EMAIL = os.getenv('ADMIN_EMAIL', 'helloa@tegalculture.id')
     SITE_SLOGAN = os.getenv('SITE_SLOGAN', 'Platform digital untuk mengeksplorasi identitas dan kebanggaan budaya Kota Bahari.')
+
+    STORAGE_TYPE = os.getenv('STORAGE_TYPE', 'local')
+    LOCAL_STORAGE_BASE_URL = os.getenv('LOCAL_STORAGE_BASE_URL', '')
+    STORAGE_BASE_URL = os.getenv('STORAGE_BASE_URL', '')

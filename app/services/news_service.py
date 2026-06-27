@@ -45,12 +45,15 @@ class NewsService:
         }
 
     @staticmethod
-    def get_paginated_news(kategori=None, page=1, per_page=10):
+    def get_paginated_news(kategori=None, search=None, page=1, per_page=10):
         try:
             query = News.query
             if kategori and kategori != "Semua":
                 query = query.filter(News.kategori.ilike(kategori))
             
+            if search:
+                query = query.filter(News.judul.ilike(f"%{search}%"))
+
             query = query.order_by(News.tanggal.desc())
             
             pagination = query.paginate(page=page, per_page=per_page, error_out=False)

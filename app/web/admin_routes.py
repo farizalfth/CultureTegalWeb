@@ -37,7 +37,7 @@ def admin_login():
         
         user = User.query.filter_by(email=email).first()
         
-        if user and check_password_hash(user.password_hash, password) and user.role == 'admin':# type: ignore
+        if user and password and user.password_hash and check_password_hash(user.password_hash, password) and user.role == 'admin':
             session.permanent = True
             session['logged_in'] = True
             session['user_id'] = str(user.id)
@@ -312,8 +312,12 @@ def add_umkm():
         return redirect(url_for('admin_bp.admin_login'))
 
     try:
+        # DITAMBAHKAN: Mengambil nilai koordinat dari form input
+        lat_val = request.form.get('latitude')
+        lng_val = request.form.get('longitude')
+
         new_umkm = UMKM(
-            nama_produk=request.form.get('nama_produk'),# type: ignore
+            nama_produk=request.form.get('nama_produk'), # type: ignore
             harga=request.form.get('harga'),# type: ignore
             nama_toko=request.form.get('nama_toko'),# type: ignore
             kategori=request.form.get('kategori'),# type: ignore
@@ -322,6 +326,8 @@ def add_umkm():
             alamat_toko=request.form.get('alamat_toko'),# type: ignore
             no_whatsapp=request.form.get('no_whatsapp'),# type: ignore
             link_eksternal=request.form.get('link_eksternal'),# type: ignore
+            latitude=float(lat_val) if lat_val else None, # type: ignore
+            longitude=float(lng_val) if lng_val else None, # type: ignore
             image_url=save_image(request.files.get('gambar_umkm')),# type: ignore
             admin_id=session.get('user_id')# type: ignore
         )
@@ -350,6 +356,12 @@ def update_umkm(id):
         umkm.alamat_toko = request.form.get('alamat_toko') or umkm.alamat_toko
         umkm.no_whatsapp = request.form.get('no_whatsapp') or umkm.no_whatsapp
         umkm.link_eksternal = request.form.get('link_eksternal') or umkm.link_eksternal
+        
+        # DITAMBAHKAN: Melakukan pembaruan koordinat toko
+        lat_val = request.form.get('latitude')
+        lng_val = request.form.get('longitude')
+        umkm.latitude = float(lat_val) if lat_val else None
+        umkm.longitude = float(lng_val) if lng_val else None
 
         file = request.files.get('gambar_umkm')
         if file and file.filename != '':
