@@ -67,7 +67,7 @@ class CultureService:
             result = []
 
             for site in sites:
-                result.append(CultureService._serialize_site(site, load_reviews=False))
+                result.append(CultureService._serialize_site(site, load_reviews=True))
 
             return result
         except Exception as e:
@@ -86,7 +86,7 @@ class CultureService:
             raise e
 
     @staticmethod
-    def _serialize_site(site, load_reviews=False):
+    def _serialize_site(site, load_reviews=True):
         serialized_facilities = []
         for fac in site.facilities:
             serialized_facilities.append({
@@ -103,8 +103,12 @@ class CultureService:
                     target_id=site.id
                 ).order_by(Review.created_at.desc()).all()
 
+                user_ids = [rev.user_id for rev in reviews]
+                users = User.query.filter(User.id.in_(user_ids)).all() if user_ids else []
+                user_map = {user.id: user for user in users}
+
                 for rev in reviews:
-                    user = User.query.get(rev.user_id)
+                    user = user_map.get(rev.user_id)
                     user_name = user.nama if (user and hasattr(user, 'nama')) else "Anonim"
                     user_avatar = user.profile_picture if (user and hasattr(user, 'profile_picture') and user.profile_picture) else "https://i.pravatar.cc/150"
 
@@ -175,13 +179,13 @@ class CultureService:
             review_image_data = json.dumps(saved_filenames) if saved_filenames else None
 
             new_review = Review(
-                id=uuid.uuid4(),# type: ignore
+                id=uuid.uuid4(), # type: ignore
                 user_id=user_id,# type: ignore
                 target_type="culture_site",# type: ignore
                 target_id=site.id,# type: ignore
                 rating=rating,# type: ignore
                 komentar=komentar,# type: ignore
-                review_image=review_image_data # type: ignore
+                review_image=review_image_data# type: ignore
             )
             
             db.session.add(new_review)
@@ -280,8 +284,12 @@ class CultureService:
             pagination = query.paginate(page=page, per_page=per_page, error_out=False)
 
             result = []
+            user_ids = [rev.user_id for rev in pagination.items]
+            users = User.query.filter(User.id.in_(user_ids)).all() if user_ids else []
+            user_map = {user.id: user for user in users}
+
             for rev in pagination.items:
-                user = User.query.get(rev.user_id)
+                user = user_map.get(rev.user_id)
                 user_name = user.nama if (user and hasattr(user, 'nama')) else "Anonim"
                 user_avatar = user.profile_picture if (user and hasattr(user, 'profile_picture') and user.profile_picture) else "https://i.pravatar.cc/150"
 
