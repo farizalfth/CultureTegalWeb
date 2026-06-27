@@ -23,7 +23,7 @@ def calculate_event_status(event):
 
 class EventService:
     @staticmethod
-    def get_paginated_events(kategori=None, status=None, page=1, per_page=10):
+    def get_paginated_events(kategori=None, status=None, search=None, page=1, per_page=10):
         try:
             query = Event.query
             if kategori and kategori != "Semua":
@@ -35,6 +35,9 @@ class EventService:
                 query = query.filter(Event.status.in_(["Akan Datang", "Rutin"]))
             elif status == "Selesai":
                 query = query.filter_by(status="Selesai")
+
+            if search:
+                query = query.filter(Event.judul_event.ilike(f"%{search}%"))
 
             query = query.order_by(Event.raw_date.desc())
             
@@ -54,7 +57,6 @@ class EventService:
         except Exception as e:
             logging.error(f"Error fetching paginated events: {str(e)}")
             raise e
-
 
     @staticmethod
     def _serialize_event(event):

@@ -6,7 +6,9 @@ import time
 import json
 from flask import request, current_app
 from app import db
-from app.models import CultureSite, Facility, Review, User
+from app.models import UMKM
+from app.models import Review
+from app.models import User
 from app.services.upload_service import delete_file
 
 def get_full_url(path):
@@ -48,122 +50,54 @@ def parse_review_images(review_image_str):
     except Exception:
         return [review_image_str]
 
-class CultureService:
+class UMKMService:
     @staticmethod
-    def get_all_cultures(kategori=None, is_slider=None, search=None):
+    def get_all_umkm_paginated(category=None, search=None, sort=None, page=1, per_page=10):
         try:
-            query = CultureSite.query
-
-            if kategori and kategori != "Semua":
-                query = query.filter(CultureSite.kategori.ilike(kategori))
-
-            if is_slider is not None:
-                query = query.filter_by(is_slider=is_slider)
-
+            query = UMKM.query
+            if category and category != 'Semua':
+                query = query.filter_by(kategori=category)
+            
             if search:
-                query = query.filter(CultureSite.nama_tempat.ilike(f"%{search}%"))
-
-            sites = query.all()
-            result = []
-
-            for site in sites:
-                result.append(CultureService._serialize_site(site, load_reviews=False))
-
-            return result
+                query = query.filter(UMKM.nama_produk.ilike(f"%{search}%"))
+                
+            if sort == 'Termurah':
+                query = query.order_by(db.func.cast(db.func.replace(UMKM.harga, '.', ''), db.Integer).asc())
+            elif sort == 'Termahal':
+                query = query.order_by(db.func.cast(db.func.replace(UMKM.harga, '.', ''), db.Integer).desc())
+            
+            pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+            
+            return {
+                'items': [item.to_dict() for item in pagination.items],
+                'total': pagination.total,
+                'page': pagination.page,
+                'per_page': pagination.per_page,
+                'pages': pagination.pages,
+                'has_next': pagination.has_next,
+                'has_prev': pagination.has_prev
+            }
         except Exception as e:
-            logging.error(f"Error fetching cultures: {str(e)}")
+            logging.error(f"Error fetching paginated umkms: {str(e)}")
             raise e
 
     @staticmethod
-    def get_culture_by_id(site_id):
+    def get_umkm_by_id(umkm_id):
         try:
-            site = CultureSite.query.get(site_id)
-            if not site:
+            item = UMKM.query.get(umkm_id)
+            if not item:
                 return None
-            return CultureService._serialize_site(site, load_reviews=True)
+            return item.to_dict()
         except Exception as e:
-            logging.error(f"Error fetching culture by id {site_id}: {str(e)}")
+            logging.error(f"Error fetching umkm by id {umkm_id}: {str(e)}")
             raise e
 
     @staticmethod
-    def _serialize_site(site, load_reviews=False):
-        serialized_facilities = []
-        for fac in site.facilities:
-            serialized_facilities.append({
-                "id": str(fac.id),
-                "nama_fasilitas": fac.nama_fasilitas,
-                "icon_key": fac.icon_key
-            })
-
-        serialized_reviews = []
-        if load_reviews:
-            try:
-                reviews = Review.query.filter_by(
-                    target_type="culture_site",
-                    target_id=site.id
-                ).order_by(Review.created_at.desc()).all()
-
-                for rev in reviews:
-                    user = User.query.get(rev.user_id)
-                    user_name = user.nama if (user and hasattr(user, 'nama')) else "Anonim"
-                    user_avatar = user.profile_picture if (user and hasattr(user, 'profile_picture') and user.profile_picture) else "https://i.pravatar.cc/150"
-
-                    img_paths = parse_review_images(rev.review_image)
-                    img_urls = [get_full_url(img) for img in img_paths]
-
-                    serialized_reviews.append({
-                        "id": str(rev.id),
-                        "user_id": str(rev.user_id),
-                        "user_name": user_name,
-                        "user_avatar": user_avatar,
-                        "created_at": rev.created_at.isoformat() if rev.created_at else None,
-                        "rating": float(rev.rating),
-                        "komentar": rev.komentar,
-                        "review_images": img_urls
-                    })
-            except Exception as rev_err:
-                logging.warning(f"Gagal memuat ulasan untuk site {site.id}: {str(rev_err)}")
-
-        gallery_urls = []
-        if isinstance(site.gallery, list):
-            for img in site.gallery:
-                gallery_urls.append(get_full_url(img))
-
+    def add_umkm_review(user_id, umkm_id, rating, komentar, images_base64=None):
         try:
-            for rev_data in serialized_reviews:
-                if rev_data["review_images"] and isinstance(rev_data["review_images"], list):
-                    for r_img in rev_data["review_images"]:
-                        gallery_urls.append(r_img)
-        except Exception:
-            pass
-
-        return {
-            "id": str(site.id),
-            "nama_tempat": site.nama_tempat or "Tempat Budaya Tegal",
-            "subtitle": site.subtitle or "Warisan Sejarah & Budaya Lokal Kota Tegal",
-            "kategori": site.kategori or "Sejarah",
-            "tahun_dibangun": site.tahun_dibangun or "Tidak diketahui",
-            "lokasi_singkat": site.lokasi_singkat or "Kota Tegal",
-            "durasi_kunjungan": site.durasi_kunjungan or "30-60 mnt",
-            "jarak_estimasi": site.jarak_estimasi or "0.0 km",
-            "deskripsi": site.deskripsi or "Deskripsi lengkap mengenai tempat budaya ini belum tersedia saat ini.",
-            "fun_fact": site.fun_fact or "Tempat ini menyimpan nilai luhur yang dijaga oleh masyarakat Kota Tegal.",
-            "latitude": site.latitude if site.latitude is not None else 0.0,
-            "longitude": site.longitude if site.longitude is not None else 0.0,
-            "image_url": get_full_url(site.image_url),
-            "gallery": gallery_urls,
-            "video_url": get_full_url(site.video_url) if site.video_url else None,
-            "is_slider": site.is_slider if site.is_slider is not None else False,
-            "facilities": serialized_facilities,
-            "reviews": serialized_reviews
-        }
-
-    @staticmethod
-    def add_culture_review(user_id, site_id, rating, komentar, images_base64=None):
-        try:
-            site = CultureSite.query.get(site_id)
-            if not site:
-                return False, "Tempat budaya tidak ditemukan"
+            umkm = UMKM.query.get(umkm_id)
+            if not umkm:
+                return False, "Produk UMKM tidak ditemukan"
             
             saved_filenames = []
             if isinstance(images_base64, list):
@@ -175,30 +109,30 @@ class CultureService:
             review_image_data = json.dumps(saved_filenames) if saved_filenames else None
 
             new_review = Review(
-                id=uuid.uuid4(),# type: ignore
+                id=uuid.uuid4(), # type: ignore
                 user_id=user_id,# type: ignore
-                target_type="culture_site",# type: ignore
-                target_id=site.id,# type: ignore
+                target_type="umkm",# type: ignore
+                target_id=umkm.id,# type: ignore
                 rating=rating,# type: ignore
                 komentar=komentar,# type: ignore
-                review_image=review_image_data # type: ignore
+                review_image=review_image_data# type: ignore
             )
             
             db.session.add(new_review)
             db.session.commit()
-            return True, "Ulasan sukses ditambahkan"
+            return True, "Ulasan berhasil ditambahkan"
         except Exception as e:
             db.session.rollback()
-            logging.error(f"Error adding review: {str(e)}")
+            logging.error(f"Error adding UMKM review: {str(e)}")
             return False, str(e)
 
     @staticmethod
-    def update_culture_review(user_id, site_id, rating, komentar, images_base64=None):
+    def update_umkm_review(user_id, umkm_id, rating, komentar, images_base64=None):
         try:
             review = Review.query.filter_by(
                 user_id=user_id,
-                target_type="culture_site",
-                target_id=site_id
+                target_type="umkm",
+                target_id=umkm_id
             ).first()
             
             if not review:
@@ -234,16 +168,16 @@ class CultureService:
             return True, "Ulasan berhasil diperbarui"
         except Exception as e:
             db.session.rollback()
-            logging.error(f"Error updating review: {str(e)}")
+            logging.error(f"Error updating UMKM review: {str(e)}")
             return False, str(e)
 
     @staticmethod
-    def delete_culture_review(user_id, site_id):
+    def delete_umkm_review(user_id, umkm_id):
         try:
             review = Review.query.filter_by(
                 user_id=user_id,
-                target_type="culture_site",
-                target_id=site_id
+                target_type="umkm",
+                target_id=umkm_id
             ).first()
             
             if not review:
@@ -258,23 +192,24 @@ class CultureService:
             return True, "Ulasan berhasil dihapus"
         except Exception as e:
             db.session.rollback()
-            logging.error(f"Error deleting review: {str(e)}")
+            logging.error(f"Error deleting UMKM review: {str(e)}")
             return False, str(e)
-        
-    @staticmethod
-    def get_paginated_reviews(site_id, page=1, per_page=10):
-        try:
-            def get_full_url(path):
-                if not path:
-                    return ""
-                if path.startswith('http://') or path.startswith('https://'):
-                    return path
-                clean_path = path.lstrip('/')
-                return f"{request.host_url}static/uploads/{clean_path}"
 
+    @staticmethod
+    def get_umkm_reviews_paginated(umkm_id, page=1, per_page=5):
+        statement = db.select(Review, User.nama, User.profile_picture)\
+            .join(User, Review.user_id == User.id)\
+            .filter(Review.target_type == 'umkm', Review.target_id == umkm_id)\
+            .order_by(Review.created_at.desc())
+        
+        return db.paginate(statement, page=page, per_page=per_page, error_out=False)
+
+    @staticmethod
+    def get_paginated_reviews(umkm_id, page=1, per_page=10):
+        try:
             query = Review.query.filter_by(
-                target_type="culture_site",
-                target_id=site_id
+                target_type="umkm",
+                target_id=umkm_id
             ).order_by(Review.created_at.desc())
 
             pagination = query.paginate(page=page, per_page=per_page, error_out=False)

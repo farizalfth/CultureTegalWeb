@@ -10,12 +10,14 @@ def get_events(current_user):
     try:
         kategori = request.args.get('kategori', None)
         status = request.args.get('status', None)
+        search = request.args.get('search', None)
         page = request.args.get('page', 1, type=int)
         per_page = request.args.get('per_page', 10, type=int)
         
         data = EventService.get_paginated_events(
             kategori=kategori, 
             status=status, 
+            search=search,
             page=page, 
             per_page=per_page
         )
