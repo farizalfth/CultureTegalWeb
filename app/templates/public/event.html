@@ -1,37 +1,169 @@
 {% extends 'layouts/base.html' %}
+
 {% block content %}
 <div class="container section-padding">
-    <h2 class="fw-bold mb-4" data-aos="fade-right">Event Budaya</h2>
-    
-    <div class="d-flex gap-2 mb-5 flex-wrap" data-aos="fade-up">
-        <button class="btn btn-warning rounded-pill px-4">Semua</button>
-        <button class="btn btn-outline-dark rounded-pill px-4">Budaya</button>
-        <button class="btn btn-outline-dark rounded-pill px-4">Pariwisata</button>
-        <button class="btn btn-outline-dark rounded-pill px-4">UMKM</button>
-        <button class="btn btn-outline-dark rounded-pill px-4">Festival</button>
+    <!-- Header & Search Bar -->
+    <div class="row align-items-center mb-5" data-aos="fade-up">
+        <div class="col-md-6">
+            <h2 class="fw-800 display-5 mb-0">Event <span class="text-orange">Budaya</span></h2>
+            <p class="text-muted fs-5">Ikuti berbagai kemeriahan acara budaya di Kota Tegal.</p>
+        </div>
+        <div class="col-md-6">
+            <div class="input-group shadow-sm rounded-pill overflow-hidden border search-container">
+                <span class="input-group-text bg-white border-0 ps-4">
+                    <i class="fas fa-search text-muted"></i>
+                </span>
+                <input type="text" id="searchInputEvent" class="form-control border-0 py-3"
+                    placeholder="Cari nama event atau lokasi...">
+            </div>
+        </div>
     </div>
 
-    <div class="row g-4">
+    <!-- Filter Kategori dengan Animasi -->
+    <div class="d-flex gap-2 mb-5 flex-wrap" data-aos="fade-up">
+        <button class="btn btn-warning rounded-pill px-4 filter-btn-event active" data-filter="all">Semua</button>
+        <button class="btn btn-orange-custom rounded-pill px-4 filter-btn-event" data-filter="Budaya">Budaya</button>
+        <button class="btn btn-orange-custom rounded-pill px-4 filter-btn-event" data-filter="Pariwisata">Pariwisata</button>
+        <button class="btn btn-orange-custom rounded-pill px-4 filter-btn-event" data-filter="UMKM">UMKM</button>
+        <button class="btn btn-orange-custom rounded-pill px-4 filter-btn-event" data-filter="Festival">Festival</button>
+    </div>
+
+    <!-- Event Cards -->
+    <div class="row g-4" id="eventContainer">
         {% for e in events %}
-        <div class="col-12" data-aos="fade-up">
-            <div class="card border-0 shadow-sm rounded-5 overflow-hidden p-3 card-hover">
+        <div class="col-12 event-card" data-category="{{ e.kategori }}" data-aos="fade-up">
+            <div class="card border-0 shadow-sm rounded-5 overflow-hidden p-3 card-event-hover">
                 <div class="row align-items-center">
                     <div class="col-md-4">
-                        <img src="{{ e.img }}" alt="{{ e.nama }}" class="img-fluid rounded-4 shadow-sm" style="height: 200px; width: 100%; object-fit: cover;">
+                        {% if e.gambar %}
+                        <img src="{{ url_for('static', filename='uploads/' + e.gambar) }}" alt="{{ e.nama_event }}"
+                            class="img-fluid rounded-4 shadow-sm img-event"
+                            onerror="this.onerror=null;this.src='https://placehold.co/600x400?text=Event+Tegal';">
+                        {% else %}
+                        <img src="https://placehold.co/600x400?text=No+Image" class="img-fluid rounded-4 shadow-sm img-event">
+                        {% endif %}
                     </div>
                     <div class="col-md-8">
                         <div class="card-body">
-                            <h4 class="fw-bold">{{ e.nama }}</h4>
-                            <p class="text-orange mb-1 small fw-bold"><i class="fa fa-calendar me-2"></i>{{ e.tgl }}</p>
-                            <p class="text-muted mb-2 small"><i class="fa fa-map-marker-alt me-2"></i>{{ e.lokasi }}</p>
-                            <p class="text-muted small">{{ e.desc }}</p>
-                            <button class="btn btn-orange rounded-pill px-4 btn-custom">Ikuti Event →</button>
+                            <h4 class="fw-bold event-title text-dark">{{ e.nama_event }}</h4>
+                            <p class="text-orange mb-1 small fw-bold"><i class="fa fa-calendar me-2"></i>{{ e.tanggal }}</p>
+                            <p class="text-muted mb-2 small"><i class="fa fa-map-marker-alt me-2"></i><span class="event-location">{{ e.lokasi }}</span></p>
+                            <p class="text-muted small mb-4">{{ e.deskripsi[:220] }}...</p>
+                            <button class="btn btn-orange-custom rounded-pill px-4 btn-detail">Lihat Detail Event →</button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        {% else %}
+        <div class="col-12 text-center py-5" data-aos="zoom-in">
+            <img src="https://cdn-icons-png.flaticon.com/512/6134/6134065.png" style="width: 100px; opacity: 0.5;">
+            <p class="text-muted mt-3">Belum ada event tersedia saat ini.</p>
+        </div>
         {% endfor %}
     </div>
 </div>
+
+<style>
+    /* 1. Reset Focus & Search Bar */
+    #searchInputEvent:focus {
+        outline: none !important;
+        box-shadow: none !important;
+    }
+    .search-container { transition: 0.3s; }
+    .search-container:focus-within { border-color: #fd7e14 !important; box-shadow: 0 0 10px rgba(253, 126, 20, 0.2) !important; }
+
+    /* 2. Warna & Tipografi */
+    .text-orange { color: #fd7e14 !important; }
+    .fw-800 { font-weight: 800; }
+    
+    /* 3. Animasi Tombol Filter (Efek Bounce/Pop-up) */
+    .filter-btn-event {
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+        font-weight: 600;
+        border: none !important;
+    }
+    .filter-btn-event:hover {
+        transform: translateY(-5px) scale(1.05);
+        box-shadow: 0 8px 15px rgba(211, 84, 0, 0.3) !important;
+        background-color: #fff !important;
+        color: #d35400 !important;
+        outline: 2px solid #d35400 !important;
+    }
+    .btn-orange-custom { background-color: #d35400 !important; color: white !important; }
+    .btn-warning { background-color: #ffc107 !important; color: #212529 !important; }
+
+    /* 4. Animasi Kartu */
+    .card-event-hover {
+        transition: all 0.3s ease;
+        background: #ffffff;
+    }
+    .card-event-hover:hover {
+        transform: scale(1.01);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.08) !important;
+    }
+    .img-event { height: 230px; width: 100%; object-fit: cover; transition: 0.5s; }
+    .card-event-hover:hover .img-event { transform: scale(1.03); }
+
+    /* 5. Detail Button */
+    .btn-detail { transition: 0.3s; border: none; }
+    .btn-detail:hover { background-color: #e67e22 !important; padding-left: 30px !important; }
+
+    /* smooth transition untuk filter */
+    .event-card { transition: opacity 0.4s ease, transform 0.4s ease; }
+</style>
+
+<script>
+    // FUNGSI PENCARIAN REAL-TIME
+    document.getElementById('searchInputEvent').addEventListener('input', function () {
+        const keyword = this.value.toLowerCase();
+        const cards = document.querySelectorAll('.event-card');
+
+        cards.forEach(card => {
+            const title = card.querySelector('.event-title').textContent.toLowerCase();
+            const location = card.querySelector('.event-location').textContent.toLowerCase();
+
+            if (title.includes(keyword) || location.includes(keyword)) {
+                card.style.display = "";
+                setTimeout(() => { card.style.opacity = "1"; }, 10);
+            } else {
+                card.style.opacity = "0";
+                setTimeout(() => { card.style.display = "none"; }, 400);
+            }
+        });
+    });
+
+    // FUNGSI FILTER KATEGORI DENGAN ANIMASI WARNA & FADE
+    document.querySelectorAll('.filter-btn-event').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const filter = this.getAttribute('data-filter');
+
+            // Switch Active Button Colors
+            document.querySelectorAll('.filter-btn-event').forEach(b => {
+                b.classList.remove('btn-warning', 'active');
+                b.classList.add('btn-orange-custom');
+            });
+            this.classList.remove('btn-orange-custom');
+            this.classList.add('btn-warning', 'active');
+
+            // Smooth Card Filtering
+            document.querySelectorAll('.event-card').forEach(card => {
+                card.style.opacity = "0";
+                card.style.transform = "translateY(20px)";
+                
+                setTimeout(() => {
+                    if (filter === 'all' || card.getAttribute('data-category') === filter) {
+                        card.style.display = "";
+                        setTimeout(() => { 
+                            card.style.opacity = "1"; 
+                            card.style.transform = "translateY(0)";
+                        }, 50);
+                    } else {
+                        card.style.display = "none";
+                    }
+                }, 350);
+            });
+        });
+    });
+</script>
 {% endblock %}
