@@ -1,23 +1,6 @@
-from flask import Flask
-from flask_cors import CORS
-from flask_migrate import Migrate
-from app.models import db
-from config import Config
+from app import create_app
 
-migrate = Migrate()
+app = create_app()
 
-def create_app():
-    app = Flask(__name__, static_folder='../static', template_folder='../templates')
-    app.config.from_object(Config)
-    CORS(app, resources={r"/api/*": {"origins": "*"}})
-
-    db.init_app(app)
-    migrate.init_app(app, db)
-
-    from app.api.v1_routes import api_v1
-    from app.web.admin_routes import admin_bp
-
-    app.register_blueprint(api_v1)
-    app.register_blueprint(admin_bp)
-
-    return app
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port=5000)
