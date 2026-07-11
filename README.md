@@ -20,7 +20,7 @@ Tegal Culture adalah sebuah platform digital berbasis web yang dirancang untuk m
 ## 🛠️ Tech Stack
 
 - **Backend**: [Python](https://www.python.org/) & [Flask Framework](https://flask.palletsprojects.com/)
-- **Database**: [SQLAlchemy](https://www.sqlalchemy.org/) (ORM) & SQLite/PostgreSQL
+- **Database**: [SQLAlchemy]([https://www.sqlalchemy.org/](https://supabase.com/)) Build in a weekendScale to millions
 - **Frontend**: [Jinja2](https://jinja.palletsprojects.com/) (Templating Engine)
 - **Styling**: [Bootstrap 5](https://getbootstrap.com/), CSS3 Kustom
 - **Animation**: [AOS (Animate On Scroll)](https://michalsnik.github.io/aos/) & JavaScript ES6
