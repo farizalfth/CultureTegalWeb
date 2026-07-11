@@ -1,0 +1,54 @@
+<div class="modal fade" id="modalAddScrapeTarget" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 24px;">
+            <div class="modal-header border-0 px-4 pt-4">
+                <div class="d-flex align-items-center">
+                    <div class="bg-orange-light p-2 rounded-3 me-3"><i class="fa fa-robot text-orange"></i></div>
+                    <h5 class="modal-title fw-800">Tambah Target Scraper</h5>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form action="{{ url_for('admin_bp.add_scrape_target') }}" method="POST" class="mb-4">
+                    <h6 class="fw-bold mb-3 text-dark">Pilihan 1: Tambah Manual</h6>
+                    <div class="mb-3">
+                        <label class="form-label-custom">Pilih Tujuan Destinasi / UMKM</label>
+                        <select name="target_composite" class="form-select form-control-custom" required>
+                            <optgroup label="Jelajah Budaya">
+                                {% for b in budaya %}
+                                <option value="culture|{{ b.id }}|{{ b.nama_tempat }}">{{ b.nama_tempat }}</option>
+                                {% endfor %}
+                            </optgroup>
+                            <optgroup label="UMKM Lokal">
+                                {% for u in umkm %}
+                                <option value="umkm|{{ u.id }}|{{ u.nama_produk }}">{{ u.nama_produk }} ({{ u.nama_toko }})</option>
+                                {% endfor %}
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label-custom">URL Google Maps (Tab Reviews)</label>
+                        <input type="url" name="url_maps" class="form-control form-control-custom" placeholder="https://www.google.com/maps/place/..." required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label-custom">Batas Maksimal Ulasan Berteks</label>
+                        <input type="number" name="max_reviews" class="form-control form-control-custom" value="100" min="10" max="500" required>
+                        <small class="text-muted" style="font-size: 0.7rem;">Default: 100. Disarankan antara 50 - 300 untuk menjaga kestabilan RAM server.</small>
+                    </div>
+                    <button type="submit" class="btn btn-warning w-100 rounded-pill py-2 fw-bold text-white shadow-sm border-0" style="background: var(--primary);">Simpan Target Manual</button>
+                </form>
+
+                <hr class="my-4 opacity-25">
+
+                <form action="{{ url_for('admin_bp.bulk_upload_targets') }}" method="POST" enctype="multipart/form-data">
+                    <h6 class="fw-bold mb-1 text-dark">Pilihan 2: Impor Massal (.txt)</h6>
+                    <p class="text-muted" style="font-size: 0.75rem;">Unggah file .txt dengan format baris:<br><code>1. Masjid Agung Tegal: https://www.google.com/maps/...</code></p>
+                    <div class="mb-3">
+                        <input type="file" name="file" class="form-control form-control-custom" accept=".txt" required>
+                    </div>
+                    <button type="submit" class="btn btn-dark w-100 rounded-pill py-2 fw-bold shadow-sm">Unggah & Impor File</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

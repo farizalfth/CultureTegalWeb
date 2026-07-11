@@ -7,8 +7,8 @@ from sqlalchemy import func
 db = SQLAlchemy()
 
 culture_facilities = db.Table('culture_facilities',
-    db.Column('culture_id', UUID(as_uuid=True), db.ForeignKey('culture_sites.id'), primary_key=True),
-    db.Column('facility_id', UUID(as_uuid=True), db.ForeignKey('facilities.id'), primary_key=True)
+    db.Column('culture_id', UUID(as_uuid=True), db.ForeignKey('culture_sites.id', ondelete='CASCADE'), primary_key=True),
+    db.Column('facility_id', UUID(as_uuid=True), db.ForeignKey('facilities.id', ondelete='CASCADE'), primary_key=True)
 )
 
 class User(db.Model):
@@ -26,6 +26,15 @@ class User(db.Model):
     role = db.Column(db.String(20), default='user')
     onesignal_id = db.Column(db.String(255), nullable=True)
     is_banned = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime(timezone=True), server_default=db.func.now())
+
+    reviews = db.relationship('Review', backref='user', cascade='all, delete-orphan', passive_deletes=True)
+    favorites = db.relationship('UserFavorite', backref='user', cascade='all, delete-orphan', passive_deletes=True)
+    scan_histories = db.relationship('ScanHistory', backref='user', cascade='all, delete-orphan', passive_deletes=True)
+    badges = db.relationship('UserBadge', backref='user', cascade='all, delete-orphan', passive_deletes=True)
+    quiz_histories = db.relationship('UserQuizHistory', backref='user', cascade='all, delete-orphan', passive_deletes=True)
+    ai_scans = db.relationship('AIScanHistory', backref='user', cascade='all, delete-orphan', passive_deletes=True)
+    devices = db.relationship('UserDevice', backref='user', cascade='all, delete-orphan', passive_deletes=True)
 
 class CultureSite(db.Model):
     __tablename__ = 'culture_sites'
@@ -45,14 +54,8 @@ class CultureSite(db.Model):
     gallery = db.Column(JSONB, nullable=True)
     video_url = db.Column(db.String(255), nullable=True)
     is_slider = db.Column(db.Boolean, default=False)
-    admin_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id'), nullable=True)
+    admin_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id', ondelete='SET NULL'), nullable=True)
     facilities = db.relationship('Facility', secondary=culture_facilities, backref=db.backref('cultures', lazy='dynamic'))
-
-culture_facilities = db.Table('culture_facilities',
-    db.Column('culture_id', UUID(as_uuid=True), db.ForeignKey('culture_sites.id', ondelete='CASCADE'), primary_key=True),
-    db.Column('facility_id', UUID(as_uuid=True), db.ForeignKey('facilities.id', ondelete='CASCADE'), primary_key=True),
-    extend_existing=True
-)
 
 class Facility(db.Model):
     __tablename__ = 'facilities'
@@ -82,7 +85,7 @@ class Event(db.Model):
     is_recurring = db.Column(db.Boolean, default=False)
     badge_top = db.Column(db.String(50), nullable=True)
     badge_bottom = db.Column(db.String(50), nullable=True)
-    admin_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id'), nullable=True)
+    admin_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id', ondelete='SET NULL'), nullable=True)
 
 class UMKM(db.Model):
     __tablename__ = 'umkms'
@@ -99,7 +102,7 @@ class UMKM(db.Model):
     alamat_toko = db.Column(db.Text, nullable=True)
     no_whatsapp = db.Column(db.String(20), nullable=True)
     link_eksternal = db.Column(db.String(255), nullable=True)
-    admin_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id'), nullable=True)
+    admin_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id', ondelete='SET NULL'), nullable=True)
 
     def to_dict(self):
         image_url_full = None
@@ -156,7 +159,7 @@ class News(db.Model):
     tanggal = db.Column(db.Date, nullable=False)
     image_url = db.Column(db.String(255), nullable=True)
     konten = db.Column(db.Text, nullable=False)
-    admin_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id'), nullable=True)
+    admin_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id', ondelete='SET NULL'), nullable=True)
 
 class Quiz(db.Model):
     __tablename__ = 'quizzes'
@@ -167,12 +170,12 @@ class Quiz(db.Model):
     opsi_jawaban = db.Column(JSONB, nullable=False)
     jawaban_benar = db.Column(db.String(10), nullable=False)
     poin_reward = db.Column(db.Integer, default=50)
-    admin_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id'), nullable=True)
+    admin_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id', ondelete='SET NULL'), nullable=True)
 
 class ScanHistory(db.Model):
     __tablename__ = 'scan_history'
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id'), nullable=False)
+    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
     site_id = db.Column(UUID(as_uuid=True), db.ForeignKey('culture_sites.id'), nullable=False)
     scan_method = db.Column(db.String(50), nullable=False)
     poin_didapat = db.Column(db.Integer, default=0)
@@ -181,7 +184,7 @@ class ScanHistory(db.Model):
 class Review(db.Model):
     __tablename__ = 'reviews'
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id'), nullable=False)
+    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
     target_type = db.Column(db.String(50), nullable=False)
     target_id = db.Column(UUID(as_uuid=True), nullable=False)
     rating = db.Column(db.Float, nullable=False)
@@ -192,9 +195,11 @@ class Review(db.Model):
 class UserFavorite(db.Model):
     __tablename__ = 'user_favorites'
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id'), nullable=False)
+    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
     target_type = db.Column(db.String(50), nullable=False)
     target_id = db.Column(UUID(as_uuid=True), nullable=False)
+    reminder_1h_sent = db.Column(db.Boolean, default=False)
+    reminder_start_sent = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime(timezone=True), server_default=db.func.now())
 
 class Badge(db.Model):
@@ -208,14 +213,49 @@ class Badge(db.Model):
 class UserBadge(db.Model):
     __tablename__ = 'user_badges'
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id'), nullable=False)
+    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
     badge_id = db.Column(UUID(as_uuid=True), db.ForeignKey('badges.id'), nullable=False)
     unlocked_at = db.Column(db.DateTime(timezone=True), server_default=db.func.now())
 
 class UserQuizHistory(db.Model):
     __tablename__ = 'user_quiz_history'
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id'), nullable=False)
+    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
     quiz_id = db.Column(UUID(as_uuid=True), db.ForeignKey('quizzes.id'), nullable=False)
     is_correct = db.Column(db.Boolean, nullable=False)
+    created_at = db.Column(db.DateTime(timezone=True), server_default=db.func.now())
+
+class FoodMetadata(db.Model):
+    __tablename__ = 'food_metadata'
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    label_key = db.Column(db.String(100), unique=True, nullable=False)
+    nama_makanan = db.Column(db.String(150), nullable=False)
+    deskripsi = db.Column(db.Text, nullable=False)
+    video_url = db.Column(db.String(255), nullable=True)
+    created_at = db.Column(db.DateTime(timezone=True), server_default=db.func.now())
+
+class AIScanHistory(db.Model):
+    __tablename__ = 'ai_scan_history'
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    image_url = db.Column(db.String(255), nullable=True)
+    predicted_label = db.Column(db.String(100), nullable=False)
+    food_id = db.Column(UUID(as_uuid=True), db.ForeignKey('food_metadata.id', ondelete='SET NULL'), nullable=True)
+    created_at = db.Column(db.DateTime(timezone=True), server_default=db.func.now())
+
+class ScrapeTarget(db.Model):
+    __tablename__ = 'scrape_targets'
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    target_id = db.Column(UUID(as_uuid=True), nullable=False)
+    target_type = db.Column(db.String(50), nullable=False)
+    nama_tempat = db.Column(db.String(150), nullable=False)
+    url_maps = db.Column(db.Text, nullable=False)
+    max_reviews = db.Column(db.Integer, default=100, nullable=False)
+    created_at = db.Column(db.DateTime(timezone=True), server_default=db.func.now())
+
+class UserDevice(db.Model):
+    __tablename__ = 'user_devices'
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    onesignal_id = db.Column(db.String(255), unique=True, nullable=False)
     created_at = db.Column(db.DateTime(timezone=True), server_default=db.func.now())

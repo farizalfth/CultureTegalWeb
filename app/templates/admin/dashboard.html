@@ -1,6 +1,16 @@
 {% extends 'layouts/admin_base.html' %}
 
 {% block content %}
+<div id="chart-data" class="d-none"
+     data-user-growth-labels="{{ user_growth_labels | tojson | forceescape }}"
+     data-user-growth-data="{{ user_growth_data | tojson | forceescape }}"
+     data-level-dist-labels="{{ level_dist_labels | tojson | forceescape }}"
+     data-level-dist-data="{{ level_dist_data | tojson | forceescape }}"
+     data-top-visited-labels="{{ top_visited_labels | tojson | forceescape }}"
+     data-top-visited-data="{{ top_visited_data | tojson | forceescape }}"
+     data-scrape-status-url="{{ url_for('admin_bp.get_scrape_status') }}"
+     data-scrape-trigger-url="{{ url_for('admin_bp.trigger_scrape') }}"></div>
+
 <div id="dashboard" class="content-section active">
     <div class="row g-4 mb-4">
         <div class="col-md-3">
@@ -29,6 +39,30 @@
                 <div class="icon-box bg-primary-subtle text-primary mx-auto"><i class="fa fa-users"></i></div>
                 <small class="text-muted small">User Aktif</small>
                 <h4 class="fw-bold m-0 mt-1">{{ count_users }}</h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-lg-8">
+            <div class="admin-card p-4">
+                <h5 class="fw-bold mb-4 text-dark"><i class="fa fa-chart-line me-2 text-primary"></i> Tren Pertumbuhan Pengguna</h5>
+                <div style="height: 300px;"><canvas id="userGrowthChart"></canvas></div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="admin-card p-4">
+                <h5 class="fw-bold mb-4 text-dark"><i class="fa fa-chart-pie me-2 text-warning"></i> Distribusi Level</h5>
+                <div style="height: 300px;"><canvas id="levelDistChart"></canvas></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-12">
+            <div class="admin-card p-4">
+                <h5 class="fw-bold mb-4 text-dark"><i class="fa fa-fire me-2 text-danger"></i> Cagar Budaya Terpopuler (Check-in Pengguna)</h5>
+                <div style="height: 300px;"><canvas id="topVisitedChart"></canvas></div>
             </div>
         </div>
     </div>
@@ -88,8 +122,11 @@
                             <div class="btn-crud-group">
                                 <button class="btn-action btn-edit" data-bs-toggle="modal"
                                     data-bs-target="#modalEditBudaya{{ b.id }}"><i class="fa fa-edit"></i></button>
-                                <button class="btn-action btn-delete" data-bs-toggle="modal"
-                                    data-bs-target="#modalDelBudaya{{ b.id }}"><i class="fa fa-trash"></i></button>
+                                <button class="btn-action btn-delete btn-delete-budaya-trigger" type="button"
+                                    data-url="{{ url_for('admin_bp.delete_budaya', id=b.id) }}"
+                                    data-name="{{ b.nama_tempat }}">
+                                    <i class="fa fa-trash"></i>
+                                </button>
                             </div>
                         </td>
                     </tr>
@@ -139,8 +176,11 @@
                             <div class="btn-crud-group">
                                 <button class="btn-action btn-edit" data-bs-toggle="modal"
                                     data-bs-target="#modalEditEvent{{ e.id }}"><i class="fa fa-edit"></i></button>
-                                <button class="btn-action btn-delete" data-bs-toggle="modal"
-                                    data-bs-target="#modalDelEvent{{ e.id }}"><i class="fa fa-trash"></i></button>
+                                <button class="btn-action btn-delete btn-delete-event-trigger" type="button"
+                                    data-url="{{ url_for('admin_bp.delete_event', id=e.id) }}"
+                                    data-name="{{ e.judul_event }}">
+                                    <i class="fa fa-trash"></i>
+                                </button>
                             </div>
                         </td>
                     </tr>
@@ -189,10 +229,155 @@
                             <div class="btn-crud-group">
                                 <button class="btn-action btn-edit" data-bs-toggle="modal"
                                     data-bs-target="#modalEditUMKM{{ u.id }}"><i class="fa fa-edit"></i></button>
-                                <button class="btn-action btn-delete" data-bs-toggle="modal"
-                                    data-bs-target="#modalDelUMKM{{ u.id }}"><i class="fa fa-trash"></i></button>
+                                <button class="btn-action btn-delete btn-delete-umkm-trigger" type="button"
+                                    data-url="{{ url_for('admin_bp.delete_umkm', id=u.id) }}"
+                                    data-name="{{ u.nama_produk }}">
+                                    <i class="fa fa-trash"></i>
+                                </button>
                             </div>
                         </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="scraper" class="content-section">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold m-0">Pemasok Big Data Google Maps</h3>
+        <button class="btn btn-warning rounded-pill px-4 fw-bold text-white shadow-sm border-0"
+            style="background: var(--primary)" data-bs-toggle="modal" data-bs-target="#modalAddScrapeTarget">
+            <i class="fa fa-plus me-2"></i> Tambah Link Target
+        </button>
+    </div>
+    
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="admin-card p-4 border-start border-5 border-warning mb-4">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-orange-light p-2 rounded-3 me-3"><i class="fa fa-robot text-orange"></i></div>
+                    <h5 class="fw-bold m-0 text-dark">Kontrol Scraper Aktif</h5>
+                </div>
+                <p class="text-muted small">Pemicu penarikan ulasan Google Maps secara manual. Proses berjalan di latar belakang.</p>
+                
+                <div id="scrapeProgressContainer" class="d-none mb-4 p-3 bg-light rounded-4 border">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="small fw-bold text-primary" id="scrapeStatusText">Memulai...</span>
+                        <span class="small fw-bold text-dark" id="scrapePercentText">0%</span>
+                    </div>
+                    <div class="progress mb-3" style="height: 12px; border-radius: 6px; overflow: hidden;">
+                        <div id="scrapeProgressBar" class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar" style="width: 0%"></div>
+                    </div>
+                    
+                    <div id="scrapeTerminalBox" class="d-none rounded-4 overflow-hidden border" style="border-color: #334155;">
+                        <div class="bg-dark px-3 py-2 d-flex align-items-center gap-1" style="border-bottom: 1px solid #334155;">
+                            <span style="width: 8px; height: 8px; border-radius: 50%; background: #ef4444; display: inline-block;"></span>
+                            <span style="width: 8px; height: 8px; border-radius: 50%; background: #f59e0b; display: inline-block;"></span>
+                            <span style="width: 8px; height: 8px; border-radius: 50%; background: #10b981; display: inline-block;"></span>
+                            <span class="text-secondary ms-2" style="font-family: monospace; font-size: 0.65rem;">live_console.log</span>
+                        </div>
+                        <div class="p-3 bg-dark text-success" style="font-family: 'Courier New', Courier, monospace; font-size: 0.75rem; max-height: 180px; overflow-y: auto; background-color: #0f172a !important;">
+                            <div id="scrapeTerminalLogs"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" id="btnTriggerScrape" class="btn btn-warning w-100 rounded-pill py-2 fw-bold text-white shadow-sm border-0" style="background: var(--primary);">
+                    <i class="fa fa-play me-2"></i> Ambil Ulasan Sekarang
+                </button>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            <div class="admin-card p-0 overflow-hidden">
+                <div class="table-responsive">
+                    <table class="table table-custom mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-4">Lokasi Budaya</th>
+                                <th>Batas Ulasan</th>
+                                <th>URL Peta Google Maps</th>
+                                <th class="text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for t in scrape_targets %}
+                            <tr>
+                                <td class="ps-4"><b>{{ t.nama_tempat }}</b></td>
+                                <td><span class="badge bg-primary-subtle text-dark border">{{ t.max_reviews }} Ulasan</span></td>
+                                <td class="small"><code class="text-truncate d-inline-block" style="max-width: 240px;">{{ t.url_maps }}</code></td>
+                                <td class="text-center">
+                                    <div class="btn-crud-group">
+                                        <button class="btn-action btn-delete btn-delete-target-trigger" type="button"
+                                            data-url="{{ url_for('admin_bp.delete_scrape_target', id=t.id) }}"
+                                            data-name="{{ t.nama_tempat }}">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-card p-4 mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex align-items-center">
+                <div class="bg-orange-light p-2 rounded-3 me-3"><i class="fa fa-database text-orange"></i></div>
+                <h5 class="fw-bold m-0 text-dark">Hasil Scraping Terbaru (MongoDB Cloud)</h5>
+            </div>
+            
+            <div class="d-flex gap-2 align-items-center">
+                <select name="filter_target_id" class="form-select form-select-sm rounded-pill px-3" style="width: 180px;">
+                    <option value="semua">Semua Lokasi</option>
+                    {% for t in scrape_targets %}
+                    <option value="{{ t.target_id }}" {% if request.args.get('filter_target_id') == t.target_id | string %}selected{% endif %}>{{ t.nama_tempat }}</option>
+                    {% endfor %}
+                </select>
+                
+                <select name="sort_review" class="form-select form-select-sm rounded-pill px-3" style="width: 160px;">
+                    <option value="terbaru" {% if request.args.get('sort_review') == 'terbaru' %}selected{% endif %}>Terbaru</option>
+                    <option value="terlama" {% if request.args.get('sort_review') == 'terlama' %}selected{% endif %}>Terlama</option>
+                    <option value="rating_tinggi" {% if request.args.get('sort_review') == 'rating_tinggi' %}selected{% endif %}>Rating Tertinggi</option>
+                    <option value="rating_rendah" {% if request.args.get('sort_review') == 'rating_rendah' %}selected{% endif %}>Rating Terendah</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+            <table class="table table-custom mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4">Lokasi</th>
+                        <th>Pengguna</th>
+                        <th>Rating</th>
+                        <th>Waktu</th>
+                        <th>Ulasan</th>
+                        <th>Scraping</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in scraped_reviews %}
+                    <tr>
+                        <td class="ps-4"><b>{{ r.Lokasi }}</b></td>
+                        <td><span class="small fw-bold">{{ r.Nama_User }}</span></td>
+                        <td>
+                            <span class="badge bg-warning-subtle text-dark border">
+                                <i class="fa fa-star text-warning me-1"></i>{{ r.Rating }}
+                            </span>
+                        </td>
+                        <td class="small text-muted">{{ r.Waktu }}</td>
+                        <td class="small"><div class="text-truncate" style="max-width: 250px;" title="{{ r.Ulasan }}">{{ r.Ulasan }}</div></td>
+                        <td class="small text-muted">{{ r.Tanggal_Scraping }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">Belum ada data ulasan tersimpan di MongoDB.</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -380,4 +565,221 @@
 {% include 'admin/modals/event_modals.html' %}
 {% include 'admin/modals/umkm_modals.html' %}
 {% include 'admin/modals/user_modals.html' %}
+{% include 'admin/modals/scraper_modals.html' %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const dataEl = document.getElementById('chart-data');
+        if (!dataEl) return;
+
+        const growthLabels = JSON.parse(dataEl.getAttribute('data-user-growth-labels') || '[]');
+        const growthData = JSON.parse(dataEl.getAttribute('data-user-growth-data') || '[]');
+        const levelLabels = JSON.parse(dataEl.getAttribute('data-level-dist-labels') || '[]');
+        const levelData = JSON.parse(dataEl.getAttribute('data-level-dist-data') || '[]');
+        const visitedLabels = JSON.parse(dataEl.getAttribute('data-top-visited-labels') || '[]');
+        const visitedData = JSON.parse(dataEl.getAttribute('data-top-visited-data') || '[]');
+        const statusUrl = dataEl.getAttribute('data-scrape-status-url');
+        const triggerUrl = dataEl.getAttribute('data-scrape-trigger-url');
+
+        const growthCanvas = document.getElementById('userGrowthChart');
+        if (growthCanvas) {
+            const growthCtx = growthCanvas.getContext('2d');
+            new Chart(growthCtx, {
+                type: 'line',
+                data: {
+                    labels: growthLabels,
+                    datasets: [{
+                        label: 'Registrasi Pengguna',
+                        data: growthData,
+                        borderColor: '#4e73df',
+                        backgroundColor: 'rgba(78, 115, 223, 0.05)',
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+
+        const levelCanvas = document.getElementById('levelDistChart');
+        if (levelCanvas) {
+            const levelCtx = levelCanvas.getContext('2d');
+            new Chart(levelCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: levelLabels,
+                    datasets: [{
+                        data: levelData,
+                        backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+
+        const visitedCanvas = document.getElementById('topVisitedChart');
+        if (visitedCanvas) {
+            const visitedCtx = visitedCanvas.getContext('2d');
+            new Chart(visitedCtx, {
+                type: 'bar',
+                data: {
+                    labels: visitedLabels,
+                    datasets: [{
+                        label: 'Jumlah Check-in',
+                        data: visitedData,
+                        backgroundColor: '#e74a3b'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y'
+                }
+            });
+        }
+
+        const btnTrigger = document.getElementById('btnTriggerScrape');
+        const progressContainer = document.getElementById('scrapeProgressContainer');
+        const progressBar = document.getElementById('scrapeProgressBar');
+        const statusText = document.getElementById('scrapeStatusText');
+        const percentText = document.getElementById('scrapePercentText');
+        const terminalBox = document.getElementById('scrapeTerminalBox');
+        const terminalLogs = document.getElementById('scrapeTerminalLogs');
+        
+        let intervalId = null;
+        let lastStatus = "";
+
+        function checkStatus() {
+            if (!statusUrl) return;
+            fetch(statusUrl)
+                .then(response => response.json())
+                .then(res => {
+                    if (res.status === 'success') {
+                        const data = res.data;
+                        if (data.running) {
+                            if (progressContainer) progressContainer.classList.remove('d-none');
+                            if (terminalBox) terminalBox.classList.remove('d-none');
+                            if (btnTrigger) {
+                                btnTrigger.disabled = true;
+                                btnTrigger.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Scraping...';
+                            }
+                            
+                            const percent = data.total > 0 ? Math.round((data.current / data.total) * 100) : 0;
+                            if (progressBar) progressBar.style.width = percent + '%';
+                            if (percentText) percentText.innerText = percent + '%';
+                            if (statusText) statusText.innerText = data.status;
+
+                            if (terminalLogs && lastStatus !== data.status) {
+                                const timeStr = new Date().toLocaleTimeString();
+                                const logLine = document.createElement('div');
+                                logLine.innerText = `[${timeStr}] ${data.status}`;
+                                terminalLogs.appendChild(logLine);
+                                if (terminalBox) {
+                                    terminalBox.scrollTop = terminalBox.scrollHeight;
+                                }
+                                lastStatus = data.status;
+                            }
+                        } else {
+                            if (intervalId) {
+                                clearInterval(intervalId);
+                                intervalId = null;
+                            }
+                            if (progressContainer) progressContainer.classList.add('d-none');
+                            if (btnTrigger) {
+                                btnTrigger.disabled = false;
+                                btnTrigger.innerHTML = '<i class="fa fa-play me-2"></i> Ambil Ulasan Sekarang';
+                            }
+                            if (data.status === 'Success') {
+                                window.location.reload();
+                            }
+                        }
+                    }
+                })
+                .catch(() => {});
+        }
+
+        if (btnTrigger && triggerUrl) {
+            btnTrigger.addEventListener('click', function() {
+                fetch(triggerUrl, { method: 'POST' })
+                    .then(response => response.json())
+                    .then(res => {
+                        if (res.status === 'success') {
+                            if (terminalLogs) {
+                                terminalLogs.innerHTML = '';
+                            }
+                            checkStatus();
+                            intervalId = setInterval(checkStatus, 3000);
+                        }
+                    })
+                    .catch(() => {});
+            });
+        }
+
+        if (statusUrl) {
+            fetch(statusUrl)
+                .then(response => response.json())
+                .then(res => {
+                    if (res.status === 'success' && res.data.running) {
+                        checkStatus();
+                        intervalId = setInterval(checkStatus, 3000);
+                    }
+                })
+                .catch(() => {});
+        }
+
+        const filterSelect = document.querySelector('select[name="filter_target_id"]');
+        const sortSelect = document.querySelector('select[name="sort_review"]');
+        
+        function applyFilters() {
+            const filterVal = filterSelect ? filterSelect.value : 'semua';
+            const sortVal = sortSelect ? sortSelect.value : 'terbaru';
+            window.location.href = `{{ url_for('admin_bp.admin_dashboard') }}?filter_target_id=${filterVal}&sort_review=${sortVal}#scraper`;
+        }
+
+        if (filterSelect) {
+            filterSelect.addEventListener('change', applyFilters);
+        }
+        if (sortSelect) {
+            sortSelect.addEventListener('change', applyFilters);
+        }
+
+        document.addEventListener('click', function (e) {
+            const delUMKM = e.target.closest('.btn-delete-umkm-trigger');
+            if (delUMKM) {
+                const url = delUMKM.getAttribute('data-url');
+                const name = delUMKM.getAttribute('data-name');
+                confirmDelete(url, name);
+            }
+
+            const delBudaya = e.target.closest('.btn-delete-budaya-trigger');
+            if (delBudaya) {
+                const url = delBudaya.getAttribute('data-url');
+                const name = delBudaya.getAttribute('data-name');
+                confirmDelete(url, name);
+            }
+
+            const delEvent = e.target.closest('.btn-delete-event-trigger');
+            if (delEvent) {
+                const url = delEvent.getAttribute('data-url');
+                const name = delEvent.getAttribute('data-name');
+                confirmDelete(url, name);
+            }
+
+            const delTarget = e.target.closest('.btn-delete-target-trigger');
+            if (delTarget) {
+                const url = delTarget.getAttribute('data-url');
+                const name = delTarget.getAttribute('data-name');
+                confirmDelete(url, name);
+            }
+        });
+    });
+</script>
 {% endblock %}
