@@ -1,37 +1,182 @@
 {% extends 'layouts/base.html' %}
+
 {% block content %}
 <div class="container section-padding">
-    <div class="row align-items-center mb-5">
-        <div class="col-md-6" data-aos="fade-right">
-            <h2 class="fw-bold">UMKM Unggulan</h2>
+    <!-- Header & Search Bar -->
+    <div class="row align-items-center mb-5" data-aos="fade-up">
+        <div class="col-md-6">
+            <h2 class="fw-800 display-5 mb-0">UMKM <span class="text-orange">Unggulan</span></h2>
+            <p class="text-muted fs-5">Dukung produk lokal kreatif dan kuliner khas Kota Tegal.</p>
         </div>
-        <div class="col-md-6 text-md-end" data-aos="fade-left">
-            <input type="text" class="form-control rounded-pill d-inline-block w-75 shadow-sm" placeholder="Cari produk...">
+        <div class="col-md-6">
+            <!-- Container pencarian dengan animasi border oranye -->
+            <div class="input-group shadow-sm rounded-pill overflow-hidden border search-box-container">
+                <span class="input-group-text bg-white border-0 ps-4">
+                    <i class="fas fa-search text-muted"></i>
+                </span>
+                <input type="text" id="searchInputUMKM" class="form-control border-0 py-3"
+                    placeholder="Cari nama event atau lokasi...">
+            </div>
         </div>
     </div>
 
+    <!-- Filter Kategori (Sinkron dengan Database: Kuliner, Fashion, Kriya) -->
     <div class="d-flex gap-2 mb-5 flex-wrap" data-aos="fade-up">
-        <button class="btn btn-warning rounded-pill px-4">Semua</button>
-        <button class="btn btn-outline-dark rounded-pill px-4">Makanan</button>
-        <button class="btn btn-outline-dark rounded-pill px-4">Minuman</button>
-        <button class="btn btn-outline-dark rounded-pill px-4">Kerajinan</button>
-        <button class="btn btn-outline-dark rounded-pill px-4">Fashion</button>
+        <button class="btn btn-warning rounded-pill px-4 filter-btn-umkm active" data-filter="all">Semua</button>
+        <button class="btn btn-orange-custom rounded-pill px-4 filter-btn-umkm" data-filter="Kuliner">Kuliner</button>
+        <button class="btn btn-orange-custom rounded-pill px-4 filter-btn-umkm" data-filter="Fashion">Fashion</button>
+        <button class="btn btn-orange-custom rounded-pill px-4 filter-btn-umkm" data-filter="Kriya">Kriya</button>
     </div>
 
-    <div class="row g-4">
+    <!-- Produk Grid -->
+    <div class="row g-4" id="umkmContainer">
         {% for p in produks %}
-        <div class="col-md-4 col-lg-4" data-aos="zoom-in" data-aos-delay="{{ loop.index * 50 }}">
-            <div class="card card-hover border-0 shadow-sm p-3 h-100" style="border-radius: 25px;">
-                <img src="{{ p.img }}" alt="{{ p.nama }}" class="card-img-top rounded-4 mb-3" style="height: 250px; object-fit: cover;">
-                <div class="card-body p-0">
-                    <p class="text-warning small mb-1"><i class="fa fa-star me-1"></i>{{ p.rating }}</p>
-                    <h5 class="fw-bold mb-2">{{ p.nama }}</h5>
-                    <p class="fw-bold text-orange fs-5">{{ p.harga }}</p>
-                    <button class="btn btn-orange w-100 rounded-pill mt-2 btn-custom">Lihat Produk</button>
+        <div class="col-md-6 col-lg-4 umkm-card" data-category="{{ p.kategori }}" data-aos="zoom-in">
+            <div class="card card-hover-umkm border-0 shadow-sm p-3 h-100" style="border-radius: 25px;">
+                <div class="position-relative overflow-hidden rounded-4 mb-3">
+                    {% if p.gambar %}
+                    <img src="{{ url_for('static', filename='uploads/' + p.gambar) }}" alt="{{ p.nama_produk }}" 
+                         class="card-img-top img-produk" style="height: 250px; object-fit: cover;"
+                         onerror="this.onerror=null;this.src='https://placehold.co/600x600?text=Produk+UMKM';">
+                    {% else %}
+                    <img src="https://placehold.co/600x600?text=No+Image" class="card-img-top img-produk" style="height: 250px; object-fit: cover;">
+                    {% endif %}
+                    
+                    <div class="position-absolute top-0 end-0 m-2">
+                        <span class="badge bg-white text-dark shadow-sm rounded-pill px-3 py-2 fw-bold small">
+                            <i class="fas fa-tag text-orange me-1"></i> {{ p.kategori }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="card-body p-2">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <p class="text-warning small mb-0"><i class="fa fa-star me-1"></i>{{ p.rating if p.rating else '5.0' }}</p>
+                        <span class="text-muted small">Kota Tegal</span>
+                    </div>
+                    <h5 class="fw-bold mb-2 umkm-title text-dark">{{ p.nama_produk }}</h5>
+                    <p class="fw-bold text-orange fs-5 mb-3">{{ p.harga }}</p>
+                    <button class="btn btn-orange-custom w-100 rounded-pill py-2 fw-bold btn-beli">Lihat Produk →</button>
                 </div>
             </div>
+        </div>
+        {% else %}
+        <div class="col-12 text-center py-5">
+            <p class="text-muted">Produk UMKM belum tersedia.</p>
         </div>
         {% endfor %}
     </div>
 </div>
+
+<style>
+    /* 1. Animasi Kolom Pencarian (Border Oranye saat fokus) */
+    .search-box-container {
+        transition: all 0.3s ease;
+        border: 1px solid #dee2e6 !important;
+    }
+    .search-box-container:focus-within {
+        border-color: #d35400 !important;
+        box-shadow: 0 0 0 3px rgba(211, 84, 0, 0.1) !important;
+    }
+    #searchInputUMKM:focus {
+        outline: none !important;
+        box-shadow: none !important;
+    }
+
+    /* 2. Animasi Tombol Kategori (Hover: Putih-Garis Oranye) */
+    .filter-btn-umkm {
+        background-color: #d35400 !important;
+        color: white !important;
+        border: 2px solid transparent !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        font-weight: 600;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .filter-btn-umkm:hover {
+        background-color: white !important;
+        color: #d35400 !important;
+        border: 2px solid #d35400 !important;
+        transform: translateY(-4px) scale(1.05);
+        box-shadow: 0 10px 20px rgba(211, 84, 0, 0.15) !important;
+    }
+
+    /* Tombol Aktif (Kuning) */
+    .btn-warning.active {
+        background-color: #ffc107 !important;
+        color: #212529 !important;
+        border: 2px solid transparent !important;
+    }
+
+    .btn-orange-custom {
+        background-color: #d35400 !important;
+        color: white !important;
+        border: none;
+    }
+
+    /* Animasi Kartu Produk */
+    .card-hover-umkm {
+        transition: all 0.4s ease;
+    }
+    .card-hover-umkm:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1) !important;
+    }
+    .img-produk { transition: 0.5s; }
+    .card-hover-umkm:hover .img-produk { transform: scale(1.08); }
+</style>
+
+<script>
+    // LOGIKA PENCARIAN REAL-TIME
+    document.getElementById('searchInputUMKM').addEventListener('input', function () {
+        const keyword = this.value.toLowerCase();
+        const cards = document.querySelectorAll('.umkm-card');
+
+        cards.forEach(card => {
+            const title = card.querySelector('.umkm-title').textContent.toLowerCase();
+            const category = card.getAttribute('data-category').toLowerCase();
+
+            if (title.includes(keyword) || category.includes(keyword)) {
+                card.style.display = "";
+                card.style.opacity = "1";
+            } else {
+                card.style.opacity = "0";
+                setTimeout(() => { if(card.style.opacity === "0") card.style.display = "none"; }, 300);
+            }
+        });
+    });
+
+    // LOGIKA FILTER KATEGORI (Kuliner, Fashion, Kriya)
+    document.querySelectorAll('.filter-btn-umkm').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const filter = this.getAttribute('data-filter');
+
+            // Toggle Class Warna Tombol
+            document.querySelectorAll('.filter-btn-umkm').forEach(b => {
+                b.classList.remove('btn-warning', 'active');
+                b.classList.add('btn-orange-custom');
+            });
+            this.classList.remove('btn-orange-custom');
+            this.classList.add('btn-warning', 'active');
+
+            // Animasi Filter Kartu
+            document.querySelectorAll('.umkm-card').forEach(card => {
+                card.style.opacity = "0";
+                card.style.transform = "scale(0.95)";
+                
+                setTimeout(() => {
+                    if (filter === 'all' || card.getAttribute('data-category') === filter) {
+                        card.style.display = "";
+                        setTimeout(() => { 
+                            card.style.opacity = "1"; 
+                            card.style.transform = "scale(1)";
+                        }, 50);
+                    } else {
+                        card.style.display = "none";
+                    }
+                }, 300);
+            });
+        });
+    });
+</script>
 {% endblock %}

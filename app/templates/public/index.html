@@ -1,57 +1,177 @@
 {% extends 'layouts/base.html' %}
 
 {% block content %}
+<!-- HERO SECTION: STATIS, JERNIH & TERANG -->
 <section class="hero-container">
-    <div class="container">
-        <div class="hero-text-box">
-            <h1 class="hero-title">Jelajahi <br> 
-                <span style="color: #ffcc00;">Budaya Kota Tegal</span>
-            </h1>
-            <p class="fs-5 mb-4">Temukan sejarah, kuliner, dan event budaya dalam satu platform</p>
-            <div class="d-flex gap-3">
-                <a href="#" class="btn btn-warning btn-custom shadow">Jelajahi Sekarang</a>
-                <a href="#" class="btn btn-outline-light btn-custom">Scan Budaya</a>
+    <!-- Background Gambar Statis -->
+    <div class="hero-bg-static"></div> 
+    
+    <!-- Overlay Ringan (Teks Tajam & Jernih) -->
+    <div class="hero-overlay-clear"></div> 
+    
+    <div class="container position-relative hero-content" style="z-index: 3;">
+        <div class="row">
+            <div class="col-lg-7">
+                <div class="hero-text-box">
+                    <h1 class="hero-title">
+                        Jelajahi Pesona <br> 
+                        <span class="text-gradient">Budaya Tegal</span>
+                    </h1>
+                    <p class="hero-subtitle mb-5">
+                        Temukan keharmonisan sejarah, kelezatan kuliner khas, dan kemeriahan event budaya dalam satu platform digital.
+                    </p>
+                    <div class="d-flex flex-wrap gap-3 mt-4">
+                        <a href="/jelajah" class="btn btn-warning rounded-pill px-5 py-3 fw-bold shadow-lg hero-btn-main">
+                            Jelajahi Sekarang <i class="fas fa-arrow-right ms-2"></i>
+                        </a>
+                        <a href="#tentang" class="btn btn-outline-light rounded-pill px-5 py-3 fw-bold hero-btn-alt">
+                            Tentang Kami
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </section>
 
-<div class="section-padding bg-pure-white">
+<!-- SECTION TENTANG -->
+<div id="tentang" class="section-padding-large bg-pure-white">
     <div class="container">
-        <div class="row align-items-center">
-            <div class="col-md-6" data-aos="fade-right">
-                <h2 class="fw-bold mb-4">Tentang Budaya Tegal</h2>
-                <p class="text-muted fs-5 mb-4">
-                    Kota Tegal memiliki kekayaan budaya yang luar biasa, mulai dari arsitektur bersejarah seperti Menara Air, kelezatan kuliner Sauto Tegal, hingga kerajinan Batik Tegalan yang khas.
+        <div class="row align-items-center g-md-5">
+            <div class="col-md-6 mb-5 mb-md-0" data-aos="fade-right">
+                <h6 class="text-orange fw-bold text-uppercase mb-3">Warisan Bahari</h6>
+                <h2 class="fw-800 display-5 mb-4">Mengenal Kedalaman <br>Budaya Tegal</h2>
+                <p class="text-muted fs-5 mb-5" style="line-height: 1.8; max-width: 500px;">
+                    Kota Tegal bukan sekadar tempat singgah. Ia adalah rumah bagi arsitektur bersejarah yang megah, kehangatan seduhan teh poci, hingga kerajinan Batik Tegalan.
                 </p>
-                <button class="btn btn-dark btn-custom">Baca Selengkapnya</button>
+                
+                <!-- INI ADALAH PERUBAHANNYA -->
+                <a href="{{ url_for('public_bp.tentang') }}" class="btn btn-dark rounded-pill px-5 py-3 fw-bold">
+                    Baca Selengkapnya
+                </a>
+                
             </div>
             <div class="col-md-6 text-center" data-aos="fade-left">
-                <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=800" 
-                     class="img-fluid rounded-5 shadow-lg" 
-                     style="max-width: 75%; transform: rotate(-2deg);" alt="Budaya">
+                <div class="img-wrapper">
+                    <img src="{{ url_for('static', filename='img/2.png') }}" 
+                         class="img-fluid rounded-4 shadow-lg" 
+                         alt="Budaya Tegal">
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<section class="section-padding">
+<!-- KATEGORI POPULER DENGAN ANIMASI POP-UP -->
+<section class="section-padding bg-light border-top">
     <div class="container">
-        <h3 class="fw-bold text-center mb-5" data-aos="zoom-in">Kategori Populer</h3>
+        <div class="text-center mb-5" data-aos="zoom-in">
+            <h2 class="fw-800">Eksplorasi Berdasarkan Kategori</h2>
+            <p class="text-muted">Pilih minat Anda dan temukan keunikan Kota Bahari.</p>
+        </div>
         <div class="row g-4 justify-content-center">
-            {% set categories = [('Sejarah', 'fas fa-landmark'), ('Kuliner', 'fas fa-utensils'), ('Event', 'fas fa-calendar'), ('Wisata', 'fas fa-map')] %}
-            {% for name, icon in categories %}
-            <div class="col-md-3" data-aos="fade-up" data-aos-delay="{{ loop.index * 100 }}">
-                <div class="card card-hover h-100 p-4 text-center border-0 shadow-sm">
-                    <div class="icon-circle mx-auto mb-3">
-                        <i class="{{ icon }} fa-2x text-warning"></i>
+            {% set categories = [
+                ('Sejarah', 'fas fa-landmark', 'Cagar Budaya'), 
+                ('Kuliner', 'fas fa-utensils', 'Lezatnya Sauto'), 
+                ('Event', 'fas fa-calendar-alt', 'Kemeriahan Lokal'), 
+                ('Wisata', 'fas fa-map-marked-alt', 'Destinasi Hits')
+            ] %}
+            {% for name, icon, desc in categories %}
+            <!-- Animasi Pop-up menggunakan zoom-in -->
+            <div class="col-md-6 col-lg-3" data-aos="zoom-in" data-aos-delay="{{ loop.index * 150 }}">
+                <div class="card card-category-popup h-100 p-4 text-center border-0 shadow-sm rounded-4">
+                    <div class="icon-circle mx-auto mb-4">
+                        <i class="{{ icon }} fa-2x text-orange"></i>
                     </div>
                     <h5 class="fw-bold">{{ name }}</h5>
-                    <p class="small text-muted mb-0">Keunikan {{ name }} Tegal.</p>
+                    <p class="small text-muted mb-0">{{ desc }}</p>
                 </div>
             </div>
             {% endfor %}
         </div>
     </div>
 </section>
+
+<style>
+    /* 1. HERO STYLING (STATIC & CLEAR) */
+    .hero-container {
+        position: relative;
+        height: 90vh;
+        background-color: #222;
+        display: flex;
+        align-items: center;
+        overflow: hidden;
+    }
+    .hero-bg-static {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background-image: url("{{ url_for('static', filename='img/1.png') }}");
+        background-size: cover;
+        background-position: center;
+        z-index: 1;
+    }
+    .hero-overlay-clear {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: linear-gradient(90deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.2) 100%);
+        z-index: 2;
+    }
+
+    /* 2. TYPOGRAPHY */
+    .hero-title { 
+        font-size: clamp(2.8rem, 5.5vw, 4.5rem); 
+        font-weight: 800; 
+        color: white; 
+        line-height: 1.1; 
+        margin-bottom: 25px;
+        text-shadow: 0 4px 15px rgba(0,0,0,0.5); 
+    }
+    .text-gradient { 
+        background: linear-gradient(to right, #ffcc00, #ffbb00); 
+        -webkit-background-clip: text; 
+        background-clip: text; /* standard property for compatibility */
+        -webkit-text-fill-color: transparent; 
+        color: transparent; /* fallback for browsers supporting background-clip */
+    }
+    .hero-subtitle { 
+        color: white; max-width: 600px; font-size: 1.25rem; 
+        border-left: 5px solid #ffcc00; padding-left: 20px;
+        text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    }
+
+    /* 3. ANIMASI POP-UP KATEGORI */
+    .card-category-popup {
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Efek membal */
+        background: white;
+    }
+    .card-category-popup:hover {
+        transform: scale(1.1) translateY(-10px); /* Efek Pop-up membesar */
+        box-shadow: 0 20px 40px rgba(253, 126, 20, 0.2) !important;
+        z-index: 10;
+        cursor: pointer;
+    }
+    .icon-circle {
+        width: 70px; height: 70px; 
+        background: rgba(253, 126, 20, 0.1); 
+        border-radius: 50%; 
+        display: flex; align-items: center; justify-content: center;
+        transition: 0.3s;
+    }
+    .card-category-popup:hover .icon-circle {
+        background: #fd7e14;
+    }
+    .card-category-popup:hover .icon-circle i {
+        color: white !important;
+    }
+
+    /* 4. UTILS */
+    .bg-cream { background-color: #fdf8f0; }
+    .text-orange { color: #fd7e14; }
+    .fw-800 { font-weight: 800; }
+    .section-padding-large { padding: 100px 0; }
+    .hero-btn-main { background-color: #ffcc00 !important; border: none; color: #222 !important; transition: 0.3s; }
+    .hero-btn-main:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(255,204,0,0.3); }
+    .hero-btn-alt { border: 2px solid white !important; background: transparent; transition: 0.3s; }
+    .hero-btn-alt:hover { background: white !important; color: #222 !important; }
+</style>
 {% endblock %}

@@ -2,7 +2,8 @@
 
 {% block content %}
 <div class="container section-padding">
-    
+
+    <!-- Header Section -->
     <div class="row align-items-end mb-5" data-aos="fade-up">
         <div class="col-md-8">
             <h1 class="fw-800 display-4 mb-0">Jelajah <span class="text-orange">Budaya</span></h1>
@@ -10,49 +11,60 @@
         </div>
         <div class="col-md-4 text-md-end">
             <span class="badge bg-white text-dark shadow-sm py-2 px-3 rounded-pill border">
-                <i class="fas fa-map-marker-alt text-orange me-2"></i> 12 Lokasi Ditemukan
+                <i class="fas fa-map-marker-alt text-orange me-2"></i> <span id="totalItems">{{ items|length }}</span> Lokasi Ditemukan
             </span>
         </div>
     </div>
 
+    <!-- Filter & Search Section -->
     <div class="row g-3 mb-5 align-items-center">
         <div class="col-lg-8" data-aos="fade-right">
             <div class="d-flex gap-2 flex-wrap">
-                <button class="btn btn-warning btn-custom shadow-sm px-4">Semua</button>
-                <button class="btn btn-white btn-custom border shadow-sm px-4">Sejarah</button>
-                <button class="btn btn-white btn-custom border shadow-sm px-4">Budaya</button>
-                <button class="btn btn-white btn-custom border shadow-sm px-4">Kuliner</button>
-                <button class="btn btn-white btn-custom border shadow-sm px-4">Alam</button>
+                <button class="btn btn-warning rounded-pill px-4 filter-btn active" data-filter="all">Semua</button>
+                <button class="btn btn-orange-custom rounded-pill px-4 filter-btn" data-filter="Wisata">Wisata</button>
+                <button class="btn btn-orange-custom rounded-pill px-4 filter-btn" data-filter="Sejarah">Sejarah</button>
+                <button class="btn btn-orange-custom rounded-pill px-4 filter-btn" data-filter="Tradisi">Tradisi</button>
+                <button class="btn btn-orange-custom rounded-pill px-4 filter-btn" data-filter="Kuliner">Kuliner</button>
             </div>
         </div>
         <div class="col-lg-4" data-aos="fade-left">
-            <div class="input-group shadow-sm rounded-pill overflow-hidden border">
+            <div class="input-group shadow-sm rounded-pill overflow-hidden border search-box-container">
                 <span class="input-group-text bg-white border-0 ps-4">
                     <i class="fas fa-search text-muted"></i>
                 </span>
-                <input type="text" class="form-control border-0 py-3" placeholder="Cari destinasi...">
+                <input type="text" id="searchInput" class="form-control border-0 py-3" placeholder="Cari destinasi...">
             </div>
         </div>
     </div>
 
-    <div class="row g-4">
+    <!-- Data Cards Section -->
+    <div class="row g-4" id="cultureContainer">
         {% for item in items %}
-        <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="{{ loop.index * 100 }}">
-            <div class="card card-hover shadow-sm border-0 h-100 p-0 overflow-hidden" style="border-radius: 25px;">
-                <div class="position-relative">
-                    <img src="https://images.unsplash.com/photo-1596422846543-75c6fc18a593?auto=format&fit=crop&q=80&w=600" 
-                         class="card-img-top" style="height: 240px; object-fit: cover;" alt="{{ item.nama }}">
+        <div class="col-md-6 col-lg-4 item-card" data-category="{{ item.kategori }}" data-aos="fade-up">
+            <div class="card card-hover shadow-sm border-0 h-100 p-0 overflow-hidden card-item-anim" style="border-radius: 25px;">
+                <div class="position-relative overflow-hidden">
+                    {% if item.gambar %}
+                    <img src="{{ url_for('static', filename='uploads/' + item.gambar) }}" class="card-img-top img-zoom"
+                        style="height: 240px; object-fit: cover;" alt="{{ item.nama_tempat }}"
+                        onerror="this.onerror=null;this.src='https://placehold.co/600x400?text=Gambar+Tidak+Tersedia';">
+                    {% else %}
+                    <img src="https://placehold.co/600x400?text=No+Image" class="card-img-top img-zoom"
+                        style="height: 240px; object-fit: cover;">
+                    {% endif %}
+
                     <div class="position-absolute top-0 end-0 m-3">
                         <span class="badge bg-white text-dark shadow-sm py-2 px-3 rounded-pill fw-bold">
-                            <i class="fas fa-tag text-{{ item.color }} me-1"></i> {{ item.kat }}
+                            <i class="fas fa-tag text-orange me-1"></i> {{ item.kategori }}
                         </span>
                     </div>
                 </div>
-                
+
                 <div class="card-body p-4">
-                    <h4 class="fw-bold mb-2">{{ item.nama }}</h4>
-                    <p class="text-muted mb-4 small" style="line-height: 1.6;">{{ item.desc }}</p>
-                    
+                    <h4 class="fw-bold mb-2 item-title">{{ item.nama_tempat }}</h4>
+                    <p class="text-muted mb-4 small" style="line-height: 1.6;">
+                        {{ item.deskripsi[:150] }}{% if item.deskripsi|length > 150 %}...{% endif %}
+                    </p>
+
                     <div class="d-flex justify-content-between align-items-center pt-3 border-top">
                         <a href="#" class="text-orange fw-bold text-decoration-none btn-link">
                             Lihat Detail <i class="fas fa-arrow-right ms-2 arrow-icon"></i>
@@ -67,77 +79,126 @@
         {% endfor %}
     </div>
 
-    <div class="d-flex justify-content-center mt-5 pt-4" data-aos="fade-up">
+    <!-- Pagination -->
+    <div class="d-flex justify-content-center mt-5 pt-4">
         <nav>
             <ul class="pagination gap-2">
                 <li class="page-item active"><a class="page-link rounded-3 border-0 shadow-sm" href="#">1</a></li>
-                <li class="page-item"><a class="page-link rounded-3 border-0 shadow-sm text-dark" href="#">2</a></li>
-                <li class="page-item"><a class="page-link rounded-3 border-0 shadow-sm text-dark" href="#">3</a></li>
-                <li class="page-item"><a class="page-link rounded-pill border-0 shadow-sm text-dark px-4" href="#">Next</a></li>
+                <li class="page-item"><a class="page-link rounded-3 border-0 shadow-sm text-dark" href="#">Next</a></li>
             </ul>
         </nav>
-    </div>
-
-    <div class="mt-5 pt-5" data-aos="zoom-in">
-        <div class="bg-pure-white p-4 p-md-5 rounded-5 shadow-lg border">
-            <div class="row align-items-center mb-4">
-                <div class="col-md-6">
-                    <h3 class="fw-bold mb-1"><i class="fas fa-map-marked-alt text-orange me-2"></i> Eksplorasi Lokasi</h3>
-                    <p class="text-muted mb-0">Navigasi titik sejarah dan budaya secara real-time.</p>
-                </div>
-                <div class="col-md-6 text-md-end mt-3 mt-md-0">
-                    <button class="btn btn-outline-orange rounded-pill btn-sm">Buka di Google Maps</button>
-                </div>
-            </div>
-            
-            <div class="rounded-4 overflow-hidden border">
-                <iframe 
-                    title="Peta Kota Tegal"
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d63375.4053860477!2d109.10091380963174!3d-6.871587829285072!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e6fb9b2756855b3%3A0x3030bfbcaf77010!2sKota%20Tegal%2C%20Jawa%20Tengah!5e0!3m2!1sid!2sid!4v1714555000000!5m2!1sid!2sid" 
-                    width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy">
-                </iframe>
-            </div>
-        </div>
     </div>
 </div>
 
 <style>
-    .btn-white {
-        background-color: #fff;
-        color: #333;
-    }
-    .btn-white:hover {
-        background-color: var(--bg-cream);
-        color: var(--accent-orange);
-    }
+    /* 1. Warna & Tipografi Utama */
+    .text-orange { color: #fd7e14 !important; }
     .fw-800 { font-weight: 800; }
     
-    .btn-link .arrow-icon {
-        transition: transform 0.3s ease;
+    /* 2. Animasi Kolom Pencarian (Border Oranye saat fokus) */
+    .search-box-container {
+        transition: all 0.3s ease;
+        border: 1px solid #dee2e6 !important;
     }
-    .btn-link:hover .arrow-icon {
-        transform: translateX(8px);
+    .search-box-container:focus-within {
+        border-color: #d35400 !important;
+        box-shadow: 0 0 0 3px rgba(211, 84, 0, 0.1) !important;
     }
-    
-    .pagination .page-link {
-        padding: 12px 20px;
-        font-weight: 600;
-        transition: 0.3s;
-    }
-    .pagination .page-item.active .page-link {
-        background-color: var(--accent-orange);
-        color: white;
+    #searchInput:focus {
+        outline: none !important;
+        box-shadow: none !important;
     }
 
-    .btn-outline-orange {
-        border: 2px solid var(--accent-orange);
-        color: var(--accent-orange);
+    /* 3. Animasi Tombol Kategori (Hover: Putih-Garis Oranye - Persis Gambar) */
+    .filter-btn {
+        background-color: #d35400 !important;
+        color: white !important;
+        border: 2px solid transparent !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
         font-weight: 600;
-        transition: 0.3s;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
-    .btn-outline-orange:hover {
-        background-color: var(--accent-orange);
-        color: white;
+    .filter-btn:hover {
+        background-color: white !important;
+        color: #d35400 !important;
+        border: 2px solid #d35400 !important;
+        transform: translateY(-4px) scale(1.08);
+        box-shadow: 0 10px 20px rgba(211, 84, 0, 0.15) !important;
     }
+    .btn-orange-custom { background-color: #d35400 !important; color: white !important; }
+    .btn-warning.active {
+        background-color: #ffc107 !important;
+        color: #212529 !important;
+        border: 2px solid transparent !important;
+    }
+
+    /* 4. Animasi Kartu Produk/Budaya */
+    .card-item-anim { transition: all 0.4s ease; }
+    .card-item-anim:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1) !important;
+    }
+    .img-zoom { transition: 0.5s; }
+    .card-item-anim:hover .img-zoom { transform: scale(1.08); }
+
+    .btn-link .arrow-icon { transition: transform 0.3s ease; }
+    .btn-link:hover .arrow-icon { transform: translateX(8px); }
+
+    /* smooth transition untuk filter */
+    .item-card { transition: opacity 0.4s ease, transform 0.4s ease; }
 </style>
+
+<script>
+    // FUNGSI PENCARIAN REAL-TIME
+    document.getElementById('searchInput').addEventListener('input', function () {
+        const keyword = this.value.toLowerCase();
+        const cards = document.querySelectorAll('.item-card');
+
+        cards.forEach(card => {
+            const title = card.querySelector('.item-title').textContent.toLowerCase();
+            const desc = card.querySelector('p').textContent.toLowerCase();
+
+            if (title.includes(keyword) || desc.includes(keyword)) {
+                card.style.display = "";
+                setTimeout(() => { card.style.opacity = "1"; }, 10);
+            } else {
+                card.style.opacity = "0";
+                setTimeout(() => { if(card.style.opacity === "0") card.style.display = "none"; }, 400);
+            }
+        });
+    });
+
+    // FUNGSI FILTER KATEGORI (Smooth Fade & Scale)
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const filter = this.getAttribute('data-filter');
+
+            // Switch tombol warna
+            document.querySelectorAll('.filter-btn').forEach(b => {
+                b.classList.remove('btn-warning', 'active');
+                b.classList.add('btn-orange-custom');
+            });
+            this.classList.remove('btn-orange-custom');
+            this.classList.add('btn-warning', 'active');
+
+            // Jalankan Animasi Filter Kartu
+            document.querySelectorAll('.item-card').forEach(card => {
+                card.style.opacity = "0";
+                card.style.transform = "scale(0.95)";
+                
+                setTimeout(() => {
+                    if (filter === 'all' || card.getAttribute('data-category') === filter) {
+                        card.style.display = "";
+                        setTimeout(() => { 
+                            card.style.opacity = "1"; 
+                            card.style.transform = "scale(1)";
+                        }, 50);
+                    } else {
+                        card.style.display = "none";
+                    }
+                }, 350);
+            });
+        });
+    });
+</script>
 {% endblock %}
