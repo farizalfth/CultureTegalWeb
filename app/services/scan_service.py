@@ -39,17 +39,17 @@ class ScanService:
             user.poin += points_earned
             user.total_xp += points_earned
 
-            calculated_level = (user.total_xp // 1000) + 1
+            calculated_level = (user.poin // 1000) + 1
             if calculated_level > user.level:
                 user.level = calculated_level
 
             ScanService._evaluate_and_unlock_badges(user)
 
         history = ScanHistory(
-            user_id=user_id,  # type: ignore
-            site_id=site_id, # type: ignore
-            scan_method="qr",  # type: ignore
-            poin_didapat=points_earned  # type: ignore
+            user_id=user_id,# type: ignore
+            site_id=site_id,# type: ignore
+            scan_method="qr",# type: ignore
+            poin_didapat=points_earned# type: ignore
         )
         db.session.add(history)
         db.session.commit()
@@ -91,17 +91,17 @@ class ScanService:
             user.poin += points_earned
             user.total_xp += points_earned
 
-            calculated_level = (user.total_xp // 1000) + 1
+            calculated_level = (user.poin // 1000) + 1
             if calculated_level > user.level:
                 user.level = calculated_level
 
             ScanService._evaluate_and_unlock_badges(user)
 
         history = ScanHistory(
-            user_id=user_id,  # type: ignore
-            site_id=site_id,  # type: ignore
-            scan_method="geofence", # type: ignore
-            poin_didapat=points_earned  # type: ignore
+            user_id=user_id,# type: ignore
+            site_id=site_id,# type: ignore
+            scan_method="geofence",# type: ignore
+            poin_didapat=points_earned# type: ignore
         )
         db.session.add(history)
         db.session.commit()
@@ -110,6 +110,52 @@ class ScanService:
             "success": True,
             "method": "geofence",
             "distance_meters": round(distance, 2),
+            "points_earned": points_earned,
+            "current_points": user.poin,
+            "current_level": user.level
+        }, None
+
+    @staticmethod
+    def explore_via_read(user_id, site_id):
+        if isinstance(user_id, str):
+            user_id = uuid.UUID(user_id)
+        if isinstance(site_id, str):
+            site_id = uuid.UUID(site_id)
+
+        user = User.query.get(user_id)
+        site = CultureSite.query.get(site_id)
+
+        if not user or not site:
+            return None, "User or Culture Site not found"
+
+        existing_scan = db.session.query(ScanHistory).filter(
+            ScanHistory.user_id == user_id,
+            ScanHistory.site_id == site_id
+        ).first()
+
+        points_earned = 0
+        if not existing_scan:
+            points_earned = 10
+            user.poin += points_earned
+            user.total_xp += points_earned
+
+            calculated_level = (user.poin // 1000) + 1
+            if calculated_level > user.level:
+                user.level = calculated_level
+
+            ScanService._evaluate_and_unlock_badges(user)
+
+            history = ScanHistory(
+                user_id=user_id,# type: ignore
+                site_id=site_id,# type: ignore
+                scan_method="read",# type: ignore
+                poin_didapat=points_earned# type: ignore
+            )
+            db.session.add(history)
+            db.session.commit()
+
+        return {
+            "success": True,
             "points_earned": points_earned,
             "current_points": user.poin,
             "current_level": user.level
@@ -125,7 +171,7 @@ class ScanService:
             ).first()
             if not already_unlocked:
                 unlocked_badge = UserBadge(
-                    user_id=user.id,  # type: ignore
-                    badge_id=badge.id  # type: ignore
+                    user_id=user.id, # type: ignore
+                    badge_id=badge.id # type: ignore
                 )
                 db.session.add(unlocked_badge)

@@ -50,7 +50,7 @@ def parse_review_images(review_image_str):
 
 class CultureService:
     @staticmethod
-    def get_all_cultures(kategori=None, is_slider=None, search=None):
+    def get_paginated_cultures(kategori=None, is_slider=None, search=None, page=1, per_page=10):
         try:
             query = CultureSite.query
 
@@ -63,15 +63,23 @@ class CultureService:
             if search:
                 query = query.filter(CultureSite.nama_tempat.ilike(f"%{search}%"))
 
-            sites = query.all()
+            query = query.order_by(CultureSite.nama_tempat.asc())
+
+            pagination = query.paginate(page=page, per_page=per_page, error_out=False)
             result = []
 
-            for site in sites:
+            for site in pagination.items:
                 result.append(CultureService._serialize_site(site, load_reviews=True))
 
-            return result
+            return {
+                "items": result,
+                "total": pagination.total,
+                "pages": pagination.pages,
+                "current_page": pagination.page,
+                "has_next": pagination.has_next
+            }
         except Exception as e:
-            logging.error(f"Error fetching cultures: {str(e)}")
+            logging.error(f"Error fetching paginated cultures: {str(e)}")
             raise e
 
     @staticmethod

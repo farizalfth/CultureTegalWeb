@@ -192,8 +192,7 @@
             <div class="d-flex gap-3 mt-4">
                 <button class="btn btn-light w-100 rounded-pill py-2 fw-bold" data-bs-dismiss="modal">Batal</button>
                 <button type="button"
-                    onclick="confirmDelete('{{ url_for('admin_bp.delete_umkm', id=u.id) }}', '{{ u.nama_produk|replace("
-                    \'", "\\\'" ) }}')" class="btn btn-danger w-100 rounded-pill py-2 fw-bold shadow-sm">Ya,
+                    onclick="confirmDelete('{{ url_for('admin_bp.delete_umkm', id=u.id) }}', '{{ u.nama_produk|replace("'", "\\'") }}')" class="btn btn-danger w-100 rounded-pill py-2 fw-bold shadow-sm">Ya,
                     Hapus</button>
             </div>
         </div>

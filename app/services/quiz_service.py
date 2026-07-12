@@ -38,9 +38,9 @@ class QuizService:
 
         if is_correct:
             history = UserQuizHistory(
-                user_id=user_id, # type: ignore
-                quiz_id=quiz_id, # type: ignore
-                is_correct=True # type: ignore
+                user_id=user_id,# type: ignore
+                quiz_id=quiz_id,# type: ignore
+                is_correct=True# type: ignore
             )
             db.session.add(history)
 
@@ -50,7 +50,7 @@ class QuizService:
                 user.poin += points_earned
                 user.total_xp += points_earned
                 
-                calculated_level = (user.total_xp // 1000) + 1
+                calculated_level = (user.poin // 1000) + 1
                 if calculated_level > user.level:
                     user.level = calculated_level
 
@@ -61,14 +61,14 @@ class QuizService:
                 "correct": True,
                 "points_earned": points_earned,
                 "current_points": user.poin,
-                "current_xp": user.total_xp,
+                "current_xp": user.poin,
                 "current_level": user.level
             }, None
         else:
             history = UserQuizHistory(
-                user_id=user_id, # type: ignore
-                quiz_id=quiz_id, # type: ignore
-                is_correct=False # type: ignore
+                user_id=user_id,# type: ignore
+                quiz_id=quiz_id,# type: ignore
+                is_correct=False# type: ignore
             )
             db.session.add(history)
             db.session.commit()
@@ -76,7 +76,7 @@ class QuizService:
                 "correct": False,
                 "points_earned": 0,
                 "current_points": user.poin,
-                "current_xp": user.total_xp,
+                "current_xp": user.poin,
                 "current_level": user.level
             }, None
 
@@ -90,7 +90,7 @@ class QuizService:
             ).first()
             if not already_unlocked:
                 unlocked_badge = UserBadge(
-                    user_id=user.id, # type: ignore
+                    user_id=user.id,# type: ignore
                     badge_id=badge.id # type: ignore
                 )
                 db.session.add(unlocked_badge)

@@ -1,5 +1,5 @@
 import uuid
-from app.models import db, User, UserFavorite, CultureSite, UMKM, Badge, UserBadge, ScanHistory, UserQuizHistory
+from app.models import db, User, UserFavorite, CultureSite, UMKM, Event, Badge, UserBadge, ScanHistory, UserQuizHistory
 
 class UserService:
 
@@ -10,13 +10,17 @@ class UserService:
         if isinstance(target_id, str):
             target_id = uuid.UUID(target_id)
 
-        if target_type not in ['culture', 'umkm']:
+        if target_type not in ['culture', 'umkm', 'event']:
             return None, "Invalid target type"
+
+        exists = None
 
         if target_type == 'culture':
             exists = CultureSite.query.get(target_id)
-        else:
+        elif target_type == 'umkm':
             exists = UMKM.query.get(target_id)
+        elif target_type == 'event':
+            exists = Event.query.get(target_id)
 
         if not exists:
             return None, "Target item not found"
@@ -50,6 +54,7 @@ class UserService:
         
         cultures_list = []
         umkms_list = []
+        events_list = []
 
         for fav in favorites:
             if fav.target_type == 'culture':
@@ -67,10 +72,16 @@ class UserService:
                 umkm = UMKM.query.get(fav.target_id)
                 if umkm:
                     umkms_list.append(umkm.to_dict())
+            elif fav.target_type == 'event':
+                from app.services.event_service import EventService
+                event = Event.query.get(fav.target_id)
+                if event:
+                    events_list.append(EventService._serialize_event(event))
 
         return {
             "cultures": cultures_list,
-            "umkms": umkms_list
+            "umkms": umkms_list,
+            "events": events_list
         }, None
 
     @staticmethod
@@ -97,16 +108,17 @@ class UserService:
 
     @staticmethod
     def get_leaderboard():
-        top_users = User.query.filter_by(is_banned=False).order_by(User.total_xp.desc()).limit(10).all()
+        top_users = User.query.filter_by(is_banned=False).order_by(User.poin.desc()).limit(10).all()
         leaderboard_data = []
         for index, user in enumerate(top_users):
+            dyn_level = (user.poin // 1000) + 1
             leaderboard_data.append({
                 "rank": index + 1,
                 "id": str(user.id),
                 "nama": user.nama,
                 "profile_picture": user.profile_picture,
-                "total_xp": user.total_xp,
-                "level": user.level
+                "total_xp": user.poin,
+                "level": dyn_level
             })
         return leaderboard_data, None
 
@@ -154,13 +166,15 @@ class UserService:
         correct_quiz_count = db.session.query(UserQuizHistory.quiz_id).filter(UserQuizHistory.user_id == user_id, UserQuizHistory.is_correct == True).distinct().count()
         badges_collected = UserBadge.query.filter_by(user_id=user_id).count()
 
+        dyn_level = (user.poin // 1000) + 1
+
         return {
             "scanned_sites_count": scanned_count,
             "correct_quizzes_count": correct_quiz_count,
             "badges_collected_count": badges_collected,
             "total_points": user.poin,
-            "total_xp": user.total_xp,
-            "current_level": user.level
+            "total_xp": user.poin,
+            "current_level": dyn_level
         }, None
 
     @staticmethod
@@ -185,3 +199,18 @@ class UserService:
                 })
 
         return history_data, None
+
+    @staticmethod
+    def _evaluate_and_unlock_badges(user):
+        eligible_badges = Badge.query.filter(Badge.syarat_poin <= user.poin).all()
+        for badge in eligible_badges:
+            already_unlocked = UserBadge.query.filter_by(
+                user_id=user.id,
+                badge_id=badge.id
+            ).first()
+            if not already_unlocked:
+                unlocked_badge = UserBadge(
+                    user_id=user.id, # type: ignore
+                    badge_id=badge.id # type: ignore
+                )
+                db.session.add(unlocked_badge)

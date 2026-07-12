@@ -1,0 +1,108 @@
+<div class="modal fade" id="modalAddNews" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 24px;">
+            <div class="modal-header border-0 px-4 pt-4">
+                <div class="d-flex align-items-center">
+                    <div class="bg-orange-light p-2 rounded-3 me-3"><i class="fa fa-newspaper text-orange"></i></div>
+                    <h5 class="modal-title fw-800">Terbitkan Berita Baru</h5>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('admin_bp.add_news') }}" method="POST" enctype="multipart/form-data">
+                <div class="modal-body p-4">
+                    <div class="row g-4">
+                        <div class="col-lg-7 border-end">
+                            <div class="row g-3">
+                                <div class="col-md-12">
+                                    <label class="form-label-custom">Judul Berita</label>
+                                    <input type="text" name="judul" class="form-control form-control-custom" required>
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="form-label-custom">Kategori Berita</label>
+                                    <select name="kategori" class="form-select form-control-custom" required>
+                                        <option value="Budaya">Budaya</option>
+                                        <option value="UMKM">UMKM</option>
+                                        <option value="Edukasi">Edukasi</option>
+                                        <option value="Wisata">Wisata</option>
+                                        <option value="Kuliner">Kuliner</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label-custom">Isi Konten Berita</label>
+                                    <textarea name="konten" class="form-control form-control-custom" rows="8" required></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-5">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label-custom">Gambar Ilustrasi Berita</label>
+                                    <input type="file" name="gambar_berita" class="form-control form-control-custom" accept="image/*" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button type="submit" class="btn btn-warning rounded-pill px-5 py-2 fw-bold text-white shadow-sm" style="background: var(--primary);">Terbitkan Berita</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% for n in news_list_admin %}
+<div class="modal fade" id="modalEditNews{{ n.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 24px;">
+            <div class="modal-header border-0 px-4 pt-4">
+                <h5 class="modal-title fw-800">Edit Berita: {{ n.judul }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('admin_bp.update_news', id=n.id) }}" method="POST" enctype="multipart/form-data">
+                <div class="modal-body p-4">
+                    <div class="row g-4">
+                        <div class="col-lg-7 border-end">
+                            <div class="row g-3">
+                                <div class="col-md-12">
+                                    <label class="form-label-custom">Judul Berita</label>
+                                    <input type="text" name="judul" class="form-control form-control-custom" value="{{ n.judul }}" required>
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="form-label-custom">Kategori Berita</label>
+                                    <select name="kategori" class="form-select form-control-custom" required>
+                                        <option value="Budaya" {% if n.kategori == 'Budaya' %}selected{% endif %}>Budaya</option>
+                                        <option value="UMKM" {% if n.kategori == 'UMKM' %}selected{% endif %}>UMKM</option>
+                                        <option value="Edukasi" {% if n.kategori == 'Edukasi' %}selected{% endif %}>Edukasi</option>
+                                        <option value="Wisata" {% if n.kategori == 'Wisata' %}selected{% endif %}>Wisata</option>
+                                        <option value="Kuliner" {% if n.kategori == 'Kuliner' %}selected{% endif %}>Kuliner</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label-custom">Isi Konten Berita</label>
+                                    <textarea name="konten" class="form-control form-control-custom" rows="8" required>{{ n.konten }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-5">
+                            <div class="row g-3">
+                                <div class="col-12 text-center">
+                                    <div class="mb-2">
+                                        <img src="{{ url_for('static', filename='uploads/' + n.image_url) if n.image_url else 'data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'50\' height=\'50\'><rect width=\'100%\' height=\'100%\' fill=\'%23eee\'/><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-size=\'8\' fill=\'%23999\'>No Image</text></svg>' }}" 
+                                             style="width: 100%; height: 180px; object-fit: cover; border-radius: 15px; border: 2px solid #eee;"
+                                             onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'50\' height=\'50\'><rect width=\'100%\' height=\'100%\' fill=\'%23eee\'/><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-size=\'8\' fill=\'%23999\'>No Image</text></svg>';">
+                                    </div>
+                                    <input type="file" name="gambar_berita" class="form-control form-control-custom" accept="image/*">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button type="submit" class="btn btn-primary rounded-pill px-5 py-2 fw-bold shadow-sm">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}

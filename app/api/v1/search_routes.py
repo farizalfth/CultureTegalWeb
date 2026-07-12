@@ -1,12 +1,12 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required
 from app.services.search_service import SearchService
+from app.services.auth_service import token_required
 
 search_bp = Blueprint('search_bp', __name__)
 
 @search_bp.route('', methods=['GET'])
-@jwt_required()
-def search_map():
+@token_required
+def search_map(current_user):
     query = request.args.get('q', '').strip()
     lat_str = request.args.get('lat')
     lon_str = request.args.get('lon')

@@ -15,7 +15,8 @@
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label class="form-label-custom">Nama Tempat</label>
-                                    <input type="text" name="nama_tempat" class="form-control form-control-custom" required>
+                                    <input type="text" name="nama_tempat" class="form-control form-control-custom"
+                                        required>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label-custom">Subtitle</label>
@@ -40,11 +41,13 @@
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label-custom">Deskripsi</label>
-                                    <textarea name="deskripsi" class="form-control form-control-custom" rows="5" required></textarea>
+                                    <textarea name="deskripsi" class="form-control form-control-custom" rows="5"
+                                        required></textarea>
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label-custom">Fun Fact</label>
-                                    <textarea name="fun_fact" class="form-control form-control-custom" rows="2"></textarea>
+                                    <textarea name="fun_fact" class="form-control form-control-custom"
+                                        rows="2"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -52,11 +55,13 @@
                             <div class="row g-3">
                                 <div class="col-12">
                                     <label class="form-label-custom">Foto Utama</label>
-                                    <input type="file" name="gambar_utama" class="form-control form-control-custom" accept="image/*" required>
+                                    <input type="file" name="gambar_utama" class="form-control form-control-custom"
+                                        accept="image/*" required>
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label-custom">Galeri (Multiple)</label>
-                                    <input type="file" name="gallery_images" class="form-control form-control-custom" accept="image/*" multiple>
+                                    <input type="file" name="gallery_images" class="form-control form-control-custom"
+                                        accept="image/*" multiple>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label-custom">Lat</label>
@@ -72,11 +77,14 @@
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label-custom">Fasilitas Tempat</label>
-                                    <div class="d-flex flex-wrap gap-2 p-3 bg-light rounded-3 border" style="max-height: 120px; overflow-y: auto;">
+                                    <div class="d-flex flex-wrap gap-2 p-3 bg-light rounded-3 border"
+                                        style="max-height: 120px; overflow-y: auto;">
                                         {% for f in facilities %}
                                         <div class="form-check me-3">
-                                            <input class="form-check-input" type="checkbox" name="facilities" value="{{ f.id }}" id="addFac{{ f.id }}">
-                                            <label class="form-check-label fw-bold text-dark" for="addFac{{ f.id }}" style="font-size: 0.85rem; cursor: pointer;">
+                                            <input class="form-check-input" type="checkbox" name="facilities"
+                                                value="{{ f.id }}" id="addFac{{ f.id }}">
+                                            <label class="form-check-label fw-bold text-dark" for="addFac{{ f.id }}"
+                                                style="font-size: 0.85rem; cursor: pointer;">
                                                 {{ f.nama_fasilitas }}
                                             </label>
                                         </div>
@@ -85,8 +93,10 @@
                                 </div>
                                 <div class="col-12 mt-4">
                                     <div class="form-check form-switch p-3 bg-light rounded-3 border">
-                                        <input class="form-check-input ms-0 me-3" type="checkbox" name="is_slider" id="addSlider">
-                                        <label class="form-check-label fw-bold text-dark" for="addSlider">Jadikan Banner Utama</label>
+                                        <input class="form-check-input ms-0 me-3" type="checkbox" name="is_slider"
+                                            id="addSlider">
+                                        <label class="form-check-label fw-bold text-dark" for="addSlider">Jadikan Banner
+                                            Utama</label>
                                     </div>
                                 </div>
                             </div>
@@ -94,7 +104,8 @@
                     </div>
                 </div>
                 <div class="modal-footer border-0 px-4 pb-4">
-                    <button type="submit" class="btn btn-warning rounded-pill px-5 py-2 fw-bold text-white shadow-sm" style="background: var(--primary);">Simpan Data</button>
+                    <button type="submit" class="btn btn-warning rounded-pill px-5 py-2 fw-bold text-white shadow-sm"
+                        style="background: var(--primary);">Simpan Data</button>
                 </div>
             </form>
         </div>
@@ -116,36 +127,46 @@
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label class="form-label-custom">Nama Tempat</label>
-                                    <input type="text" name="nama_tempat" class="form-control form-control-custom" value="{{ b.nama_tempat }}" required>
+                                    <input type="text" name="nama_tempat" class="form-control form-control-custom"
+                                        value="{{ b.nama_tempat }}" required>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label-custom">Subtitle</label>
-                                    <input type="text" name="subtitle" class="form-control form-control-custom" value="{{ b.subtitle or '' }}">
+                                    <input type="text" name="subtitle" class="form-control form-control-custom"
+                                        value="{{ b.subtitle or '' }}">
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label-custom">Kategori</label>
                                     <select name="kategori" class="form-select form-control-custom">
-                                        <option value="Sejarah" {% if b.kategori == 'Sejarah' %}selected{% endif %}>Sejarah</option>
-                                        <option value="Tradisi" {% if b.kategori == 'Tradisi' %}selected{% endif %}>Tradisi</option>
-                                        <option value="Kuliner" {% if b.kategori == 'Kuliner' %}selected{% endif %}>Kuliner</option>
-                                        <option value="Wisata" {% if b.kategori == 'Wisata' %}selected{% endif %}>Wisata</option>
+                                        <option value="Sejarah" {% if b.kategori=='Sejarah' %}selected{% endif %}>
+                                            Sejarah</option>
+                                        <option value="Tradisi" {% if b.kategori=='Tradisi' %}selected{% endif %}>
+                                            Tradisi</option>
+                                        <option value="Kuliner" {% if b.kategori=='Kuliner' %}selected{% endif %}>
+                                            Kuliner</option>
+                                        <option value="Wisata" {% if b.kategori=='Wisata' %}selected{% endif %}>Wisata
+                                        </option>
                                     </select>
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label-custom">Tahun</label>
-                                    <input type="text" name="tahun_dibangun" class="form-control form-control-custom" value="{{ b.tahun_dibangun or '' }}">
+                                    <input type="text" name="tahun_dibangun" class="form-control form-control-custom"
+                                        value="{{ b.tahun_dibangun or '' }}">
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label-custom">Durasi</label>
-                                    <input type="text" name="durasi_kunjungan" class="form-control form-control-custom" value="{{ b.durasi_kunjungan or '' }}">
+                                    <input type="text" name="durasi_kunjungan" class="form-control form-control-custom"
+                                        value="{{ b.durasi_kunjungan or '' }}">
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label-custom">Deskripsi</label>
-                                    <textarea name="deskripsi" class="form-control form-control-custom" rows="5" required>{{ b.deskripsi }}</textarea>
+                                    <textarea name="deskripsi" class="form-control form-control-custom" rows="5"
+                                        required>{{ b.deskripsi }}</textarea>
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label-custom">Fun Fact</label>
-                                    <textarea name="fun_fact" class="form-control form-control-custom" rows="2">{{ b.fun_fact or '' }}</textarea>
+                                    <textarea name="fun_fact" class="form-control form-control-custom"
+                                        rows="2">{{ b.fun_fact or '' }}</textarea>
                                 </div>
                             </div>
                         </div>
@@ -154,50 +175,63 @@
                                 <div class="col-12">
                                     <label class="form-label-custom">Foto Utama</label>
                                     <div class="mb-2">
-                                        <img src="{{ url_for('static', filename='uploads/' + b.image_url) if b.image_url else '' }}" 
-                                             style="width: 100%; height: 150px; object-fit: cover; border-radius: 15px; border: 2px solid #eee;">
+                                        <img src="{{ url_for('static', filename='uploads/' + b.image_url) if b.image_url else '' }}"
+                                            style="width: 100%; height: 150px; object-fit: cover; border-radius: 15px; border: 2px solid #eee;">
                                     </div>
-                                    <input type="file" name="gambar_utama" class="form-control form-control-custom" accept="image/*">
+                                    <input type="file" name="gambar_utama" class="form-control form-control-custom"
+                                        accept="image/*">
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label-custom">Galeri Foto</label>
                                     <div class="d-flex flex-wrap gap-2 mb-2 p-2 bg-light rounded-3 border">
                                         {% if b.gallery %}
-                                            {% for img in b.gallery %}
-                                            <div class="position-relative gallery-item-container" style="width: 65px; height: 65px;">
-                                                <img src="{{ url_for('static', filename='uploads/' + img) }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
-                                                <button type="button" onclick="deleteImageAjax('{{ b.id }}', '{{ img }}', this)"
-                                                        class="position-absolute d-flex align-items-center justify-content-center bg-danger text-white border-0" 
-                                                        style="top: -5px; right: -5px; width: 20px; height: 20px; border-radius: 50%; font-size: 10px; z-index: 10;">
-                                                    <i class="fa fa-times"></i>
-                                                </button>
-                                            </div>
-                                            {% endfor %}
+                                        {% for img in b.gallery %}
+                                        <div class="position-relative gallery-item-container"
+                                            style="width: 65px; height: 65px;">
+                                            <img src="{{ url_for('static', filename='uploads/' + img) }}"
+                                                style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+                                            <button type="button"
+                                                onclick="deleteImageAjax('{{ b.id }}', '{{ img }}', this)"
+                                                class="position-absolute d-flex align-items-center justify-content-center bg-danger text-white border-0"
+                                                style="top: -5px; right: -5px; width: 20px; height: 20px; border-radius: 50%; font-size: 10px; z-index: 10;">
+                                                <i class="fa fa-times"></i>
+                                            </button>
+                                        </div>
+                                        {% endfor %}
                                         {% else %}
-                                            <small class="text-muted italic">Kosong</small>
+                                        <small class="text-muted italic">Kosong</small>
                                         {% endif %}
                                     </div>
-                                    <input type="file" name="gallery_images" class="form-control form-control-custom" accept="image/*" multiple>
+                                    <input type="file" name="gallery_images" class="form-control form-control-custom"
+                                        accept="image/*" multiple>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label-custom">Lat</label>
-                                    <input type="text" name="latitude" class="form-control form-control-custom" value="{{ b.latitude }}">
+                                    <input type="text" name="latitude" class="form-control form-control-custom"
+                                        value="{{ b.latitude }}">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label-custom">Lon</label>
-                                    <input type="text" name="longitude" class="form-control form-control-custom" value="{{ b.longitude }}">
+                                    <input type="text" name="longitude" class="form-control form-control-custom"
+                                        value="{{ b.longitude }}">
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label-custom">Jarak (km)</label>
-                                    <input type="text" name="jarak_estimasi" class="form-control form-control-custom" value="{{ b.jarak_estimasi or '' }}">
+                                    <input type="text" name="jarak_estimasi" class="form-control form-control-custom"
+                                        value="{{ b.jarak_estimasi or '' }}">
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label-custom">Fasilitas Tempat</label>
-                                    <div class="d-flex flex-wrap gap-2 p-3 bg-light rounded-3 border" style="max-height: 120px; overflow-y: auto;">
+                                    <div class="d-flex flex-wrap gap-2 p-3 bg-light rounded-3 border"
+                                        style="max-height: 120px; overflow-y: auto;">
                                         {% for f in facilities %}
                                         <div class="form-check me-3">
-                                            <input class="form-check-input" type="checkbox" name="facilities" value="{{ f.id }}" id="editFac{{ b.id }}{{ f.id }}" {% if f in b.facilities %}checked{% endif %}>
-                                            <label class="form-check-label fw-bold text-dark" for="editFac{{ b.id }}{{ f.id }}" style="font-size: 0.85rem; cursor: pointer;">
+                                            <input class="form-check-input" type="checkbox" name="facilities"
+                                                value="{{ f.id }}" id="editFac{{ b.id }}{{ f.id }}" {% if f in
+                                                b.facilities %}checked{% endif %}>
+                                            <label class="form-check-label fw-bold text-dark"
+                                                for="editFac{{ b.id }}{{ f.id }}"
+                                                style="font-size: 0.85rem; cursor: pointer;">
                                                 {{ f.nama_fasilitas }}
                                             </label>
                                         </div>
@@ -206,8 +240,10 @@
                                 </div>
                                 <div class="col-12 mt-4">
                                     <div class="form-check form-switch p-3 bg-light rounded-3 border">
-                                        <input class="form-check-input ms-0 me-3" type="checkbox" name="is_slider" id="editSlider{{ b.id }}" {% if b.is_slider %}checked{% endif %}>
-                                        <label class="form-check-label fw-bold text-dark" for="editSlider{{ b.id }}">Jadikan Banner Utama</label>
+                                        <input class="form-check-input ms-0 me-3" type="checkbox" name="is_slider"
+                                            id="editSlider{{ b.id }}" {% if b.is_slider %}checked{% endif %}>
+                                        <label class="form-check-label fw-bold text-dark"
+                                            for="editSlider{{ b.id }}">Jadikan Banner Utama</label>
                                     </div>
                                 </div>
                             </div>
@@ -215,7 +251,8 @@
                     </div>
                 </div>
                 <div class="modal-footer border-0 px-4 pb-4">
-                    <button type="submit" class="btn btn-warning rounded-pill px-5 py-2 fw-bold text-white shadow-sm" style="background: var(--primary);">Perbarui Data</button>
+                    <button type="submit" class="btn btn-warning rounded-pill px-5 py-2 fw-bold text-white shadow-sm"
+                        style="background: var(--primary);">Perbarui Data</button>
                 </div>
             </form>
         </div>
@@ -227,10 +264,13 @@
         <div class="modal-content text-center p-5" style="border-radius: 24px;">
             <div class="text-danger mb-4" style="font-size: 4rem;"><i class="fa fa-exclamation-triangle"></i></div>
             <h3 class="fw-800">Hapus Data?</h3>
-            <p class="text-muted">Data <b>{{ b.nama_tempat }}</b> dan semua aset gambarnya akan dihapus permanen dari server.</p>
+            <p class="text-muted">Data <b>{{ b.nama_tempat }}</b> dan semua aset gambarnya akan dihapus permanen dari
+                server.</p>
             <div class="d-flex gap-3 mt-4">
                 <button class="btn btn-light w-100 rounded-pill py-2 fw-bold" data-bs-dismiss="modal">Batal</button>
-                <a href="{{ url_for('admin_bp.delete_budaya', id=b.id) }}" class="btn btn-danger w-100 rounded-pill py-2 fw-bold text-white text-decoration-none d-flex align-items-center justify-content-center">Ya, Hapus</a>
+                <a href="{{ url_for('admin_bp.delete_budaya', id=b.id) }}"
+                    class="btn btn-danger w-100 rounded-pill py-2 fw-bold text-white text-decoration-none d-flex align-items-center justify-content-center">Ya,
+                    Hapus</a>
             </div>
         </div>
     </div>

@@ -7,17 +7,14 @@ from app.models import Event
 def calculate_event_status(event):
     if event.is_recurring:
         return "Rutin"
-        
     if not event.raw_date:
         return event.status
-        
     today = date.today()
     end_date = event.raw_end_date if event.raw_end_date else event.raw_date
-    
     if today < event.raw_date:
         return "Akan Datang"
     elif event.raw_date <= today <= end_date:
-        return "Sedang Berjalan"
+        return "Sedang Berlangsung"
     else:
         return "Selesai"
 
@@ -29,12 +26,13 @@ class EventService:
             if kategori and kategori != "Semua":
                 query = query.filter(Event.kategori.ilike(kategori))
             
+            today = date.today()
             if status == "Berjalan":
-                query = query.filter_by(status="Sedang Berjalan")
+                query = query.filter(Event.raw_date <= today, Event.raw_end_date >= today, Event.is_recurring == False)
             elif status == "Mendatang":
-                query = query.filter(Event.status.in_(["Akan Datang", "Rutin"]))
+                query = query.filter((Event.raw_date > today) | (Event.is_recurring == True))
             elif status == "Selesai":
-                query = query.filter_by(status="Selesai")
+                query = query.filter(Event.raw_end_date < today, Event.is_recurring == False)
 
             if search:
                 query = query.filter(Event.judul_event.ilike(f"%{search}%"))
