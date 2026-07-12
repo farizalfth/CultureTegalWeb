@@ -1,15 +1,14 @@
 import os
 import uuid
 from datetime import datetime, date, timedelta
-from flask import Blueprint, current_app, render_template, request, redirect, url_for, session, flash, jsonify
+from flask import Blueprint, current_app, render_template, request, redirect, url_for, session, flash
 from realtime import Any
 from sqlalchemy import func
-from app.models import db, CultureSite, Event, UMKM, User, Facility, ScrapeTarget, ScanHistory
+from app.models import db, CultureSite, Event, UMKM, User, Facility, ScrapeTarget, ScanHistory, Quiz, Badge, FoodMetadata, News
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.services.upload_service import delete_file, save_image
 from app.services.auth_service import supabase
 from app.services.scraper_service import ScraperService
-from app.models import FoodMetadata, Badge, Quiz
 from app.services.upload_service import save_video, delete_video
 from app.services.notification_service import NotificationService
 import re
@@ -32,6 +31,20 @@ def format_indo_date(start_str, end_str=None):
         return f"{days[dt_start.weekday()]}, {dt_start.day} - {days[dt_end.weekday()]}, {dt_end.day} {months[dt_start.month-1]} {dt_start.year}"
     else:
         return f"{start_fmt} {dt_start.year} - {days[dt_end.weekday()]}, {dt_end.day} {months[dt_end.month-1]} {dt_end.year}"
+
+def calculate_status_auto(is_recurring, raw_date, raw_end_date):
+    if is_recurring:
+        return "Rutin"
+    if not raw_date:
+        return "Akan Datang"
+    today = date.today()
+    end_date = raw_end_date if raw_end_date else raw_date
+    if today < raw_date:
+        return "Akan Datang"
+    elif raw_date <= today <= end_date:
+        return "Sedang Berlangsung"
+    else:
+        return "Selesai"
 
 @admin_bp.route('/login', methods=['GET', 'POST'])
 def admin_login():
@@ -103,7 +116,7 @@ def admin_dashboard():
     if mongo_uri:
         try:
             from pymongo import MongoClient
-            client = MongoClient(mongo_uri)
+            client = MongoClient(mongo_uri, serverSelectionTimeoutMS=2000)
             mongo_db = client['review_tempat_bersejarah_tegal']
             collection = mongo_db['reviews_data']
             
@@ -130,6 +143,10 @@ def admin_dashboard():
         'facilities': Facility.query.order_by(Facility.nama_fasilitas.asc()).all(),
         'scrape_targets': ScrapeTarget.query.order_by(ScrapeTarget.created_at.desc()).all(),
         'scraped_reviews': scraped_reviews,
+        'quizzes': Quiz.query.order_by(Quiz.id.desc()).all(),
+        'badges': Badge.query.order_by(Badge.syarat_poin.asc()).all(),
+        'food': FoodMetadata.query.order_by(FoodMetadata.created_at.desc()).all(),
+        'news_list_admin': News.query.order_by(News.tanggal.desc()).all(),
         'count_budaya': CultureSite.query.count(),
         'count_event': Event.query.count(),
         'count_umkm': UMKM.query.count(),
@@ -154,23 +171,23 @@ def add_budaya():
 
     try:
         new_site = CultureSite()
-        new_site.id = uuid.uuid4() # type: ignore
-        new_site.nama_tempat = request.form.get('nama_tempat') # type: ignore
-        new_site.subtitle = request.form.get('subtitle') # type: ignore
-        new_site.kategori = request.form.get('kategori') # type: ignore
-        new_site.tahun_dibangun = request.form.get('tahun_dibangun') # type: ignore
-        new_site.lokasi_singkat = request.form.get('lokasi_singkat') # type: ignore
-        new_site.durasi_kunjungan = request.form.get('durasi_kunjungan') # type: ignore
-        new_site.jarak_estimasi = request.form.get('jarak_estimasi') # type: ignore
-        new_site.deskripsi = request.form.get('deskripsi') # type: ignore
-        new_site.fun_fact = request.form.get('fun_fact') # type: ignore
-        new_site.latitude = float(request.form.get('latitude') or 0) # type: ignore
-        new_site.longitude = float(request.form.get('longitude') or 0) # type: ignore
-        new_site.image_url = save_image(request.files.get('gambar_utama')) # type: ignore
-        new_site.gallery = gallery_list # type: ignore
-        new_site.video_url = request.form.get('video_url') # type: ignore
-        new_site.is_slider = True if request.form.get('is_slider') == 'on' else False # type: ignore
-        new_site.admin_id = session.get('user_id') # type: ignore
+        new_site.id = uuid.uuid4()
+        new_site.nama_tempat = request.form.get('nama_tempat')
+        new_site.subtitle = request.form.get('subtitle')
+        new_site.kategori = request.form.get('kategori')
+        new_site.tahun_dibangun = request.form.get('tahun_dibangun')
+        new_site.lokasi_singkat = request.form.get('lokasi_singkat')
+        new_site.durasi_kunjungan = request.form.get('durasi_kunjungan')
+        new_site.jarak_estimasi = request.form.get('jarak_estimasi')
+        new_site.deskripsi = request.form.get('deskripsi')
+        new_site.fun_fact = request.form.get('fun_fact')
+        new_site.latitude = float(request.form.get('latitude') or 0)
+        new_site.longitude = float(request.form.get('longitude') or 0)
+        new_site.image_url = save_image(request.files.get('gambar_utama'))
+        new_site.gallery = gallery_list
+        new_site.video_url = request.form.get('video_url')
+        new_site.is_slider = True if request.form.get('is_slider') == 'on' else False
+        new_site.admin_id = session.get('user_id')
         
         facility_ids = request.form.getlist('facilities')
         for f_id in facility_ids:
@@ -208,8 +225,8 @@ def update_budaya(id):
         site.jarak_estimasi = request.form.get('jarak_estimasi')
         site.deskripsi = request.form.get('deskripsi') or site.deskripsi
         site.fun_fact = request.form.get('fun_fact')
-        site.latitude = float(request.form.get('latitude') or site.latitude) # type: ignore
-        site.longitude = float(request.form.get('longitude') or site.longitude) # type: ignore
+        site.latitude = float(request.form.get('latitude') or site.latitude)
+        site.longitude = float(request.form.get('longitude') or site.longitude)
         site.video_url = request.form.get('video_url')
         site.is_slider = True if request.form.get('is_slider') == 'on' else False
 
@@ -293,34 +310,35 @@ def add_event():
 
     try:
         new_event = Event()
-        new_event.id = uuid.uuid4() # type: ignore
-        new_event.judul_event = request.form.get('judul_event') # type: ignore
-        new_event.kategori = request.form.get('kategori') # type: ignore
-        new_event.status = request.form.get('status') # type: ignore
-        new_event.tanggal_lengkap = format_indo_date(start_date, end_date) # type: ignore
-        new_event.raw_date = datetime.strptime(start_date, '%Y-%m-%d').date() if start_date else None # type: ignore
-        new_event.raw_end_date = datetime.strptime(end_date, '%Y-%m-%d').date() if end_date else None # type: ignore
-        new_event.waktu_pelaksanaan = f"{start_t} - {end_t} WIB" # type: ignore
-        new_event.lokasi_singkat = request.form.get('lokasi_singkat') # type: ignore
-        new_event.alamat_lengkap = request.form.get('alamat_lengkap') # type: ignore
-        new_event.audience = request.form.get('audience') # type: ignore
-        new_event.harga_tiket = request.form.get('harga_tiket') # type: ignore
-        new_event.deskripsi = request.form.get('deskripsi') # type: ignore
-        new_event.highlights = highlights_data # type: ignore
-        new_event.latitude = float(request.form.get('latitude') or 0) # type: ignore
-        new_event.longitude = float(request.form.get('longitude') or 0) # type: ignore
-        new_event.image_url = save_image(request.files.get('gambar_event')) # type: ignore
-        new_event.is_recurring = True if request.form.get('is_recurring') == 'on' else False # type: ignore
-        new_event.badge_top = request.form.get('badge_top') # type: ignore
-        new_event.badge_bottom = request.form.get('badge_bottom') # type: ignore
-        new_event.admin_id = session.get('user_id') # type: ignore
+        new_event.id = uuid.uuid4()
+        new_event.judul_event = request.form.get('judul_event')
+        new_event.kategori = request.form.get('kategori')
+        new_event.tanggal_lengkap = format_indo_date(start_date, end_date)
+        new_event.raw_date = datetime.strptime(start_date, '%Y-%m-%d').date() if start_date else None
+        new_event.raw_end_date = datetime.strptime(end_date, '%Y-%m-%d').date() if end_date else None
+        new_event.waktu_pelaksanaan = f"{start_t} - {end_t} WIB"
+        new_event.lokasi_singkat = request.form.get('lokasi_singkat')
+        new_event.alamat_lengkap = request.form.get('alamat_lengkap')
+        new_event.audience = request.form.get('audience')
+        new_event.harga_tiket = request.form.get('harga_tiket')
+        new_event.deskripsi = request.form.get('deskripsi')
+        new_event.highlights = highlights_data
+        new_event.latitude = float(request.form.get('latitude') or 0)
+        new_event.longitude = float(request.form.get('longitude') or 0)
+        new_event.image_url = save_image(request.files.get('gambar_event'))
+        new_event.is_recurring = True if request.form.get('is_recurring') == 'on' else False
+        new_event.badge_top = request.form.get('badge_top')
+        new_event.badge_bottom = request.form.get('badge_bottom')
+        new_event.admin_id = session.get('user_id')
+        
+        new_event.status = calculate_status_auto(new_event.is_recurring, new_event.raw_date, new_event.raw_end_date)
         
         db.session.add(new_event)
         db.session.commit()
 
         NotificationService.send_to_all(
-        "Event Budaya Baru!",
-         f"Jangan lewatkan keseruan event '{new_event.judul_event}' pada {new_event.tanggal_lengkap}!"
+            "Event Budaya Baru!",
+            f"Jangan lewatkan keseruan event '{new_event.judul_event}' pada {new_event.tanggal_lengkap}!"
         )
         flash('Event berhasil diterbitkan.', 'success')
     except Exception as e:
@@ -351,17 +369,18 @@ def update_event(id):
 
         event.judul_event = request.form.get('judul_event') or event.judul_event
         event.kategori = request.form.get('kategori') or event.kategori
-        event.status = request.form.get('status') or event.status
         event.lokasi_singkat = request.form.get('lokasi_singkat') or event.lokasi_singkat
         event.alamat_lengkap = request.form.get('alamat_lengkap') or event.alamat_lengkap
         event.audience = request.form.get('audience') or event.audience
         event.harga_tiket = request.form.get('harga_tiket') or event.harga_tiket
         event.deskripsi = request.form.get('deskripsi') or event.deskripsi
-        event.latitude = float(request.form.get('latitude') or event.latitude) # type: ignore
-        event.longitude = float(request.form.get('longitude') or event.longitude) # type: ignore
+        event.latitude = float(request.form.get('latitude') or event.latitude)
+        event.longitude = float(request.form.get('longitude') or event.longitude)
         event.badge_top = request.form.get('badge_top') or event.badge_top
         event.badge_bottom = request.form.get('badge_bottom') or event.badge_bottom
         event.is_recurring = True if request.form.get('is_recurring') == 'on' else False
+
+        event.status = calculate_status_auto(event.is_recurring, event.raw_date, event.raw_end_date)
 
         file = request.files.get('gambar_event')
         if file and file.filename != '':
@@ -401,27 +420,27 @@ def add_umkm():
         lng_val = request.form.get('longitude')
 
         new_umkm = UMKM()
-        new_umkm.id = uuid.uuid4() # type: ignore
-        new_umkm.nama_produk = request.form.get('nama_produk') # type: ignore
-        new_umkm.harga = request.form.get('harga') # type: ignore
-        new_umkm.nama_toko = request.form.get('nama_toko') # type: ignore
-        new_umkm.kategori = request.form.get('kategori') # type: ignore
-        new_umkm.rating = float(request.form.get('rating', 0)) # type: ignore
-        new_umkm.deskripsi = request.form.get('deskripsi') # type: ignore
-        new_umkm.alamat_toko = request.form.get('alamat_toko') # type: ignore
-        new_umkm.no_whatsapp = request.form.get('no_whatsapp') # type: ignore
-        new_umkm.link_eksternal = request.form.get('link_eksternal') # type: ignore
-        new_umkm.latitude = float(lat_val) if lat_val else None # type: ignore
-        new_umkm.longitude = float(lng_val) if lng_val else None # type: ignore
-        new_umkm.image_url = save_image(request.files.get('gambar_umkm')) # type: ignore
-        new_umkm.admin_id = session.get('user_id') # type: ignore
+        new_umkm.id = uuid.uuid4()
+        new_umkm.nama_produk = request.form.get('nama_produk')
+        new_umkm.harga = request.form.get('harga')
+        new_umkm.nama_toko = request.form.get('nama_toko')
+        new_umkm.kategori = request.form.get('kategori')
+        new_umkm.rating = float(request.form.get('rating', 0))
+        new_umkm.deskripsi = request.form.get('deskripsi')
+        new_umkm.alamat_toko = request.form.get('alamat_toko')
+        new_umkm.no_whatsapp = request.form.get('no_whatsapp')
+        new_umkm.link_eksternal = request.form.get('link_eksternal')
+        new_umkm.latitude = float(lat_val) if lat_val else None
+        new_umkm.longitude = float(lng_val) if lng_val else None
+        new_umkm.image_url = save_image(request.files.get('gambar_umkm'))
+        new_umkm.admin_id = session.get('user_id')
         
         db.session.add(new_umkm)
         db.session.commit()
 
         NotificationService.send_to_all(
-        "Kuliner & Toko Baru!",
-        f"Telah hadir '{new_umkm.nama_produk}' di {new_umkm.nama_toko}. Yuk intip detailnya!"
+            "Kuliner & Toko Baru!",
+            f"Telah hadir '{new_umkm.nama_produk}' di {new_umkm.nama_toko}. Yuk intip detailnya!"
         )
         flash('Produk UMKM berhasil ditambahkan.', 'success')
     except Exception as e:
@@ -441,7 +460,7 @@ def update_umkm(id):
         umkm.harga = request.form.get('harga') or umkm.harga
         umkm.nama_toko = request.form.get('nama_toko') or umkm.nama_toko
         umkm.kategori = request.form.get('kategori') or umkm.kategori
-        umkm.rating = float(request.form.get('rating') or umkm.rating) # type: ignore
+        umkm.rating = float(request.form.get('rating') or umkm.rating)
         umkm.deskripsi = request.form.get('deskripsi') or umkm.deskripsi
         umkm.alamat_toko = request.form.get('alamat_toko') or umkm.alamat_toko
         umkm.no_whatsapp = request.form.get('no_whatsapp') or umkm.no_whatsapp
@@ -449,8 +468,8 @@ def update_umkm(id):
         
         lat_val = request.form.get('latitude')
         lng_val = request.form.get('longitude')
-        umkm.latitude = float(lat_val) if lat_val else None # type: ignore
-        umkm.longitude = float(lng_val) if lng_val else None # type: ignore
+        umkm.latitude = float(lat_val) if lat_val else None
+        umkm.longitude = float(lng_val) if lng_val else None
 
         file = request.files.get('gambar_umkm')
         if file and file.filename != '':
@@ -492,12 +511,12 @@ def add_user():
 
     try:
         new_user = User()
-        new_user.id = uuid.uuid4() # type: ignore
-        new_user.nama = request.form.get('nama') # type: ignore
-        new_user.email = email # type: ignore
-        new_user.password_hash = generate_password_hash(request.form.get('password', '')) # type: ignore
-        new_user.role = 'admin' # type: ignore
-        new_user.profile_picture = save_image(request.files.get('profile_picture')) # type: ignore
+        new_user.id = uuid.uuid4()
+        new_user.nama = request.form.get('nama')
+        new_user.email = email
+        new_user.password_hash = generate_password_hash(request.form.get('password', ''))
+        new_user.role = 'admin'
+        new_user.profile_picture = save_image(request.files.get('profile_picture'))
         
         db.session.add(new_user)
         db.session.commit()
@@ -519,10 +538,10 @@ def update_user(id):
         user.email = request.form.get('email') or user.email
         
         if user.role == 'user':
-            user.poin = int(request.form.get('poin', 0)) # type: ignore
-            user.total_xp = int(request.form.get('total_xp', 0)) # type: ignore
-            user.level = int(request.form.get('level', 1)) # type: ignore
-            user.is_banned = True if request.form.get('is_banned') == 'on' else False # type: ignore
+            user.poin = int(request.form.get('poin', 0))
+            user.total_xp = int(request.form.get('total_xp', 0))
+            user.level = int(request.form.get('level', 1))
+            user.is_banned = True if request.form.get('is_banned') == 'on' else False
         
         if user.role == 'admin':
             new_pass = request.form.get('password')
@@ -569,9 +588,9 @@ def add_facility():
         return redirect(url_for('admin_bp.admin_login'))
     try:
         new_fac = Facility()
-        new_fac.id = uuid.uuid4() # type: ignore
-        new_fac.nama_fasilitas = request.form.get('nama_fasilitas') # type: ignore
-        new_fac.icon_key = request.form.get('icon_key') # type: ignore
+        new_fac.id = uuid.uuid4()
+        new_fac.nama_fasilitas = request.form.get('nama_fasilitas')
+        new_fac.icon_key = request.form.get('icon_key')
         
         db.session.add(new_fac)
         db.session.commit()
@@ -612,12 +631,12 @@ def add_scrape_target():
 
     try:
         new_target = ScrapeTarget()
-        new_target.id = uuid.uuid4() # type: ignore
-        new_target.target_id = target_id # type: ignore
-        new_target.target_type = target_type # type: ignore
-        new_target.nama_tempat = nama_tempat # type: ignore
-        new_target.url_maps = url_maps # type: ignore
-        new_target.max_reviews = max_reviews # type: ignore
+        new_target.id = uuid.uuid4()
+        new_target.target_id = target_id
+        new_target.target_type = target_type
+        new_target.nama_tempat = nama_tempat
+        new_target.url_maps = url_maps
+        new_target.max_reviews = max_reviews
         
         db.session.add(new_target)
         db.session.commit()
@@ -695,11 +714,11 @@ def bulk_upload_targets():
                 continue
 
             new_target = ScrapeTarget()
-            new_target.id = uuid.uuid4() # type: ignore
-            new_target.target_id = target_id # type: ignore
-            new_target.target_type = target_type # type: ignore
-            new_target.nama_tempat = nama_tempat # type: ignore
-            new_target.url_maps = url # type: ignore
+            new_target.id = uuid.uuid4()
+            new_target.target_id = target_id
+            new_target.target_type = target_type
+            new_target.nama_tempat = nama_tempat
+            new_target.url_maps = url
             db.session.add(new_target)
             added_count += 1
             
@@ -730,11 +749,11 @@ def trigger_scrape():
     if not session.get('logged_in'):
         return {"status": "error", "message": "Unauthorized"}, 401
     
-    mongo_uri = current_app.config.get('MONGO_URI') # type: ignore
+    mongo_uri = current_app.config.get('MONGO_URI')
     if ScraperService.progress["running"]:
         return {"status": "error", "message": "Scraping sedang berjalan di latar belakang"}, 400
     
-    ScraperService.run_scraping_job(mongo_uri) # type: ignore
+    ScraperService.run_scraping_job(mongo_uri)
     return {"status": "success", "message": "Scraping dimulai di latar belakang"}, 200
 
 @admin_bp.route('/scrape/status', methods=['GET'])
@@ -757,11 +776,11 @@ def add_food_metadata():
             video_url = request.form.get('video_url')
 
         new_food = FoodMetadata()
-        new_food.id = uuid.uuid4() # type: ignore
-        new_food.label_key = request.form.get('label_key') # type: ignore
-        new_food.nama_makanan = request.form.get('nama_makanan') # type: ignore
-        new_food.deskripsi = request.form.get('deskripsi') # type: ignore
-        new_food.video_url = video_url # type: ignore
+        new_food.id = uuid.uuid4()
+        new_food.label_key = request.form.get('label_key')
+        new_food.nama_makanan = request.form.get('nama_makanan')
+        new_food.deskripsi = request.form.get('deskripsi')
+        new_food.video_url = video_url
 
         db.session.add(new_food)
         db.session.commit()
@@ -818,11 +837,11 @@ def add_badge():
         return redirect(url_for('admin_bp.admin_login'))
     try:
         new_badge = Badge()
-        new_badge.id = uuid.uuid4() # type: ignore
-        new_badge.nama_badge = request.form.get('nama_badge') # type: ignore
-        new_badge.deskripsi = request.form.get('deskripsi') # type: ignore
-        new_badge.syarat_poin = int(request.form.get('syarat_poin') or 0) # type: ignore
-        new_badge.image_url = save_image(request.files.get('badge_image')) # type: ignore
+        new_badge.id = uuid.uuid4()
+        new_badge.nama_badge = request.form.get('nama_badge')
+        new_badge.deskripsi = request.form.get('deskripsi')
+        new_badge.syarat_poin = int(request.form.get('syarat_poin') or 0)
+        new_badge.image_url = save_image(request.files.get('badge_image'))
 
         db.session.add(new_badge)
         db.session.commit()
@@ -862,14 +881,14 @@ def add_quiz():
         opsi_jawaban = {"A": opsi_a, "B": opsi_b, "C": opsi_c, "D": opsi_d}
 
         new_quiz = Quiz()
-        new_quiz.id = uuid.uuid4() # type: ignore
-        new_quiz.culture_id = culture_id # type: ignore
-        new_quiz.pertanyaan = request.form.get('pertanyaan') # type: ignore
-        new_quiz.opsi_jawaban = opsi_jawaban # type: ignore
-        new_quiz.jawaban_benar = request.form.get('jawaban_benar') # type: ignore
-        new_quiz.poin_reward = int(request.form.get('poin_reward') or 50) # type: ignore
-        new_quiz.image_url = save_image(request.files.get('quiz_image')) # type: ignore
-        new_quiz.admin_id = session.get('user_id') # type: ignore
+        new_quiz.id = uuid.uuid4()
+        new_quiz.culture_id = culture_id
+        new_quiz.pertanyaan = request.form.get('pertanyaan')
+        new_quiz.opsi_jawaban = opsi_jawaban
+        new_quiz.jawaban_benar = request.form.get('jawaban_benar')
+        new_quiz.poin_reward = int(request.form.get('poin_reward') or 50)
+        new_quiz.image_url = save_image(request.files.get('quiz_image'))
+        new_quiz.admin_id = session.get('user_id')
 
         db.session.add(new_quiz)
         db.session.commit()
@@ -895,3 +914,61 @@ def delete_quiz(id):
         flash(f'Gagal: {str(e)}', 'danger')
     return redirect(url_for('admin_bp.admin_dashboard', _anchor='quiz'))
 
+@admin_bp.route('/add_news', methods=['POST'])
+def add_news():
+    if not session.get('logged_in'):
+        return redirect(url_for('admin_bp.admin_login'))
+    try:
+        new_news = News()
+        new_news.id = uuid.uuid4()
+        new_news.judul = request.form.get('judul')
+        new_news.kategori = request.form.get('kategori')
+        new_news.tanggal = date.today()
+        new_news.image_url = save_image(request.files.get('gambar_berita'))
+        new_news.konten = request.form.get('konten')
+        new_news.admin_id = session.get('user_id')
+        
+        db.session.add(new_news)
+        db.session.commit()
+        flash('Berita berhasil diterbitkan.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error: {str(e)}', 'danger')
+    return redirect(url_for('admin_bp.admin_dashboard', _anchor='news'))
+
+@admin_bp.route('/update_news/<uuid:id>', methods=['POST'])
+def update_news(id):
+    if not session.get('logged_in'):
+        return redirect(url_for('admin_bp.admin_login'))
+    news = News.query.get_or_404(id)
+    try:
+        news.judul = request.form.get('judul') or news.judul
+        news.kategori = request.form.get('kategori') or news.kategori
+        news.konten = request.form.get('konten') or news.konten
+        
+        file = request.files.get('gambar_berita')
+        if file and file.filename != '':
+            delete_file(news.image_url)
+            news.image_url = save_image(file)
+            
+        db.session.commit()
+        flash('Berita berhasil diperbarui.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Gagal memperbarui berita: {str(e)}', 'danger')
+    return redirect(url_for('admin_bp.admin_dashboard', _anchor='news'))
+
+@admin_bp.route('/delete_news/<uuid:id>')
+def delete_news(id):
+    if not session.get('logged_in'):
+        return redirect(url_for('admin_bp.admin_login'))
+    news = News.query.get_or_404(id)
+    try:
+        delete_file(news.image_url)
+        db.session.delete(news)
+        db.session.commit()
+        flash('Berita dihapus permanen.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error: {str(e)}', 'danger')
+    return redirect(url_for('admin_bp.admin_dashboard', _anchor='news'))

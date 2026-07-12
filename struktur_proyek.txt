@@ -1,0 +1,116 @@
+Struktur Direktori Proyek:
+.
+├── .env
+├── .gitignore
+├── .hintrc
+├── app
+│   ├── __init__.py
+│   ├── api
+│   │   ├── __init__.py
+│   │   ├── auth_routes.py
+│   │   ├── docs
+│   │   │   ├── cultures.yml
+│   │   │   ├── events.yml
+│   │   │   ├── ping.yml
+│   │   │   ├── profile.yml
+│   │   │   ├── sync.yml
+│   │   │   └── umkms.yml
+│   │   ├── v1
+│   │   │   ├── __init__.py
+│   │   │   ├── admin_routes.py
+│   │   │   ├── culture_routes.py
+│   │   │   ├── event_routes.py
+│   │   │   ├── news_routes.py
+│   │   │   ├── quiz_routes.py
+│   │   │   ├── scan_routes.py
+│   │   │   ├── search_routes.py
+│   │   │   ├── umkm_routes.py
+│   │   │   └── user_routes.py
+│   │   └── v1_routes.py
+│   ├── models.py
+│   ├── services
+│   │   ├── __init__.py
+│   │   ├── ai_model_service.py
+│   │   ├── ai_scan_service.py
+│   │   ├── auth_controller.py
+│   │   ├── auth_service.py
+│   │   ├── culture_service.py
+│   │   ├── event_service.py
+│   │   ├── news_service.py
+│   │   ├── notification_service.py
+│   │   ├── quiz_service.py
+│   │   ├── scan_service.py
+│   │   ├── scraper_service.py
+│   │   ├── search_service.py
+│   │   ├── umkm_service.py
+│   │   ├── upload_service.py
+│   │   └── user_service.py
+│   ├── static
+│   │   ├── css
+│   │   │   ├── admin.css
+│   │   │   └── style.css
+│   │   ├── img
+│   │   │   ├── 1.png
+│   │   │   ├── 2.png
+│   │   │   ├── 3.png
+│   │   │   └── 4.png
+│   │   └── js
+│   ├── templates
+│   │   ├── admin
+│   │   │   ├── dashboard.html
+│   │   │   ├── login.html
+│   │   │   └── modals
+│   │   │       ├── budaya_modals.html
+│   │   │       ├── event_modals.html
+│   │   │       ├── facility_modals.html
+│   │   │       ├── scraper_modals.html
+│   │   │       ├── umkm_modals.html
+│   │   │       └── user_modals.html
+│   │   ├── layouts
+│   │   │   ├── admin_base.html
+│   │   │   └── base.html
+│   │   └── public
+│   │       ├── event.html
+│   │       ├── index.html
+│   │       ├── jelajah.html
+│   │       ├── tentang.html
+│   │       └── umkm.html
+│   └── web
+│       ├── __init__.py
+│       ├── admin_routes.py
+│       └── public_routes.py
+├── app.py
+├── config.py
+├── dest.py
+├── legacy_app_backup.py
+├── migrations
+│   ├── README
+│   ├── alembic.ini
+│   ├── env.py
+│   ├── script.py.mako
+│   └── versions
+│       ├── 00b47ada4018_add_raw_date_table_event.py
+│       ├── 09bc71264012_add_culture_facilities_association_table.py
+│       ├── 108052b1f28a_add_reminder_flags_to_favorites.py
+│       ├── 186d9f71229d_add_created_at_to_user.py
+│       ├── 334c2e086d78_add_strict_uuid_mapping_to_scrape_.py
+│       ├── 3c7c555711eb_initial_migration.py
+│       ├── 619e62314a72_add_coordinate_and_contact_to_umkms.py
+│       ├── 8501f7412345_add_raw_end_date_column.py
+│       ├── afaf62a5bfbe_add_user_devices_table.py
+│       ├── bea75fd2f656_integrate_gamification_ai_and_scrape_.py
+│       ├── d90ceba5e1b3_add_max_reviews_to_scrape_targets.py
+│       ├── f0853d06f6c2_add_ai_scan_history_table.py
+│       └── f130003d0db2_add_food_metadata_and_normalize_ai_scan_.py
+├── project.py
+├── project_bundle.txt
+├── requirements.txt
+├── run.py
+├── seed.py
+├── seed_event.py
+├── seed_facility_icon.py
+├── seed_news.py
+├── static
+├── struktur_proyek.txt
+├── test_filter.py
+└── test_scraper.py

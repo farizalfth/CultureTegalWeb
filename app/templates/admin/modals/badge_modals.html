@@ -1,0 +1,38 @@
+<div class="modal fade" id="modalAddBadge" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-md modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 24px;">
+            <div class="modal-header border-0 px-4 pt-4">
+                <div class="d-flex align-items-center">
+                    <div class="bg-orange-light p-2 rounded-3 me-3"><i class="fa fa-trophy text-orange"></i></div>
+                    <h5 class="modal-title fw-800">Daftarkan Lencana Baru</h5>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('admin_bp.add_badge') }}" method="POST" enctype="multipart/form-data">
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label class="form-label-custom">Nama Lencana (Badge)</label>
+                            <input type="text" name="nama_badge" class="form-control form-control-custom" placeholder="Penjelajah Pantai" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label-custom">Deskripsi Syarat Kelayakan</label>
+                            <textarea name="deskripsi" class="form-control form-control-custom" rows="3" placeholder="Selesaikan kuis di Pantai Alam Indah" required></textarea>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label-custom">Syarat Ambang Batas Poin Budaya</label>
+                            <input type="number" name="syarat_poin" class="form-control form-control-custom" placeholder="500" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label-custom">Ikon Gambar Lencana</label>
+                            <input type="file" name="badge_image" class="form-control form-control-custom" accept="image/*" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button type="submit" class="btn btn-warning rounded-pill px-5 py-2 fw-bold text-white shadow-sm" style="background: var(--primary);">Simpan Lencana</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

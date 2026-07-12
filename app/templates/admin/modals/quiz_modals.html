@@ -1,0 +1,68 @@
+<div class="modal fade" id="modalAddQuiz" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 24px;">
+            <div class="modal-header border-0 px-4 pt-4">
+                <div class="d-flex align-items-center">
+                    <div class="bg-orange-light p-2 rounded-3 me-3"><i class="fa fa-question-circle text-orange"></i></div>
+                    <h5 class="modal-title fw-800">Tambah Soal Kuis Baru</h5>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('admin_bp.add_quiz') }}" method="POST" enctype="multipart/form-data">
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label class="form-label-custom">Objek Budaya Terkait</label>
+                            <select name="culture_id" class="form-select form-control-custom" required>
+                                <option value="">Pilih Objek Sejarah/Budaya</option>
+                                {% for b in budaya %}
+                                <option value="{{ b.id }}">{{ b.nama_tempat }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label-custom">Pertanyaan Kuis</label>
+                            <textarea name="pertanyaan" class="form-control form-control-custom" rows="3" required></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-custom">Opsi A</label>
+                            <input type="text" name="opsi_a" class="form-control form-control-custom" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-custom">Opsi B</label>
+                            <input type="text" name="opsi_b" class="form-control form-control-custom" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-custom">Opsi C</label>
+                            <input type="text" name="opsi_c" class="form-control form-control-custom" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-custom">Opsi D</label>
+                            <input type="text" name="opsi_d" class="form-control form-control-custom" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-custom">Jawaban Benar</label>
+                            <select name="jawaban_benar" class="form-select form-control-custom" required>
+                                <option value="A">A</option>
+                                <option value="B">B</option>
+                                <option value="C">C</option>
+                                <option value="D">D</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-custom">Poin Reward</label>
+                            <input type="number" name="poin_reward" class="form-control form-control-custom" value="50" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label-custom">Ilustrasi Gambar Kuis (Opsional)</label>
+                            <input type="file" name="quiz_image" class="form-control form-control-custom" accept="image/*">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button type="submit" class="btn btn-warning rounded-pill px-5 py-2 fw-bold text-white shadow-sm" style="background: var(--primary);">Simpan Kuis</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -56,7 +56,7 @@ def check_and_send_event_reminders():
                         f"Event '{event.judul_event}' yang kamu simpan akan dimulai dalam 1 jam!"
                     )
                     if success:
-                        fav.reminder_1h_sent = True # type: ignore
+                        fav.reminder_1h_sent = True
                         
             elif time_diff <= timedelta(minutes=0):
                 if not getattr(fav, 'reminder_start_sent', True):
@@ -66,7 +66,7 @@ def check_and_send_event_reminders():
                         f"Event '{event.judul_event}' yang kamu simpan telah dimulai sekarang!"
                     )
                     if success:
-                        fav.reminder_start_sent = True # type: ignore
+                        fav.reminder_start_sent = True
                         
         db.session.commit()
 
@@ -105,12 +105,13 @@ def create_app():
     
     Swagger(app, template=swagger_template)
 
-    if not scheduler.running:
-        scheduler.init_app(app)
-        scheduler.add_job(id='recurring_task', func=update_recurring_events, trigger='cron', hour=0, minute=1)
-        scheduler.add_job(id='daily_scrape_task', func=run_daily_scrape, trigger='cron', hour=0, minute=0)
-        scheduler.add_job(id='event_reminders_task', func=check_and_send_event_reminders, trigger='interval', minutes=15)
-        scheduler.start()
+    if not app.debug or os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
+        if not scheduler.running:
+            scheduler.init_app(app)
+            scheduler.add_job(id='recurring_task', func=update_recurring_events, trigger='cron', hour=0, minute=1)
+            scheduler.add_job(id='daily_scrape_task', func=run_daily_scrape, trigger='cron', hour=0, minute=0)
+            scheduler.add_job(id='event_reminders_task', func=check_and_send_event_reminders, trigger='interval', minutes=15)
+            scheduler.start()
 
     from .api.v1_routes import api_v1
     from .api.auth_routes import auth_api

@@ -12,12 +12,20 @@ def get_cultures(current_user):
         kategori = request.args.get('kategori', None)
         search = request.args.get('search', None)
         is_slider_raw = request.args.get('is_slider', None)
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', 10, type=int)
         
         is_slider = None
         if is_slider_raw is not None:
             is_slider = is_slider_raw.lower() == 'true'
 
-        data = CultureService.get_all_cultures(kategori=kategori, is_slider=is_slider, search=search)
+        data = CultureService.get_paginated_cultures(
+            kategori=kategori, 
+            is_slider=is_slider, 
+            search=search,
+            page=page,
+            per_page=per_page
+        )
         
         return jsonify({
             "status": "success",

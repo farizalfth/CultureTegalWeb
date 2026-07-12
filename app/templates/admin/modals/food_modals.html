@@ -1,0 +1,50 @@
+<div class="modal fade" id="modalAddFoodMetadata" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 24px;">
+            <div class="modal-header border-0 px-4 pt-4">
+                <div class="d-flex align-items-center">
+                    <div class="bg-orange-light p-2 rounded-3 me-3"><i class="fa fa-cutlery text-orange"></i></div>
+                    <h5 class="modal-title fw-800">Tambah Metadata Kuliner Tradisional</h5>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('admin_bp.add_food_metadata') }}" method="POST" enctype="multipart/form-data">
+                <div class="modal-body p-4">
+                    <div class="row g-4">
+                        <div class="col-lg-7 border-end">
+                            <div class="row g-3">
+                                <div class="col-md-12">
+                                    <label class="form-label-custom">Kunci Label AI (Label Key)</label>
+                                    <input type="text" name="label_key" class="form-control form-control-custom" placeholder="kupat_glabed" required>
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="form-label-custom">Nama Kuliner</label>
+                                    <input type="text" name="nama_makanan" class="form-control form-control-custom" placeholder="Kupat Glabed" required>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label-custom">Deskripsi Kuliner & Resep</label>
+                                    <textarea name="deskripsi" class="form-control form-control-custom" rows="6" required></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-5">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label-custom">Unggah File Video Resep (.mp4)</label>
+                                    <input type="file" name="video_file" class="form-control form-control-custom" accept="video/mp4">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label-custom">Atau Gunakan Tautan Video Eksternal</label>
+                                    <input type="url" name="video_url" class="form-control form-control-custom" placeholder="https://youtube.com/watch?v=...">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button type="submit" class="btn btn-warning rounded-pill px-5 py-2 fw-bold text-white shadow-sm" style="background: var(--primary);">Simpan Metadata</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

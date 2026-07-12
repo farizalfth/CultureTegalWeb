@@ -104,9 +104,9 @@
                                 {% if b.image_url %}
                                 <img src="{{ url_for('static', filename='uploads/' + b.image_url) }}"
                                     style="width: 100%; height: 100%; object-fit: cover;"
-                                    onerror="this.src='https://via.placeholder.com/70x50?text=No+Img'">
+                                    onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'70\' height=\'50\'><rect width=\'100%\' height=\'100%\' fill=\'%23eee\'/><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-size=\'10\' fill=\'%23999\'>No Image</text></svg>';">
                                 {% else %}
-                                <img src="https://via.placeholder.com/70x50?text=No+Img"
+                                <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='70' height='50'><rect width='100%' height='100%' fill='%23eee'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='10' fill='%23999'>No Image</text></svg>"
                                     style="width: 100%; height: 100%; object-fit: cover;">
                                 {% endif %}
                             </div>
@@ -163,7 +163,8 @@
                         <td class="ps-4">
                             <div class="shadow-sm border"
                                 style="width: 50px; height: 50px; border-radius: 10px; overflow: hidden;">
-                                <img src="{{ url_for('static', filename='uploads/' + e.image_url) if e.image_url else 'https://via.placeholder.com/50' }}"
+                                <img src="{{ url_for('static', filename='uploads/' + e.image_url) if e.image_url else 'data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'50\' height=\'50\'><rect width=\'100%\' height=\'100%\' fill=\'%23eee\'/><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-size=\'8\' fill=\'%23999\'>No Image</text></svg>' }}"
+                                     onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'50\' height=\'50\'><rect width=\'100%\' height=\'100%\' fill=\'%23eee\'/><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-size=\'8\' fill=\'%23999\'>No Image</text></svg>';"
                                     style="width:100%; height:100%; object-fit:cover;">
                             </div>
                         </td>
@@ -217,9 +218,9 @@
                         <td class="ps-4">
                             <div class="shadow-sm border"
                                 style="width: 50px; height: 50px; border-radius: 10px; overflow: hidden;">
-                                <img src="{{ url_for('static', filename='uploads/' + u.image_url) if u.image_url else 'https://via.placeholder.com/50' }}"
+                                <img src="{{ url_for('static', filename='uploads/' + u.image_url) if u.image_url else 'data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'50\' height=\'50\'><rect width=\'100%\' height=\'100%\' fill=\'%23eee\'/><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-size=\'8\' fill=\'%23999\'>No Image</text></svg>' }}"
                                     style="width:100%; height:100%; object-fit:cover;"
-                                    onerror="this.src='https://via.placeholder.com/50'">
+                                    onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'50\' height=\'50\'><rect width=\'100%\' height=\'100%\' fill=\'%23eee\'/><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-size=\'8\' fill=\'%23999\'>No Image</text></svg>';">
                             </div>
                         </td>
                         <td><b>{{ u.nama_produk }}</b></td>
@@ -232,6 +233,163 @@
                                 <button class="btn-action btn-delete btn-delete-umkm-trigger" type="button"
                                     data-url="{{ url_for('admin_bp.delete_umkm', id=u.id) }}"
                                     data-name="{{ u.nama_produk }}">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="quiz" class="content-section">
+    <div class="admin-card">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="fw-800 m-0">Kelola Soal Kuis Sejarah</h5>
+            <button class="btn btn-warning rounded-pill px-4 shadow-sm" style="background: var(--primary); color: white;" data-bs-toggle="modal" data-bs-target="#modalAddQuiz"><i class="fa fa-plus me-2"></i> Tambah Kuis</button>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-custom">
+                <thead>
+                    <tr>
+                        <th>Pertanyaan</th>
+                        <th>Jawaban Benar</th>
+                        <th>Poin Reward</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for q in quizzes %}
+                    <tr>
+                        <td class="fw-bold">{{ q.pertanyaan }}</td>
+                        <td><span class="badge bg-success">{{ q.jawaban_benar }}</span></td>
+                        <td class="fw-bold text-orange">+{{ q.poin_reward }} Poin</td>
+                        <td>
+                            <div class="btn-crud-group">
+                                <a href="{{ url_for('admin_bp.delete_quiz', id=q.id) }}" class="btn-action btn-delete text-decoration-none"><i class="fa fa-trash"></i></a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="badges" class="content-section">
+    <div class="admin-card">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="fw-800 m-0">Kelola Lencana Gamifikasi</h5>
+            <button class="btn btn-warning rounded-pill px-4 shadow-sm" style="background: var(--primary); color: white;" data-bs-toggle="modal" data-bs-target="#modalAddBadge"><i class="fa fa-plus me-2"></i> Tambah Lencana</button>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-custom">
+                <thead>
+                    <tr>
+                        <th>Foto</th>
+                        <th>Nama Lencana</th>
+                        <th>Deskripsi Syarat</th>
+                        <th>Syarat Poin</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for b in badges %}
+                    <tr>
+                        <td><img src="{{ url_for('static', filename='uploads/' + b.image_url) if b.image_url else 'data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'50\' height=\'50\'><rect width=\'100%\' height=\'100%\' fill=\'%23eee\'/><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-size=\'8\' fill=\'%23999\'>No Image</text></svg>' }}" class="img-table" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'50\' height=\'50\'><rect width=\'100%\' height=\'100%\' fill=\'%23eee\'/><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-size=\'8\' fill=\'%23999\'>No Image</text></svg>';"></td>
+                        <td class="fw-bold">{{ b.nama_badge }}</td>
+                        <td>{{ b.deskripsi }}</td>
+                        <td class="fw-bold text-orange">{{ b.syarat_poin }} Poin</td>
+                        <td>
+                            <div class="btn-crud-group">
+                                <a href="{{ url_for('admin_bp.delete_badge', id=b.id) }}" class="btn-action btn-delete text-decoration-none"><i class="fa fa-trash"></i></a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="food" class="content-section">
+    <div class="admin-card">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="fw-800 m-0">Kelola Metadata Kuliner AI</h5>
+            <button class="btn btn-warning rounded-pill px-4 shadow-sm" style="background: var(--primary); color: white;" data-bs-toggle="modal" data-bs-target="#modalAddFoodMetadata"><i class="fa fa-plus me-2"></i> Tambah Metadata</button>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-custom">
+                <thead>
+                    <tr>
+                        <th>Label AI</th>
+                        <th>Nama Kuliner</th>
+                        <th>Deskripsi Resep</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for f in food %}
+                    <tr>
+                        <td class="fw-bold text-orange">{{ f.label_key }}</td>
+                        <td class="fw-bold">{{ f.nama_makanan }}</td>
+                        <td>{{ f.deskripsi[:120] }}...</td>
+                        <td>
+                            <div class="btn-crud-group">
+                                <a href="{{ url_for('admin_bp.delete_food_metadata', id=f.id) }}" class="btn-action btn-delete text-decoration-none"><i class="fa fa-trash"></i></a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="news" class="content-section">
+    <div class="admin-card">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="fw-800 m-0">Kelola Berita Tegal</h5>
+            <button class="btn btn-warning rounded-pill px-4 shadow-sm" style="background: var(--primary); color: white;" data-bs-toggle="modal" data-bs-target="#modalAddNews"><i class="fa fa-plus me-2"></i> Terbitkan Berita</button>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-custom mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4">Gambar</th>
+                        <th>Judul Berita</th>
+                        <th>Kategori</th>
+                        <th>Tanggal Publikasi</th>
+                        <th class="text-center">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for n in news_list_admin %}
+                    <tr>
+                        <td class="ps-4">
+                            <div class="img-wrapper shadow-sm border" style="width: 70px; height: 50px; border-radius: 12px; overflow: hidden; background: #eee;">
+                                {% if n.image_url %}
+                                <img src="{{ url_for('static', filename='uploads/' + n.image_url) }}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'70\' height=\'50\'><rect width=\'100%\' height=\'100%\' fill=\'%23eee\'/><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-size=\'10\' fill=\'%23999\'>No Image</text></svg>';">
+                                {% else %}
+                                <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='70' height='50'><rect width='100%' height='100%' fill='%23eee'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='10' fill='%23999'>No Image</text></svg>" style="width: 100%; height: 100%; object-fit: cover;">
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td><div class="fw-bold text-dark">{{ n.judul }}</div></td>
+                        <td><span class="badge bg-orange-light text-orange">{{ n.kategori }}</span></td>
+                        <td><span class="small fw-bold text-dark">{{ n.tanggal }}</span></td>
+                        <td class="text-center">
+                            <div class="btn-crud-group">
+                                <button class="btn-action btn-edit" data-bs-toggle="modal" data-bs-target="#modalEditNews{{ n.id }}"><i class="fa fa-edit"></i></button>
+                                <button class="btn-action btn-delete btn-delete-news-trigger" type="button"
+                                        data-url="{{ url_for('admin_bp.delete_news', id=n.id) }}"
+                                        data-name="{{ n.judul }}">
                                     <i class="fa fa-trash"></i>
                                 </button>
                             </div>
@@ -295,7 +453,7 @@
                     <table class="table table-custom mb-0">
                         <thead>
                             <tr>
-                                <th class="ps-4">Lokasi Budaya</th>
+                                <th class="ps-4">Target Lokasi</th>
                                 <th>Batas Ulasan</th>
                                 <th>URL Peta Google Maps</th>
                                 <th class="text-center">Aksi</th>
@@ -365,7 +523,7 @@
                     {% for r in scraped_reviews %}
                     <tr>
                         <td class="ps-4"><b>{{ r.Lokasi }}</b></td>
-                        <td><span class="small fw-bold">{{ r.Nama_User }}</span></td>
+                        <td><span class="badge bg-light text-dark border">{{ r.Nama_User }}</span></td>
                         <td>
                             <span class="badge bg-warning-subtle text-dark border">
                                 <i class="fa fa-star text-warning me-1"></i>{{ r.Rating }}
@@ -566,6 +724,10 @@
 {% include 'admin/modals/umkm_modals.html' %}
 {% include 'admin/modals/user_modals.html' %}
 {% include 'admin/modals/scraper_modals.html' %}
+{% include 'admin/modals/quiz_modals.html' %}
+{% include 'admin/modals/badge_modals.html' %}
+{% include 'admin/modals/food_modals.html' %}
+{% include 'admin/modals/news_modals.html' %}
 {% endblock %}
 
 {% block scripts %}
@@ -777,6 +939,13 @@
             if (delTarget) {
                 const url = delTarget.getAttribute('data-url');
                 const name = delTarget.getAttribute('data-name');
+                confirmDelete(url, name);
+            }
+
+            const delNews = e.target.closest('.btn-delete-news-trigger');
+            if (delNews) {
+                const url = delNews.getAttribute('data-url');
+                const name = delNews.getAttribute('data-name');
                 confirmDelete(url, name);
             }
         });

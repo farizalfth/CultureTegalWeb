@@ -1,4 +1,6 @@
 from flask import Blueprint, jsonify, request
+import uuid
+from app.models import db, ScanHistory, UserQuizHistory, UserFavorite
 from app.services.auth_service import token_required
 from app.services.user_service import UserService
 from app.services.upload_service import save_image, delete_file
@@ -9,6 +11,11 @@ user_api = Blueprint('user_api', __name__)
 @token_required
 def get_profile(local_user):
     try:
+        calculated_level = (local_user.poin // 1000) + 1
+        if calculated_level > local_user.level:
+            local_user.level = calculated_level
+            db.session.commit()
+
         formatted_poin = "{:,.0f}".format(local_user.poin).replace(',', '.')
         profile_url = local_user.profile_picture
         if profile_url:
@@ -24,7 +31,7 @@ def get_profile(local_user):
                 "email": local_user.email,
                 "profile_picture": profile_url,
                 "points": formatted_poin,
-                "level": local_user.level
+                "level": calculated_level
             }
         }), 200
     except Exception as e:
@@ -176,28 +183,7 @@ def get_scan_history(local_user):
         }), 200
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
-    
 
-from app.models import UserDevice
-from app.models import db
-
-@user_api.route('/onesignal', methods=['POST'])
-@token_required
-def update_onesignal_id(local_user):
-    try:
-        data = request.get_json()
-        if not data or 'onesignal_id' not in data:
-            return jsonify({"status": "error", "message": "onesignal_id is required"}), 400
-        
-        local_user.onesignal_id = data['onesignal_id']
-        db.session.commit()
-        return jsonify({
-            "status": "success",
-            "message": "OneSignal ID updated successfully"
-        }), 200
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
-    
 @user_api.route('/onesignal', methods=['POST'])
 @token_required
 def register_device(local_user):
@@ -208,14 +194,15 @@ def register_device(local_user):
         
         onesignal_id = data['onesignal_id']
         
+        from app.models import UserDevice
         existing_device = UserDevice.query.filter_by(onesignal_id=onesignal_id).first()
         if existing_device:
             existing_device.user_id = local_user.id
         else:
             new_device = UserDevice()
-            new_device.id = uuid.uuid4() # type: ignore
-            new_device.user_id = local_user.id # type: ignore
-            new_device.onesignal_id = onesignal_id # type: ignore
+            new_device.id = uuid.uuid4()
+            new_device.user_id = local_user.id
+            new_device.onesignal_id = onesignal_id
             db.session.add(new_device)
         
         db.session.commit()
@@ -232,6 +219,7 @@ def unregister_device(local_user):
             return jsonify({"status": "error", "message": "onesignal_id is required"}), 400
         
         onesignal_id = data['onesignal_id']
+        from app.models import UserDevice
         device = UserDevice.query.filter_by(user_id=local_user.id, onesignal_id=onesignal_id).first()
         if device:
             db.session.delete(device)
@@ -239,4 +227,22 @@ def unregister_device(local_user):
         
         return jsonify({"status": "success", "message": "Device unregistered successfully"}), 200
     except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@user_api.route('/reset-progress', methods=['POST'])
+@token_required
+def reset_progress(local_user):
+    try:
+        db.session.query(ScanHistory).filter_by(user_id=local_user.id).delete()
+        db.session.query(UserQuizHistory).filter_by(user_id=local_user.id).delete()
+        db.session.query(UserFavorite).filter_by(user_id=local_user.id).delete()
+        
+        local_user.poin = 0
+        local_user.total_xp = 0
+        local_user.level = 1
+        
+        db.session.commit()
+        return jsonify({"status": "success", "message": "Progres akun berhasil di-reset seutuhnya!"}), 200
+    except Exception as e:
+        db.session.rollback()
         return jsonify({"status": "error", "message": str(e)}), 500
