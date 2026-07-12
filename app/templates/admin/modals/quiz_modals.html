@@ -12,12 +12,19 @@
                 <div class="modal-body p-4">
                     <div class="row g-3">
                         <div class="col-md-12">
-                            <label class="form-label-custom">Objek Budaya Terkait</label>
-                            <select name="culture_id" class="form-select form-control-custom" required>
-                                <option value="">Pilih Objek Sejarah/Budaya</option>
-                                {% for b in budaya %}
-                                <option value="{{ b.id }}">{{ b.nama_tempat }}</option>
-                                {% endfor %}
+                            <label class="form-label-custom">Objek Terkait Kuis</label>
+                            <select name="target_composite" class="form-select form-control-custom" required>
+                                <option value="">Pilih Target Objek...</option>
+                                <optgroup label="Jelajah Budaya">
+                                    {% for b in budaya %}
+                                    <option value="culture|{{ b.id }}">{{ b.nama_tempat }}</option>
+                                    {% endfor %}
+                                </optgroup>
+                                <optgroup label="AI Kuliner">
+                                    {% for f in food %}
+                                    <option value="food|{{ f.id }}">{{ f.nama_makanan }}</option>
+                                    {% endfor %}
+                                </optgroup>
                             </select>
                         </div>
                         <div class="col-12">
@@ -66,3 +73,80 @@
         </div>
     </div>
 </div>
+
+{% for q in quizzes %}
+<div class="modal fade" id="modalEditQuiz{{ q.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 24px;">
+            <div class="modal-header border-0 px-4 pt-4">
+                <div class="d-flex align-items-center">
+                    <div class="bg-orange-light p-2 rounded-3 me-3"><i class="fa fa-question-circle text-orange"></i></div>
+                    <h5 class="modal-title fw-800">Perbarui Soal Kuis</h5>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('admin_bp.update_quiz', id=q.id) }}" method="POST" enctype="multipart/form-data">
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label class="form-label-custom">Objek Terkait Kuis</label>
+                            <select name="target_composite" class="form-select form-control-custom" required>
+                                <optgroup label="Jelajah Budaya">
+                                    {% for b in budaya %}
+                                    <option value="culture|{{ b.id }}" {% if q.culture_id == b.id %}selected{% endif %}>{{ b.nama_tempat }}</option>
+                                    {% endfor %}
+                                </optgroup>
+                                <optgroup label="AI Kuliner">
+                                    {% for f in food %}
+                                    <option value="food|{{ f.id }}" {% if q.food_id == f.id %}selected{% endif %}>{{ f.nama_makanan }}</option>
+                                    {% endfor %}
+                                </optgroup>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label-custom">Pertanyaan Kuis</label>
+                            <textarea name="pertanyaan" class="form-control form-control-custom" rows="3" required>{{ q.pertanyaan }}</textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-custom">Opsi A</label>
+                            <input type="text" name="opsi_a" class="form-control form-control-custom" value="{{ q.opsi_jawaban.get('A', '') }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-custom">Opsi B</label>
+                            <input type="text" name="opsi_b" class="form-control form-control-custom" value="{{ q.opsi_jawaban.get('B', '') }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-custom">Opsi C</label>
+                            <input type="text" name="opsi_c" class="form-control form-control-custom" value="{{ q.opsi_jawaban.get('C', '') }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-custom">Opsi D</label>
+                            <input type="text" name="opsi_d" class="form-control form-control-custom" value="{{ q.opsi_jawaban.get('D', '') }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-custom">Jawaban Benar</label>
+                            <select name="jawaban_benar" class="form-select form-control-custom" required>
+                                <option value="A" {% if q.jawaban_benar == 'A' %}selected{% endif %}>A</option>
+                                <option value="B" {% if q.jawaban_benar == 'B' %}selected{% endif %}>B</option>
+                                <option value="C" {% if q.jawaban_benar == 'C' %}selected{% endif %}>C</option>
+                                <option value="D" {% if q.jawaban_benar == 'D' %}selected{% endif %}>D</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-custom">Poin Reward</label>
+                            <input type="number" name="poin_reward" class="form-control form-control-custom" value="{{ q.poin_reward }}" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label-custom">Ubah Gambar Kuis (Opsional)</label>
+                            <input type="file" name="quiz_image" class="form-control form-control-custom" accept="image/*">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button type="submit" class="btn btn-warning rounded-pill px-5 py-2 fw-bold text-white shadow-sm" style="background: var(--primary);">Update Kuis</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}

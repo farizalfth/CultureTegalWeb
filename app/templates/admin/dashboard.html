@@ -1,17 +1,42 @@
 {% extends 'layouts/admin_base.html' %}
 
 {% block content %}
-<div id="chart-data" class="d-none"
-     data-user-growth-labels="{{ user_growth_labels | tojson | forceescape }}"
-     data-user-growth-data="{{ user_growth_data | tojson | forceescape }}"
-     data-level-dist-labels="{{ level_dist_labels | tojson | forceescape }}"
-     data-level-dist-data="{{ level_dist_data | tojson | forceescape }}"
-     data-top-visited-labels="{{ top_visited_labels | tojson | forceescape }}"
-     data-top-visited-data="{{ top_visited_data | tojson | forceescape }}"
-     data-scrape-status-url="{{ url_for('admin_bp.get_scrape_status') }}"
-     data-scrape-trigger-url="{{ url_for('admin_bp.trigger_scrape') }}"></div>
+<div id="chart-data" class="d-none" data-user-growth-labels="{{ user_growth_labels | tojson | forceescape }}"
+    data-user-growth-data="{{ user_growth_data | tojson | forceescape }}"
+    data-level-dist-labels="{{ level_dist_labels | tojson | forceescape }}"
+    data-level-dist-data="{{ level_dist_data | tojson | forceescape }}"
+    data-top-visited-labels="{{ top_visited_labels | tojson | forceescape }}"
+    data-top-visited-data="{{ top_visited_data | tojson | forceescape }}"
+    data-scrape-status-url="{{ url_for('admin_bp.get_scrape_status') }}"
+    data-scrape-trigger-url="{{ url_for('admin_bp.trigger_scrape') }}"></div>
 
 <div id="dashboard" class="content-section active">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold m-0">Ikhtisar Sistem</h3>
+        <form method="GET" action="{{ url_for('admin_bp.admin_dashboard') }}#dashboard">
+            {% if request.args.get('filter_target_id') %}
+            <input type="hidden" name="filter_target_id" value="{{ request.args.get('filter_target_id') }}">
+            {% endif %}
+            {% if request.args.get('sort_review') %}
+            <input type="hidden" name="sort_review" value="{{ request.args.get('sort_review') }}">
+            {% endif %}
+            <select name="chart_filter"
+                class="form-select form-select-sm rounded-pill px-4 py-2 shadow-sm fw-bold border-0 bg-white"
+                onchange="this.form.submit()">
+                <option value="semua" {% if request.args.get('chart_filter')=='semua' %}selected{% endif %}>Semua Waktu
+                </option>
+                <option value="hari_ini" {% if request.args.get('chart_filter')=='hari_ini' %}selected{% endif %}>Hari
+                    Ini</option>
+                <option value="bulan_ini" {% if request.args.get('chart_filter')=='bulan_ini' %}selected{% endif %}>
+                    Bulan Ini</option>
+                <option value="6_bulan" {% if request.args.get('chart_filter')=='6_bulan' %}selected{% endif %}>6 Bulan
+                    Terakhir</option>
+                <option value="1_tahun" {% if request.args.get('chart_filter')=='1_tahun' %}selected{% endif %}>1 Tahun
+                    Terakhir</option>
+            </select>
+        </form>
+    </div>
+
     <div class="row g-4 mb-4">
         <div class="col-md-3">
             <div class="stat-card text-center">
@@ -46,13 +71,15 @@
     <div class="row g-4 mb-4">
         <div class="col-lg-8">
             <div class="admin-card p-4">
-                <h5 class="fw-bold mb-4 text-dark"><i class="fa fa-chart-line me-2 text-primary"></i> Tren Pertumbuhan Pengguna</h5>
+                <h5 class="fw-bold mb-4 text-dark"><i class="fa fa-chart-line me-2 text-primary"></i> Tren Pertumbuhan
+                    Pengguna</h5>
                 <div style="height: 300px;"><canvas id="userGrowthChart"></canvas></div>
             </div>
         </div>
         <div class="col-lg-4">
             <div class="admin-card p-4">
-                <h5 class="fw-bold mb-4 text-dark"><i class="fa fa-chart-pie me-2 text-warning"></i> Distribusi Level</h5>
+                <h5 class="fw-bold mb-4 text-dark"><i class="fa fa-chart-pie me-2 text-warning"></i> Distribusi Level
+                </h5>
                 <div style="height: 300px;"><canvas id="levelDistChart"></canvas></div>
             </div>
         </div>
@@ -61,7 +88,8 @@
     <div class="row g-4 mb-4">
         <div class="col-md-12">
             <div class="admin-card p-4">
-                <h5 class="fw-bold mb-4 text-dark"><i class="fa fa-fire me-2 text-danger"></i> Cagar Budaya Terpopuler (Check-in Pengguna)</h5>
+                <h5 class="fw-bold mb-4 text-dark"><i class="fa fa-fire me-2 text-danger"></i> Cagar Budaya Terpopuler
+                    (Check-in Pengguna)</h5>
                 <div style="height: 300px;"><canvas id="topVisitedChart"></canvas></div>
             </div>
         </div>
@@ -104,9 +132,9 @@
                                 {% if b.image_url %}
                                 <img src="{{ url_for('static', filename='uploads/' + b.image_url) }}"
                                     style="width: 100%; height: 100%; object-fit: cover;"
-                                    onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'70\' height=\'50\'><rect width=\'100%\' height=\'100%\' fill=\'%23eee\'/><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-size=\'10\' fill=\'%23999\'>No Image</text></svg>';">
+                                    onerror="this.onerror=null; this.src='https://placehold.co/100x100?text=No+Image';">
                                 {% else %}
-                                <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='70' height='50'><rect width='100%' height='100%' fill='%23eee'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='10' fill='%23999'>No Image</text></svg>"
+                                <img src="https://placehold.co/100x100?text=No+Image"
                                     style="width: 100%; height: 100%; object-fit: cover;">
                                 {% endif %}
                             </div>
@@ -163,8 +191,8 @@
                         <td class="ps-4">
                             <div class="shadow-sm border"
                                 style="width: 50px; height: 50px; border-radius: 10px; overflow: hidden;">
-                                <img src="{{ url_for('static', filename='uploads/' + e.image_url) if e.image_url else 'data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'50\' height=\'50\'><rect width=\'100%\' height=\'100%\' fill=\'%23eee\'/><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-size=\'8\' fill=\'%23999\'>No Image</text></svg>' }}"
-                                     onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'50\' height=\'50\'><rect width=\'100%\' height=\'100%\' fill=\'%23eee\'/><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-size=\'8\' fill=\'%23999\'>No Image</text></svg>';"
+                                <img src="{{ url_for('static', filename='uploads/' + e.image_url) if e.image_url else 'https://placehold.co/100x100?text=No+Image' }}"
+                                    onerror="this.onerror=null; this.src='https://placehold.co/100x100?text=No+Image';"
                                     style="width:100%; height:100%; object-fit:cover;">
                             </div>
                         </td>
@@ -218,9 +246,9 @@
                         <td class="ps-4">
                             <div class="shadow-sm border"
                                 style="width: 50px; height: 50px; border-radius: 10px; overflow: hidden;">
-                                <img src="{{ url_for('static', filename='uploads/' + u.image_url) if u.image_url else 'data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'50\' height=\'50\'><rect width=\'100%\' height=\'100%\' fill=\'%23eee\'/><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-size=\'8\' fill=\'%23999\'>No Image</text></svg>' }}"
+                                <img src="{{ url_for('static', filename='uploads/' + u.image_url) if u.image_url else 'https://placehold.co/100x100?text=No+Image' }}"
                                     style="width:100%; height:100%; object-fit:cover;"
-                                    onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'50\' height=\'50\'><rect width=\'100%\' height=\'100%\' fill=\'%23eee\'/><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-size=\'8\' fill=\'%23999\'>No Image</text></svg>';">
+                                    onerror="this.onerror=null; this.src='https://placehold.co/100x100?text=No+Image';">
                             </div>
                         </td>
                         <td><b>{{ u.nama_produk }}</b></td>
@@ -249,27 +277,34 @@
     <div class="admin-card">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h5 class="fw-800 m-0">Kelola Soal Kuis Sejarah</h5>
-            <button class="btn btn-warning rounded-pill px-4 shadow-sm" style="background: var(--primary); color: white;" data-bs-toggle="modal" data-bs-target="#modalAddQuiz"><i class="fa fa-plus me-2"></i> Tambah Kuis</button>
+            <button class="btn btn-warning rounded-pill px-4 shadow-sm"
+                style="background: var(--primary); color: white;" data-bs-toggle="modal"
+                data-bs-target="#modalAddQuiz"><i class="fa fa-plus me-2"></i> Tambah Kuis</button>
         </div>
         <div class="table-responsive">
             <table class="table table-custom">
                 <thead>
                     <tr>
-                        <th>Pertanyaan</th>
+                        <th class="ps-4">Pertanyaan</th>
                         <th>Jawaban Benar</th>
                         <th>Poin Reward</th>
-                        <th>Aksi</th>
+                        <th class="text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for q in quizzes %}
                     <tr>
-                        <td class="fw-bold">{{ q.pertanyaan }}</td>
+                        <td class="ps-4 fw-bold">{{ q.pertanyaan }}</td>
                         <td><span class="badge bg-success">{{ q.jawaban_benar }}</span></td>
                         <td class="fw-bold text-orange">+{{ q.poin_reward }} Poin</td>
-                        <td>
+                        <td class="text-center">
                             <div class="btn-crud-group">
-                                <a href="{{ url_for('admin_bp.delete_quiz', id=q.id) }}" class="btn-action btn-delete text-decoration-none"><i class="fa fa-trash"></i></a>
+                                <button class="btn-action btn-edit" data-bs-toggle="modal"
+                                    data-bs-target="#modalEditQuiz{{ q.id }}"><i class="fa fa-edit"></i></button>
+                                <button class="btn-action btn-delete btn-delete-quiz-trigger" type="button"
+                                    data-url="{{ url_for('admin_bp.delete_quiz', id=q.id) }}" data-name="Kuis ini">
+                                    <i class="fa fa-trash"></i>
+                                </button>
                             </div>
                         </td>
                     </tr>
@@ -283,36 +318,42 @@
 <div id="badges" class="content-section">
     <div class="admin-card">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h5 class="fw-800 m-0">Kelola Lencana Gamifikasi</h5>
-            <button class="btn btn-warning rounded-pill px-4 shadow-sm" style="background: var(--primary); color: white;" data-bs-toggle="modal" data-bs-target="#modalAddBadge"><i class="fa fa-plus me-2"></i> Tambah Lencana</button>
+            <h5 class="fw-800 m-0">Manajemen Lencana & Misi</h5>
+            <button class="btn btn-warning rounded-pill px-4 shadow-sm"
+                style="background: var(--primary); color: white;" data-bs-toggle="modal"
+                data-bs-target="#addBadgeModal"><i class="fa fa-plus me-2"></i> Tambah Lencana</button>
         </div>
-        <div class="table-responsive">
-            <table class="table table-custom">
-                <thead>
-                    <tr>
-                        <th>Foto</th>
-                        <th>Nama Lencana</th>
-                        <th>Deskripsi Syarat</th>
-                        <th>Syarat Poin</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for b in badges %}
-                    <tr>
-                        <td><img src="{{ url_for('static', filename='uploads/' + b.image_url) if b.image_url else 'data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'50\' height=\'50\'><rect width=\'100%\' height=\'100%\' fill=\'%23eee\'/><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-size=\'8\' fill=\'%23999\'>No Image</text></svg>' }}" class="img-table" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'50\' height=\'50\'><rect width=\'100%\' height=\'100%\' fill=\'%23eee\'/><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-size=\'8\' fill=\'%23999\'>No Image</text></svg>';"></td>
-                        <td class="fw-bold">{{ b.nama_badge }}</td>
-                        <td>{{ b.deskripsi }}</td>
-                        <td class="fw-bold text-orange">{{ b.syarat_poin }} Poin</td>
-                        <td>
-                            <div class="btn-crud-group">
-                                <a href="{{ url_for('admin_bp.delete_badge', id=b.id) }}" class="btn-action btn-delete text-decoration-none"><i class="fa fa-trash"></i></a>
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <div class="row g-3">
+            {% for b in badges %}
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden" style="background: #fdfdfd;">
+                    <div class="card-body p-4 text-center">
+                        <img src="{{ url_for('static', filename='uploads/' + b.image_url) }}" class="mb-3"
+                            style="width: 80px; height: 80px; object-fit: contain;"
+                            onerror="this.src='https://placehold.co/80x80?text=Badge'">
+                        <h5 class="fw-bold mb-1 text-dark">{{ b.nama_badge }}</h5>
+                        <p class="text-muted small mb-3">{{ b.deskripsi }}</p>
+                        <div
+                            class="badge bg-light text-primary border border-primary-subtle rounded-pill px-3 py-2 mb-3">
+                            + {{ b.syarat_poin }} Poin Reward
+                        </div>
+                        <div class="d-flex gap-2 justify-content-center">
+                            <button
+                                class="btn btn-sm btn-outline-warning rounded-pill px-3 fw-bold btn-edit-badge-trigger"
+                                data-id="{{ b.id }}" data-nama="{{ b.nama_badge }}" data-desc="{{ b.deskripsi }}"
+                                data-poin="{{ b.syarat_poin }}">
+                                <i class="fas fa-edit me-1"></i>Edit
+                            </button>
+                            <a href="{{ url_for('admin_bp.delete_badge', id=b.id) }}"
+                                class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-bold"
+                                onclick="return confirm('Apakah Anda yakin ingin menghapus lencana ini secara permanen?')">
+                                <i class="fas fa-trash me-1"></i>Hapus
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
         </div>
     </div>
 </div>
@@ -321,27 +362,34 @@
     <div class="admin-card">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h5 class="fw-800 m-0">Kelola Metadata Kuliner AI</h5>
-            <button class="btn btn-warning rounded-pill px-4 shadow-sm" style="background: var(--primary); color: white;" data-bs-toggle="modal" data-bs-target="#modalAddFoodMetadata"><i class="fa fa-plus me-2"></i> Tambah Metadata</button>
+            <button class="btn btn-warning rounded-pill px-4 shadow-sm"
+                style="background: var(--primary); color: white;" data-bs-toggle="modal"
+                data-bs-target="#modalAddFoodMetadata"><i class="fa fa-plus me-2"></i> Tambah Metadata</button>
         </div>
         <div class="table-responsive">
             <table class="table table-custom">
                 <thead>
                     <tr>
-                        <th>Label AI</th>
+                        <th class="ps-4">Label AI</th>
                         <th>Nama Kuliner</th>
                         <th>Deskripsi Resep</th>
-                        <th>Aksi</th>
+                        <th class="text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for f in food %}
                     <tr>
-                        <td class="fw-bold text-orange">{{ f.label_key }}</td>
+                        <td class="ps-4 fw-bold text-orange">{{ f.label_key }}</td>
                         <td class="fw-bold">{{ f.nama_makanan }}</td>
                         <td>{{ f.deskripsi[:120] }}...</td>
-                        <td>
+                        <td class="text-center">
                             <div class="btn-crud-group">
-                                <a href="{{ url_for('admin_bp.delete_food_metadata', id=f.id) }}" class="btn-action btn-delete text-decoration-none"><i class="fa fa-trash"></i></a>
+                                <button class="btn-action btn-edit" data-bs-toggle="modal"
+                                    data-bs-target="#editFoodModal{{ f.id }}"><i class="fa fa-edit"></i></button>
+                                <a href="{{ url_for('admin_bp.delete_food_metadata', id=f.id) }}"
+                                    class="btn-action btn-delete text-decoration-none"
+                                    onclick="return confirm('Apakah Anda yakin ingin menghapus metadata makanan ini secara permanen?')"><i
+                                        class="fa fa-trash"></i></a>
                             </div>
                         </td>
                     </tr>
@@ -356,7 +404,9 @@
     <div class="admin-card">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h5 class="fw-800 m-0">Kelola Berita Tegal</h5>
-            <button class="btn btn-warning rounded-pill px-4 shadow-sm" style="background: var(--primary); color: white;" data-bs-toggle="modal" data-bs-target="#modalAddNews"><i class="fa fa-plus me-2"></i> Terbitkan Berita</button>
+            <button class="btn btn-warning rounded-pill px-4 shadow-sm"
+                style="background: var(--primary); color: white;" data-bs-toggle="modal"
+                data-bs-target="#modalAddNews"><i class="fa fa-plus me-2"></i> Terbitkan Berita</button>
         </div>
         <div class="table-responsive">
             <table class="table table-custom mb-0">
@@ -373,23 +423,29 @@
                     {% for n in news_list_admin %}
                     <tr>
                         <td class="ps-4">
-                            <div class="img-wrapper shadow-sm border" style="width: 70px; height: 50px; border-radius: 12px; overflow: hidden; background: #eee;">
+                            <div class="img-wrapper shadow-sm border"
+                                style="width: 70px; height: 50px; border-radius: 12px; overflow: hidden; background: #eee;">
                                 {% if n.image_url %}
-                                <img src="{{ url_for('static', filename='uploads/' + n.image_url) }}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'70\' height=\'50\'><rect width=\'100%\' height=\'100%\' fill=\'%23eee\'/><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-size=\'10\' fill=\'%23999\'>No Image</text></svg>';">
+                                <img src="{{ url_for('static', filename='uploads/' + n.image_url) }}"
+                                    style="width: 100%; height: 100%; object-fit: cover;"
+                                    onerror="this.onerror=null; this.src='https://placehold.co/100x100?text=No+Image';">
                                 {% else %}
-                                <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='70' height='50'><rect width='100%' height='100%' fill='%23eee'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='10' fill='%23999'>No Image</text></svg>" style="width: 100%; height: 100%; object-fit: cover;">
+                                <img src="https://placehold.co/100x100?text=No+Image"
+                                    style="width: 100%; height: 100%; object-fit: cover;">
                                 {% endif %}
                             </div>
                         </td>
-                        <td><div class="fw-bold text-dark">{{ n.judul }}</div></td>
+                        <td>
+                            <div class="fw-bold text-dark">{{ n.judul }}</div>
+                        </td>
                         <td><span class="badge bg-orange-light text-orange">{{ n.kategori }}</span></td>
                         <td><span class="small fw-bold text-dark">{{ n.tanggal }}</span></td>
                         <td class="text-center">
                             <div class="btn-crud-group">
-                                <button class="btn-action btn-edit" data-bs-toggle="modal" data-bs-target="#modalEditNews{{ n.id }}"><i class="fa fa-edit"></i></button>
+                                <button class="btn-action btn-edit" data-bs-toggle="modal"
+                                    data-bs-target="#modalEditNews{{ n.id }}"><i class="fa fa-edit"></i></button>
                                 <button class="btn-action btn-delete btn-delete-news-trigger" type="button"
-                                        data-url="{{ url_for('admin_bp.delete_news', id=n.id) }}"
-                                        data-name="{{ n.judul }}">
+                                    data-url="{{ url_for('admin_bp.delete_news', id=n.id) }}" data-name="{{ n.judul }}">
                                     <i class="fa fa-trash"></i>
                                 </button>
                             </div>
@@ -403,110 +459,145 @@
 </div>
 
 <div id="scraper" class="content-section">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="fw-bold m-0">Pemasok Big Data Google Maps</h3>
-        <button class="btn btn-warning rounded-pill px-4 fw-bold text-white shadow-sm border-0"
-            style="background: var(--primary)" data-bs-toggle="modal" data-bs-target="#modalAddScrapeTarget">
-            <i class="fa fa-plus me-2"></i> Tambah Link Target
-        </button>
-    </div>
-    
-    <div class="row g-4">
-        <div class="col-lg-4">
-            <div class="admin-card p-4 border-start border-5 border-warning mb-4">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="bg-orange-light p-2 rounded-3 me-3"><i class="fa fa-robot text-orange"></i></div>
-                    <h5 class="fw-bold m-0 text-dark">Kontrol Scraper Aktif</h5>
-                </div>
-                <p class="text-muted small">Pemicu penarikan ulasan Google Maps secara manual. Proses berjalan di latar belakang.</p>
-                
-                <div id="scrapeProgressContainer" class="d-none mb-4 p-3 bg-light rounded-4 border">
-                    <div class="d-flex justify-content-between mb-2">
-                        <span class="small fw-bold text-primary" id="scrapeStatusText">Memulai...</span>
-                        <span class="small fw-bold text-dark" id="scrapePercentText">0%</span>
-                    </div>
-                    <div class="progress mb-3" style="height: 12px; border-radius: 6px; overflow: hidden;">
-                        <div id="scrapeProgressBar" class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar" style="width: 0%"></div>
-                    </div>
-                    
-                    <div id="scrapeTerminalBox" class="d-none rounded-4 overflow-hidden border" style="border-color: #334155;">
-                        <div class="bg-dark px-3 py-2 d-flex align-items-center gap-1" style="border-bottom: 1px solid #334155;">
-                            <span style="width: 8px; height: 8px; border-radius: 50%; background: #ef4444; display: inline-block;"></span>
-                            <span style="width: 8px; height: 8px; border-radius: 50%; background: #f59e0b; display: inline-block;"></span>
-                            <span style="width: 8px; height: 8px; border-radius: 50%; background: #10b981; display: inline-block;"></span>
-                            <span class="text-secondary ms-2" style="font-family: monospace; font-size: 0.65rem;">live_console.log</span>
-                        </div>
-                        <div class="p-3 bg-dark text-success" style="font-family: 'Courier New', Courier, monospace; font-size: 0.75rem; max-height: 180px; overflow-y: auto; background-color: #0f172a !important;">
-                            <div id="scrapeTerminalLogs"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <button type="button" id="btnTriggerScrape" class="btn btn-warning w-100 rounded-pill py-2 fw-bold text-white shadow-sm border-0" style="background: var(--primary);">
-                    <i class="fa fa-play me-2"></i> Ambil Ulasan Sekarang
+    <div class="admin-card">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="fw-800 m-0">Pemasok Big Data Google Maps</h5>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-danger rounded-pill px-4" onclick="clearMongoDB()">
+                    <i class="fas fa-trash-alt me-2"></i>Kosongkan Database
+                </button>
+                <button class="btn btn-warning rounded-pill px-4 fw-bold text-white shadow-sm border-0"
+                    style="background: var(--primary)" data-bs-toggle="modal" data-bs-target="#modalAddScrapeTarget">
+                    <i class="fa fa-plus me-2"></i> Tambah Link Target
                 </button>
             </div>
         </div>
-        <div class="col-lg-8">
-            <div class="admin-card p-0 overflow-hidden">
-                <div class="table-responsive">
-                    <table class="table table-custom mb-0">
-                        <thead>
-                            <tr>
-                                <th class="ps-4">Target Lokasi</th>
-                                <th>Batas Ulasan</th>
-                                <th>URL Peta Google Maps</th>
-                                <th class="text-center">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for t in scrape_targets %}
-                            <tr>
-                                <td class="ps-4"><b>{{ t.nama_tempat }}</b></td>
-                                <td><span class="badge bg-primary-subtle text-dark border">{{ t.max_reviews }} Ulasan</span></td>
-                                <td class="small"><code class="text-truncate d-inline-block" style="max-width: 240px;">{{ t.url_maps }}</code></td>
-                                <td class="text-center">
-                                    <div class="btn-crud-group">
-                                        <button class="btn-action btn-delete btn-delete-target-trigger" type="button"
-                                            data-url="{{ url_for('admin_bp.delete_scrape_target', id=t.id) }}"
-                                            data-name="{{ t.nama_tempat }}">
-                                            <i class="fa fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="admin-card p-4 border-start border-5 border-warning mb-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-orange-light p-2 rounded-3 me-3"><i class="fa fa-robot text-orange"></i></div>
+                        <h5 class="fw-bold m-0 text-dark">Kontrol Scraper Aktif</h5>
+                    </div>
+                    <p class="text-muted small">Pemicu penarikan ulasan Google Maps secara manual. Proses berjalan di
+                        latar belakang.</p>
+
+                    <div id="scrapeProgressContainer" class="d-none mb-4 p-3 bg-light rounded-4 border">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="small fw-bold text-primary" id="scrapeStatusText">Memulai...</span>
+                            <span class="small fw-bold text-dark" id="scrapePercentText">0%</span>
+                        </div>
+                        <div class="progress mb-3" style="height: 12px; border-radius: 6px; overflow: hidden;">
+                            <div id="scrapeProgressBar"
+                                class="progress-bar progress-bar-striped progress-bar-animated bg-primary"
+                                role="progressbar" style="width: 0%"></div>
+                        </div>
+
+                        <div id="scrapeTerminalBox" class="d-none rounded-4 overflow-hidden border"
+                            style="border-color: #334155;">
+                            <div class="bg-dark px-3 py-2 d-flex align-items-center gap-1"
+                                style="border-bottom: 1px solid #334155;">
+                                <span
+                                    style="width: 8px; height: 8px; border-radius: 50%; background: #ef4444; display: inline-block;"></span>
+                                <span
+                                    style="width: 8px; height: 8px; border-radius: 50%; background: #f59e0b; display: inline-block;"></span>
+                                <span
+                                    style="width: 8px; height: 8px; border-radius: 50%; background: #10b981; display: inline-block;"></span>
+                                <span class="text-secondary ms-2"
+                                    style="font-family: monospace; font-size: 0.65rem;">live_console.log</span>
+                            </div>
+                            <div class="p-3 bg-dark text-success"
+                                style="font-family: 'Courier New', Courier, monospace; font-size: 0.75rem; max-height: 180px; overflow-y: auto; background-color: #0f172a !important;">
+                                <div id="scrapeTerminalLogs"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button" id="btnTriggerScrape"
+                        class="btn btn-warning w-100 rounded-pill py-2 fw-bold text-white shadow-sm border-0"
+                        style="background: var(--primary);">
+                        <i class="fa fa-play me-2"></i> Ambil Ulasan Sekarang
+                    </button>
+                </div>
+            </div>
+            <div class="col-lg-8">
+                <div class="admin-card p-0 overflow-hidden">
+                    <div class="table-responsive">
+                        <table class="table table-custom mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="ps-4">Target Lokasi</th>
+                                    <th>Batas Ulasan</th>
+                                    <th>URL Peta Google Maps</th>
+                                    <th class="text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for t in scrape_targets %}
+                                <tr>
+                                    <td class="ps-4"><b>{{ t.nama_tempat }}</b></td>
+                                    <td><span class="badge bg-primary-subtle text-dark border">{{ t.max_reviews }}
+                                            Ulasan</span></td>
+                                    <td class="small"><code class="text-truncate d-inline-block"
+                                            style="max-width: 240px;">{{ t.url_maps }}</code></td>
+                                    <td class="text-center">
+                                        <div class="btn-crud-group">
+                                            <button class="btn-action btn-edit" data-bs-toggle="modal"
+                                                data-bs-target="#modalEditScrapeTarget{{ t.id }}"><i
+                                                    class="fa fa-edit"></i></button>
+                                            <button class="btn-action btn-delete btn-delete-target-trigger"
+                                                type="button"
+                                                data-url="{{ url_for('admin_bp.delete_scrape_target', id=t.id) }}"
+                                                data-name="{{ t.nama_tempat }}">
+                                                <i class="fa fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="admin-card p-4 mt-4">
+        <hr class="my-5 opacity-25">
+
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div class="d-flex align-items-center">
                 <div class="bg-orange-light p-2 rounded-3 me-3"><i class="fa fa-database text-orange"></i></div>
                 <h5 class="fw-bold m-0 text-dark">Hasil Scraping Terbaru (MongoDB Cloud)</h5>
             </div>
-            
-            <div class="d-flex gap-2 align-items-center">
-                <select name="filter_target_id" class="form-select form-select-sm rounded-pill px-3" style="width: 180px;">
+
+            <form class="d-flex gap-2 align-items-center" method="GET"
+                action="{{ url_for('admin_bp.admin_dashboard') }}#scraper">
+                {% if request.args.get('chart_filter') %}
+                <input type="hidden" name="chart_filter" value="{{ request.args.get('chart_filter') }}">
+                {% endif %}
+                <select name="filter_target_id" class="form-select form-select-sm rounded-pill px-3"
+                    style="width: 180px;" onchange="this.form.submit()">
                     <option value="semua">Semua Lokasi</option>
                     {% for t in scrape_targets %}
-                    <option value="{{ t.target_id }}" {% if request.args.get('filter_target_id') == t.target_id | string %}selected{% endif %}>{{ t.nama_tempat }}</option>
+                    <option value="{{ t.target_id }}" {% if request.args.get('filter_target_id')==t.target_id | string
+                        %}selected{% endif %}>{{ t.nama_tempat }}</option>
                     {% endfor %}
                 </select>
-                
-                <select name="sort_review" class="form-select form-select-sm rounded-pill px-3" style="width: 160px;">
-                    <option value="terbaru" {% if request.args.get('sort_review') == 'terbaru' %}selected{% endif %}>Terbaru</option>
-                    <option value="terlama" {% if request.args.get('sort_review') == 'terlama' %}selected{% endif %}>Terlama</option>
-                    <option value="rating_tinggi" {% if request.args.get('sort_review') == 'rating_tinggi' %}selected{% endif %}>Rating Tertinggi</option>
-                    <option value="rating_rendah" {% if request.args.get('sort_review') == 'rating_rendah' %}selected{% endif %}>Rating Terendah</option>
+                <select name="sort_review" class="form-select form-select-sm rounded-pill px-3" style="width: 160px;"
+                    onchange="this.form.submit()">
+                    <option value="terbaru" {% if request.args.get('sort_review')=='terbaru' %}selected{% endif %}>
+                        Terbaru</option>
+                    <option value="terlama" {% if request.args.get('sort_review')=='terlama' %}selected{% endif %}>
+                        Terlama</option>
+                    <option value="rating_tinggi" {% if request.args.get('sort_review')=='rating_tinggi' %}selected{%
+                        endif %}>Rating Tertinggi</option>
+                    <option value="rating_rendah" {% if request.args.get('sort_review')=='rating_rendah' %}selected{%
+                        endif %}>Rating Terendah</option>
                 </select>
-            </div>
+            </form>
         </div>
-        
+
         <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
             <table class="table table-custom mb-0">
                 <thead>
@@ -530,12 +621,16 @@
                             </span>
                         </td>
                         <td class="small text-muted">{{ r.Waktu }}</td>
-                        <td class="small"><div class="text-truncate" style="max-width: 250px;" title="{{ r.Ulasan }}">{{ r.Ulasan }}</div></td>
+                        <td class="small">
+                            <div class="text-truncate" style="max-width: 250px;" title="{{ r.Ulasan }}">{{ r.Ulasan }}
+                            </div>
+                        </td>
                         <td class="small text-muted">{{ r.Tanggal_Scraping }}</td>
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="6" class="text-center text-muted py-4">Belum ada data ulasan tersimpan di MongoDB.</td>
+                        <td colspan="6" class="text-center text-muted py-4">Belum ada data ulasan tersimpan di MongoDB.
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -594,7 +689,7 @@
                                     data-bs-target="#modalEditUser{{ user.id }}">
                                     <i class="fa fa-cog"></i>
                                 </button>
-                                <button class="btn-action btn-delete btn-delete-user" type="button"
+                                <button class="btn-action btn-delete btn-delete-user-trigger" type="button"
                                     data-url="{{ url_for('admin_bp.delete_user', id=user.id) }}"
                                     data-name="{{ user.nama }}">
                                     <i class="fa fa-trash"></i>
@@ -732,7 +827,26 @@
 
 {% block scripts %}
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
+    function confirmDelete(url, name) {
+        if (confirm('Apakah Anda yakin ingin menghapus ' + name + ' secara permanen?')) {
+            window.location.href = url;
+        }
+    }
+
+    function clearMongoDB() {
+        if (!confirm('PERINGATAN: Tindakan ini akan MENGHAPUS SEMUA (500+) data ulasan di MongoDB Atlas secara permanen. Lanjutkan?')) return;
+        fetch("{{ url_for('admin_bp.clear_scrape_data') }}", {
+            method: "POST"
+        })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                if (data.status === 'success') window.location.reload();
+            })
+            .catch(error => alert("Terjadi kesalahan sistem."));
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
         const dataEl = document.getElementById('chart-data');
         if (!dataEl) return;
 
@@ -815,7 +929,7 @@
         const percentText = document.getElementById('scrapePercentText');
         const terminalBox = document.getElementById('scrapeTerminalBox');
         const terminalLogs = document.getElementById('scrapeTerminalLogs');
-        
+
         let intervalId = null;
         let lastStatus = "";
 
@@ -833,7 +947,7 @@
                                 btnTrigger.disabled = true;
                                 btnTrigger.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Scraping...';
                             }
-                            
+
                             const percent = data.total > 0 ? Math.round((data.current / data.total) * 100) : 0;
                             if (progressBar) progressBar.style.width = percent + '%';
                             if (percentText) percentText.innerText = percent + '%';
@@ -865,11 +979,11 @@
                         }
                     }
                 })
-                .catch(() => {});
+                .catch(() => { });
         }
 
         if (btnTrigger && triggerUrl) {
-            btnTrigger.addEventListener('click', function() {
+            btnTrigger.addEventListener('click', function () {
                 fetch(triggerUrl, { method: 'POST' })
                     .then(response => response.json())
                     .then(res => {
@@ -881,7 +995,7 @@
                             intervalId = setInterval(checkStatus, 3000);
                         }
                     })
-                    .catch(() => {});
+                    .catch(() => { });
             });
         }
 
@@ -894,12 +1008,12 @@
                         intervalId = setInterval(checkStatus, 3000);
                     }
                 })
-                .catch(() => {});
+                .catch(() => { });
         }
 
         const filterSelect = document.querySelector('select[name="filter_target_id"]');
         const sortSelect = document.querySelector('select[name="sort_review"]');
-        
+
         function applyFilters() {
             const filterVal = filterSelect ? filterSelect.value : 'semua';
             const sortVal = sortSelect ? sortSelect.value : 'terbaru';
@@ -914,6 +1028,24 @@
         }
 
         document.addEventListener('click', function (e) {
+            const btnEditBadge = e.target.closest('.btn-edit-badge-trigger');
+            if (btnEditBadge) {
+                const id = btnEditBadge.getAttribute('data-id');
+                const nama = btnEditBadge.getAttribute('data-nama');
+                const desc = btnEditBadge.getAttribute('data-desc');
+                const poin = btnEditBadge.getAttribute('data-poin');
+
+                const form = document.getElementById('editBadgeForm');
+                form.action = `/appadministrator/admin/update_badge/${id}`;
+
+                document.getElementById('edit_badge_nama').value = nama;
+                document.getElementById('edit_badge_desc').value = desc;
+                document.getElementById('edit_badge_poin').value = poin;
+
+                const editModal = new bootstrap.Modal(document.getElementById('editBadgeModal'));
+                editModal.show();
+            }
+
             const delUMKM = e.target.closest('.btn-delete-umkm-trigger');
             if (delUMKM) {
                 const url = delUMKM.getAttribute('data-url');
@@ -946,6 +1078,20 @@
             if (delNews) {
                 const url = delNews.getAttribute('data-url');
                 const name = delNews.getAttribute('data-name');
+                confirmDelete(url, name);
+            }
+
+            const delUser = e.target.closest('.btn-delete-user-trigger');
+            if (delUser) {
+                const url = delUser.getAttribute('data-url');
+                const name = delUser.getAttribute('data-name');
+                confirmDelete(url, name);
+            }
+
+            const delQuiz = e.target.closest('.btn-delete-quiz-trigger');
+            if (delQuiz) {
+                const url = delQuiz.getAttribute('data-url');
+                const name = delQuiz.getAttribute('data-name');
                 confirmDelete(url, name);
             }
         });

@@ -165,6 +165,7 @@ class Quiz(db.Model):
     __tablename__ = 'quizzes'
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     culture_id = db.Column(UUID(as_uuid=True), db.ForeignKey('culture_sites.id'), nullable=True)
+    food_id = db.Column(UUID(as_uuid=True), db.ForeignKey('food_metadata.id', ondelete='SET NULL'), nullable=True)
     pertanyaan = db.Column(db.Text, nullable=False)
     image_url = db.Column(db.String(255), nullable=True)
     opsi_jawaban = db.Column(JSONB, nullable=False)

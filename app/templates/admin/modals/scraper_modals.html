@@ -52,3 +52,36 @@
         </div>
     </div>
 </div>
+
+{% for t in scrape_targets %}
+<div class="modal fade" id="modalEditScrapeTarget{{ t.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 24px;">
+            <div class="modal-header border-0 px-4 pt-4">
+                <div class="d-flex align-items-center">
+                    <div class="bg-orange-light p-2 rounded-3 me-3"><i class="fa fa-robot text-orange"></i></div>
+                    <h5 class="modal-title fw-800">Edit Target Scraper</h5>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form action="{{ url_for('admin_bp.update_scrape_target', id=t.id) }}" method="POST">
+                    <div class="mb-3">
+                        <label class="form-label-custom">Target Lokasi</label>
+                        <input type="text" class="form-control form-control-custom bg-light" value="{{ t.nama_tempat }}" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label-custom">URL Google Maps (Tab Reviews)</label>
+                        <input type="url" name="url_maps" class="form-control form-control-custom" value="{{ t.url_maps }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label-custom">Batas Maksimal Ulasan Berteks</label>
+                        <input type="number" name="max_reviews" class="form-control form-control-custom" value="{{ t.max_reviews }}" min="10" max="500" required>
+                    </div>
+                    <button type="submit" class="btn btn-warning w-100 rounded-pill py-2 fw-bold text-white shadow-sm border-0" style="background: var(--primary);">Update Target</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}

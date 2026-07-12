@@ -246,3 +246,65 @@ def reset_progress(local_user):
     except Exception as e:
         db.session.rollback()
         return jsonify({"status": "error", "message": str(e)}), 500
+    
+@user_api.route('/claim-badge', methods=['POST'])
+@token_required
+def claim_action_badge(local_user):
+    try:
+        data = request.get_json()
+        if not data or 'badge_name' not in data:
+            return jsonify({"status": "error", "message": "badge_name is required"}), 400
+            
+        badge_name = data['badge_name']
+        
+        from app.models import Badge, UserBadge
+        badge = Badge.query.filter_by(nama_badge=badge_name).first()
+        
+        if not badge:
+            return jsonify({"status": "error", "message": "Lencana tidak ditemukan"}), 404
+            
+        existing = UserBadge.query.filter_by(user_id=local_user.id, badge_id=badge.id).first()
+        if existing:
+            return jsonify({"status": "success", "message": "Lencana sudah diklaim sebelumnya"}), 200
+            
+        new_user_badge = UserBadge(
+            user_id=local_user.id, # type: ignore
+            badge_id=badge.id # type: ignore
+        )
+        db.session.add(new_user_badge)
+        
+        local_user.poin += badge.syarat_poin
+        local_user.total_xp += badge.syarat_poin
+        calculated_level = (local_user.poin // 1000) + 1
+        if calculated_level > local_user.level:
+            local_user.level = calculated_level
+            
+        db.session.commit()
+        
+        return jsonify({
+            "status": "success", 
+            "message": f"Lencana {badge_name} berhasil dibuka!",
+            "data": {
+                "points_earned": badge.syarat_poin,
+                "current_points": local_user.poin
+            }
+        }), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"status": "error", "message": str(e)}), 500
+    
+
+@user_api.route('/delete-account', methods=['DELETE'])
+@token_required
+def self_delete_account(local_user):
+    try:
+        from app.services.auth_service import supabase
+        supabase.auth.admin.delete_user(str(local_user.id))
+        
+        db.session.delete(local_user)
+        db.session.commit()
+        return jsonify({"status": "success", "message": "Akun berhasil dihapus secara permanen"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"status": "error", "message": str(e)}), 500

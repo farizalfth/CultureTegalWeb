@@ -10,6 +10,7 @@ class Config:
     JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY')
     SUPABASE_URL = os.getenv('SUPABASE_URL')
     SUPABASE_SECRET_KEY = os.getenv('SUPABASE_SECRET_KEY')
+    MONGO_URI = os.getenv('MONGO_URI')
     
     PERMANENT_SESSION_LIFETIME = timedelta(hours=1)
 

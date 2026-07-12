@@ -1,3 +1,4 @@
+import os
 from flask import Blueprint, jsonify, request
 from app.models import Review
 from app.services.umkm_service import UMKMService
@@ -167,3 +168,18 @@ def get_umkm_reviews(current_user, umkm_id):
             "message": "Terjadi kesalahan internal pada server",
             "error": str(e)
         }), 500
+
+@umkm_v1_bp.route('/wordcloud/<string:name>', methods=['GET'])
+@token_required
+def get_umkm_wordcloud(current_user, name):
+    try:
+        mongo_uri = os.getenv('MONGO_URI')
+        from app.services.scraper_service import ScraperService
+        
+        data = ScraperService.get_word_frequencies(name, mongo_uri)
+        return jsonify({
+            "status": "success",
+            "data": data
+        }), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500

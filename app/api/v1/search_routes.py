@@ -1,5 +1,7 @@
-from flask import Blueprint, request, jsonify
+import os
+from flask import Blueprint, request, jsonify, current_app
 from app.services.search_service import SearchService
+from app.services.scraper_service import ScraperService
 from app.services.auth_service import token_required
 
 search_bp = Blueprint('search_bp', __name__)
@@ -27,3 +29,21 @@ def search_map(current_user):
         "status": "success",
         "data": results
     }), 200
+
+@search_bp.route('/public-analytics', methods=['GET'])
+@token_required
+def public_analytics(current_user):
+    try:
+        mongo_uri = os.getenv('MONGO_URI')
+        location = request.args.get('location', 'global_all')
+        
+        data = ScraperService.get_global_analytics(location, mongo_uri)
+        wordcloud = ScraperService.get_word_frequencies(location, mongo_uri)
+        data['wordcloud'] = wordcloud
+        
+        return jsonify({
+            "status": "success",
+            "data": data
+        }), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500

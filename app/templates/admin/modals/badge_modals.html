@@ -1,36 +1,65 @@
-<div class="modal fade" id="modalAddBadge" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-md modal-dialog-centered">
-        <div class="modal-content" style="border-radius: 24px;">
-            <div class="modal-header border-0 px-4 pt-4">
-                <div class="d-flex align-items-center">
-                    <div class="bg-orange-light p-2 rounded-3 me-3"><i class="fa fa-trophy text-orange"></i></div>
-                    <h5 class="modal-title fw-800">Daftarkan Lencana Baru</h5>
-                </div>
+<div class="modal fade" id="addBadgeModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow rounded-4">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="fw-bold">Daftarkan Lencana Baru</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form action="{{ url_for('admin_bp.add_badge') }}" method="POST" enctype="multipart/form-data">
                 <div class="modal-body p-4">
-                    <div class="row g-3">
-                        <div class="col-md-12">
-                            <label class="form-label-custom">Nama Lencana (Badge)</label>
-                            <input type="text" name="nama_badge" class="form-control form-control-custom" placeholder="Penjelajah Pantai" required>
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label-custom">Deskripsi Syarat Kelayakan</label>
-                            <textarea name="deskripsi" class="form-control form-control-custom" rows="3" placeholder="Selesaikan kuis di Pantai Alam Indah" required></textarea>
-                        </div>
-                        <div class="col-md-12">
-                            <label class="form-label-custom">Syarat Ambang Batas Poin Budaya</label>
-                            <input type="number" name="syarat_poin" class="form-control form-control-custom" placeholder="500" required>
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label-custom">Ikon Gambar Lencana</label>
-                            <input type="file" name="badge_image" class="form-control form-control-custom" accept="image/*" required>
-                        </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Nama Lencana Misi</label>
+                        <input type="text" name="nama_badge" class="form-control rounded-3" placeholder="Contoh: Kelelawar Malam" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Poin Reward (Didapatkan)</label>
+                        <input type="number" name="syarat_poin" class="form-control rounded-3" placeholder="Contoh: 50" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Icon Lencana (PNG)</label>
+                        <input type="file" name="badge_image" class="form-control rounded-3" required>
+                    </div>
+                    <div class="mb-0">
+                        <label class="form-label small fw-bold">Deskripsi Misi</label>
+                        <textarea name="deskripsi" class="form-control rounded-3" rows="3" required></textarea>
                     </div>
                 </div>
-                <div class="modal-footer border-0 px-4 pb-4">
-                    <button type="submit" class="btn btn-warning rounded-pill px-5 py-2 fw-bold text-white shadow-sm" style="background: var(--primary);">Simpan Lencana</button>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="submit" class="btn btn-primary w-100 rounded-3 py-2">Simpan Lencana</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editBadgeModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow rounded-4">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="fw-bold">Perbarui Lencana Misi</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editBadgeForm" method="POST" enctype="multipart/form-data">
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Nama Lencana Misi</label>
+                        <input type="text" name="nama_badge" id="edit_badge_nama" class="form-control rounded-3" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Poin Reward (Didapatkan)</label>
+                        <input type="number" name="syarat_poin" id="edit_badge_poin" class="form-control rounded-3" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Ubah Icon (Opsional)</label>
+                        <input type="file" name="badge_image" class="form-control rounded-3">
+                    </div>
+                    <div class="mb-0">
+                        <label class="form-label small fw-bold">Deskripsi Misi</label>
+                        <textarea name="deskripsi" id="edit_badge_desc" class="form-control rounded-3" rows="3" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="submit" class="btn btn-warning w-100 rounded-3 py-2 fw-bold text-white">Update Lencana</button>
                 </div>
             </form>
         </div>

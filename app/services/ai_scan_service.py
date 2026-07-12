@@ -1,9 +1,10 @@
 import os
 import uuid
 from flask import current_app
-from app.models import db, AIScanHistory, FoodMetadata
+from app.models import db, User, AIScanHistory, FoodMetadata
 from app.services.upload_service import save_image
 from app.services.ai_model_service import AIModelService
+from app.services.scan_service import ScanService
 
 class AIScanService:
 
@@ -26,6 +27,12 @@ class AIScanService:
         use_letterbox = True
         input_size = (224, 224)
 
+        if not os.path.exists(model_path):
+            model_path = os.path.join(model_directory, 'food_detector.onnx')
+            if os.path.exists(model_path):
+                model_type = "yolo"
+                input_size = (640, 640)
+
         predicted_key, confidence = AIModelService.run_inference(
             local_image_path,
             model_path,
@@ -35,10 +42,20 @@ class AIScanService:
         )
 
         food = FoodMetadata.query.filter_by(label_key=predicted_key).first()
-        
-        food_id = None
-        if food:
-            food_id = food.id
+        food_id = food.id if food else None
+
+        existing_scan = AIScanHistory.query.filter_by(user_id=user_id, food_id=food_id).first()
+
+        points_earned = 0
+        user = User.query.get(user_id)
+        if not existing_scan and food_id and user:
+            points_earned = 50
+            user.poin += points_earned
+            user.total_xp += points_earned
+            calculated_level = (user.poin // 1000) + 1
+            if calculated_level > user.level:
+                user.level = calculated_level
+            ScanService._evaluate_and_unlock_badges(user)
 
         scan_record = AIScanHistory(
             user_id=user_id, # type: ignore
@@ -53,6 +70,9 @@ class AIScanService:
             "id": str(scan_record.id),
             "predicted_label": predicted_key,
             "confidence": confidence,
+            "points_earned": points_earned,
+            "current_points": user.poin if user else 0,
+            "current_level": user.level if user else 1,
             "food_details": {
                 "id": str(food.id) if food else None,
                 "nama_makanan": food.nama_makanan if food else predicted_key,
@@ -88,10 +108,10 @@ class AIScanService:
                 "id": str(item.id),
                 "predicted_label": item.predicted_label,
                 "food_details": {
-                    "nama_makanan": food.nama_makanan,
-                    "deskripsi": food.deskripsi,
-                    "video_url": AIScanService.resolve_video_url(food.video_url)
-                } if food else None,
+                    "nama_makanan": food.nama_makanan if food else item.predicted_label,
+                    "deskripsi": food.deskripsi if food else "No description available",
+                    "video_url": AIScanService.resolve_video_url(food.video_url) if food else None
+                },
                 "image_url": f"/static/uploads/{item.image_url}" if item.image_url else None,
                 "created_at": item.created_at.isoformat() if item.created_at else None
             })

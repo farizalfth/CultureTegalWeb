@@ -1,3 +1,4 @@
+import os
 from flask import Blueprint, jsonify, request
 from app.models import Review
 from app.services.culture_service import CultureService
@@ -63,7 +64,6 @@ def get_culture_detail(current_user, site_id):
             "error": str(e)
         }), 500
     
-
 @culture_v1_bp.route('/<string:site_id>/reviews', methods=['POST'])
 @token_required
 def add_review(current_user, site_id):
@@ -181,3 +181,18 @@ def get_site_reviews(current_user, site_id):
             "message": "Terjadi kesalahan internal pada server",
             "error": str(e)
         }), 500
+
+@culture_v1_bp.route('/wordcloud/<string:name>', methods=['GET'])
+@token_required
+def get_culture_wordcloud(current_user, name):
+    try:
+        mongo_uri = os.getenv('MONGO_URI')
+        from app.services.scraper_service import ScraperService
+        
+        data = ScraperService.get_word_frequencies(name, mongo_uri)
+        return jsonify({
+            "status": "success",
+            "data": data
+        }), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500

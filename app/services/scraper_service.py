@@ -10,6 +10,10 @@ from pymongo import MongoClient, UpdateOne
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
+from cachetools import cached, TTLCache
+
+wordcloud_cache = TTLCache(maxsize=100, ttl=86400)
+analytics_cache = TTLCache(maxsize=10, ttl=86400)
 
 class ScraperService:
     progress = {
@@ -87,23 +91,88 @@ class ScraperService:
         return dt.strftime("%Y-%m-%d")
 
     @staticmethod
+    @cached(cache=wordcloud_cache)
     def get_word_frequencies(location_name, mongo_uri):
-        client = MongoClient(mongo_uri)
-        db_mongo = client['review_tempat_bersejarah_tegal']
-        collection = db_mongo['reviews_data']
-        reviews = collection.find({"Lokasi": location_name})
-        word_counts = {}
-        for r in reviews:
-            cleaned = ScraperService.clean_text(r.get("Ulasan", "")) # type: ignore
-            for word in cleaned.split():
-                word_counts[word] = word_counts.get(word, 0) + 1
-        sorted_words = sorted(word_counts.items(), key=lambda x: x[1], reverse=True)[:50]
-        return [{"text": k, "value": v} for k, v in sorted_words]
+        try:
+            if not mongo_uri:
+                return []
+            client = MongoClient(mongo_uri, serverSelectionTimeoutMS=3000)
+            db_mongo = client['review_tempat_bersejarah_tegal']
+            collection = db_mongo['reviews_data']
+            
+            if location_name == "global_all":
+                reviews = collection.find().limit(500)
+            else:
+                reviews = collection.find({"Lokasi": location_name}).limit(300)
+                
+            word_counts = {}
+            for r in reviews:
+                cleaned = ScraperService.clean_text(r.get("Ulasan", ""))
+                for word in cleaned.split():
+                    word_counts[word] = word_counts.get(word, 0) + 1
+                    
+            sorted_words = sorted(word_counts.items(), key=lambda x: x[1], reverse=True)[:50]
+            return [{"text": k, "value": v} for k, v in sorted_words]
+        except Exception:
+            return []
+
+    @staticmethod
+    @cached(cache=analytics_cache)
+    def get_global_analytics(location_name, mongo_uri):
+        try:
+            if not mongo_uri:
+                raise Exception("No URI")
+            client = MongoClient(mongo_uri, serverSelectionTimeoutMS=3000)
+            db_mongo = client['review_tempat_bersejarah_tegal']
+            collection = db_mongo['reviews_data']
+            
+            match_stage = {}
+            if location_name != "global_all":
+                match_stage = {"Lokasi": location_name}
+
+            pipeline_rating = []
+            if match_stage:
+                pipeline_rating.append({"$match": match_stage})
+            pipeline_rating.append({"$group": {"_id": "$Rating", "count": {"$sum": 1}}})
+            
+            ratings = list(collection.aggregate(pipeline_rating))
+            
+            positif = sum(r['count'] for r in ratings if r['_id'] >= 4)
+            netral = sum(r['count'] for r in ratings if r['_id'] == 3)
+            negatif = sum(r['count'] for r in ratings if r['_id'] <= 2)
+            total = positif + netral + negatif
+            
+            pipeline_loc = [
+                {"$group": {"_id": "$Lokasi", "count": {"$sum": 1}, "avg_rating": {"$avg": "$Rating"}}},
+                {"$sort": {"count": -1}},
+                {"$limit": 5}
+            ]
+            top_locs = list(collection.aggregate(pipeline_loc))
+            top_locations = [{"name": l["_id"], "count": l["count"], "rating": round(l["avg_rating"], 1)} for l in top_locs]
+
+            available_locations = collection.distinct("Lokasi")
+            
+            return {
+                "sentiment": {
+                    "positif": positif, "netral": netral, "negatif": negatif, "total": total
+                },
+                "top_locations": top_locations,
+                "available_locations": available_locations
+            }
+        except Exception:
+            return {
+                "sentiment": {"positif": 0, "netral": 0, "negatif": 0, "total": 0},
+                "top_locations": [],
+                "available_locations": []
+            }
 
     @staticmethod
     def run_scraping_job(mongo_uri):
         if ScraperService.progress["running"]:
             return
+        
+        wordcloud_cache.clear()
+        analytics_cache.clear()
         
         ScraperService.progress["running"] = True
         ScraperService.progress["current"] = 0
@@ -189,7 +258,7 @@ class ScraperService:
 
                     try:
                         ref = driver.find_element(By.CLASS_NAME, "jftiEf")
-                        panel = driver.execute_script("return arguments[0].closest('div[tabindex=\"-1\"]');", ref) # type: ignore
+                        panel = driver.execute_script("return arguments[0].closest('div[tabindex=\"-1\"]');", ref)
                     except:
                         continue
 
@@ -197,11 +266,11 @@ class ScraperService:
 
                     prev_count, no_change_count = 0, 0
                     for _ in range(100):
-                        driver.execute_script('arguments[0].scrollTop = arguments[0].scrollHeight', panel) # type: ignore
+                        driver.execute_script('arguments[0].scrollTop = arguments[0].scrollHeight', panel)
                         time.sleep(4)
                         
                         text_elements = driver.find_elements(By.CLASS_NAME, 'wiI7pd')
-                        curr_text_count = sum(1 for el in text_elements if el.get_attribute('textContent').strip()) # type: ignore
+                        curr_text_count = sum(1 for el in text_elements if (el.get_attribute('textContent') or "").strip())
                         
                         ScraperService.progress["status"] = f"Scraping {target.nama_tempat} (Memuat {curr_text_count}/{limit_count} ulasan berteks...)"
                         
@@ -223,21 +292,27 @@ class ScraperService:
                     
                     for c in cards:
                         try:
-                            name = c.get_attribute('aria-label') or ""
-                            rate_text = c.find_element(By.CLASS_NAME, 'kvMYJc').get_attribute('aria-label') # type: ignore
-                            tm = c.find_element(By.CLASS_NAME, 'rsqaWe').get_attribute('textContent').strip() # type: ignore
-                            
                             try:
-                                txt = c.find_element(By.CLASS_NAME, 'wiI7pd').get_attribute('textContent').strip() # type: ignore
+                                txt_attr = c.find_element(By.CLASS_NAME, 'wiI7pd').get_attribute('textContent')
+                                txt = txt_attr.strip() if txt_attr else ""
                             except:
                                 txt = ""
 
-                            if txt != "":
-                                if text_count >= limit_count:
-                                    continue
-                                text_count += 1
+                            if not txt:
+                                continue
 
-                            match = re.search(r'(\d+)', rate_text) # type: ignore
+                            if text_count >= limit_count:
+                                break
+                                
+                            text_count += 1
+
+                            name = c.get_attribute('aria-label') or ""
+                            rate_text = c.find_element(By.CLASS_NAME, 'kvMYJc').get_attribute('aria-label') or ""
+                            
+                            tm_attr = c.find_element(By.CLASS_NAME, 'rsqaWe').get_attribute('textContent')
+                            tm = tm_attr.strip() if tm_attr else ""
+
+                            match = re.search(r'(\d+)', rate_text)
                             rating = int(match.group()) if match else 5
 
                             waktu_bersih = re.sub(r'(diedit|edited)\s+', '', tm.lower()).strip()
@@ -266,8 +341,7 @@ class ScraperService:
                                     upsert=True
                                 )
                             )
-                        except Exception as card_error:
-                            print(f"Error parsing card: {str(card_error)}")
+                        except Exception:
                             continue
 
                     if operations:

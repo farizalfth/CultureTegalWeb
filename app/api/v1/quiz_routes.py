@@ -1,9 +1,9 @@
 import uuid
 from flask import Blueprint, request, jsonify
-from app.models import Quiz, CultureSite, UserQuizHistory
+from app.models import Quiz, CultureSite, UserQuizHistory, FoodMetadata
 from app.services.quiz_service import QuizService
 from app.services.auth_service import token_required
-from app.models import db
+from app.models import db, AIScanHistory
 
 quiz_bp = Blueprint('quiz', __name__)
 
@@ -16,9 +16,17 @@ def get_all_quizzes(current_user):
     ).all()
     solved_ids = {str(item[0]) for item in solved_quizzes}
 
+    scanned_foods = db.session.query(AIScanHistory.food_id).filter(
+        AIScanHistory.user_id == current_user.id
+    ).all()
+    scanned_food_ids = {str(item[0]) for item in scanned_foods if item[0] is not None}
+
     quizzes = Quiz.query.all()
     result = []
     for quiz in quizzes:
+        if quiz.food_id and str(quiz.food_id) not in scanned_food_ids:
+            continue
+
         culture_name = "Umum"
         culture_image = ""
         if quiz.culture_id:
@@ -26,9 +34,16 @@ def get_all_quizzes(current_user):
             if site:
                 culture_name = site.nama_tempat
                 culture_image = site.image_url
+        elif quiz.food_id:
+            food = FoodMetadata.query.get(quiz.food_id)
+            if food:
+                culture_name = food.nama_makanan
+                culture_image = "default.jpg"
+
         result.append({
             "id": str(quiz.id),
             "culture_id": str(quiz.culture_id) if quiz.culture_id else None,
+            "food_id": str(quiz.food_id) if quiz.food_id else None,
             "culture_name": culture_name,
             "culture_image": culture_image,
             "pertanyaan": quiz.pertanyaan,

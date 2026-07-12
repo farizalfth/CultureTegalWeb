@@ -2,9 +2,9 @@ import os
 import uuid
 from datetime import datetime, date, timedelta
 from flask import Blueprint, current_app, render_template, request, redirect, url_for, session, flash
-from realtime import Any
+from typing import Any
 from sqlalchemy import func
-from app.models import db, CultureSite, Event, UMKM, User, Facility, ScrapeTarget, ScanHistory, Quiz, Badge, FoodMetadata, News
+from app.models import db, CultureSite, Event, UMKM, User, Facility, ScrapeTarget, ScanHistory, Quiz, Badge, FoodMetadata, News, UserBadge, UserQuizHistory, Review, UserFavorite
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.services.upload_service import delete_file, save_image
 from app.services.auth_service import supabase
@@ -12,6 +12,7 @@ from app.services.scraper_service import ScraperService
 from app.services.upload_service import save_video, delete_video
 from app.services.notification_service import NotificationService
 import re
+from flask import jsonify
 
 admin_bp = Blueprint('admin_bp', __name__, url_prefix='/appadministrator/admin')
 
@@ -78,29 +79,48 @@ def admin_dashboard():
     if not session.get('logged_in'):
         return redirect(url_for('admin_bp.admin_login'))
 
-    user_created_at = getattr(User, 'created_at')
+    chart_filter = request.args.get('chart_filter', 'semua')
+    now = datetime.now()
+    start_date = None
 
-    user_growth_raw = db.session.query(
-        func.cast(user_created_at, db.Date),
+    if chart_filter == 'hari_ini':
+        start_date = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    elif chart_filter == 'bulan_ini':
+        start_date = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    elif chart_filter == '6_bulan':
+        start_date = now - timedelta(days=180)
+    elif chart_filter == '1_tahun':
+        start_date = now - timedelta(days=365)
+
+    user_query = db.session.query(
+        func.cast(User.created_at, db.Date),
         func.count(User.id)
-    ).filter(User.role == 'user').group_by(func.cast(user_created_at, db.Date)).order_by(func.cast(user_created_at, db.Date).asc()).all()
+    ).filter(User.role == 'user')
 
+    visited_query = db.session.query(
+        CultureSite.nama_tempat,
+        func.count(ScanHistory.id)
+    ).join(ScanHistory, ScanHistory.site_id == CultureSite.id)
+
+    level_query = db.session.query(
+        User.level,
+        func.count(User.id)
+    ).filter(User.role == 'user')
+
+    if start_date:
+        user_query = user_query.filter(User.created_at >= start_date)
+        visited_query = visited_query.filter(ScanHistory.created_at >= start_date)
+        level_query = level_query.filter(User.created_at >= start_date)
+
+    user_growth_raw = user_query.group_by(func.cast(User.created_at, db.Date)).order_by(func.cast(User.created_at, db.Date).asc()).all()
     user_growth_labels = [str(item[0]) for item in user_growth_raw]
     user_growth_data = [item[1] for item in user_growth_raw]
 
-    top_visited_raw = db.session.query(
-        CultureSite.nama_tempat,
-        func.count(ScanHistory.id)
-    ).join(ScanHistory, ScanHistory.site_id == CultureSite.id).group_by(CultureSite.nama_tempat).order_by(func.count(ScanHistory.id).desc()).limit(5).all()
-
+    top_visited_raw = visited_query.group_by(CultureSite.nama_tempat).order_by(func.count(ScanHistory.id).desc()).limit(5).all()
     top_visited_labels = [item[0] for item in top_visited_raw]
     top_visited_data = [item[1] for item in top_visited_raw]
 
-    level_dist_raw = db.session.query(
-        User.level,
-        func.count(User.id)
-    ).filter(User.role == 'user').group_by(User.level).order_by(User.level.asc()).all()
-
+    level_dist_raw = level_query.group_by(User.level).order_by(User.level.asc()).all()
     level_dist_labels = [f"Level {item[0]}" for item in level_dist_raw]
     level_dist_data = [item[1] for item in level_dist_raw]
 
@@ -159,7 +179,6 @@ def admin_dashboard():
         'level_dist_data': level_dist_data
     }
     return render_template('admin/dashboard.html', **data)
-
 
 @admin_bp.route('/add_budaya', methods=['POST'])
 def add_budaya():
@@ -282,6 +301,13 @@ def delete_budaya(id):
         return redirect(url_for('admin_bp.admin_login'))
     site = CultureSite.query.get_or_404(id)
     try:
+        ScanHistory.query.filter_by(site_id=id).delete()
+        quizzes = Quiz.query.filter_by(culture_id=id).all()
+        for q in quizzes:
+            q.culture_id = None
+        UserFavorite.query.filter_by(target_type='culture', target_id=id).delete()
+        Review.query.filter_by(target_type='culture_site', target_id=id).delete()
+
         delete_file(site.image_url)
         if site.gallery:
             for img in site.gallery:
@@ -401,6 +427,8 @@ def delete_event(id):
         return redirect(url_for('admin_bp.admin_login'))
     event = Event.query.get_or_404(id)
     try:
+        UserFavorite.query.filter_by(target_type='event', target_id=id).delete()
+        
         delete_file(event.image_url)
         db.session.delete(event)
         db.session.commit()
@@ -490,6 +518,9 @@ def delete_umkm(id):
         return redirect(url_for('admin_bp.admin_login'))
     umkm = UMKM.query.get_or_404(id)
     try:
+        UserFavorite.query.filter_by(target_type='umkm', target_id=id).delete()
+        Review.query.filter_by(target_type='umkm', target_id=id).delete()
+        
         delete_file(umkm.image_url)
         db.session.delete(umkm)
         db.session.commit()
@@ -730,38 +761,94 @@ def bulk_upload_targets():
         
     return redirect(url_for('admin_bp.admin_dashboard', _anchor='scraper'))
 
+@admin_bp.route('/update_scrape_target/<uuid:id>', methods=['POST'])
+def update_scrape_target(id):
+    if not session.get('logged_in'):
+        return redirect(url_for('admin_bp.admin_login'))
+    
+    target = ScrapeTarget.query.get_or_404(id)
+    try:
+        new_url = request.form.get('url_maps')
+        if new_url and ScraperService.validate_url(new_url):
+            target.url_maps = new_url
+            
+        max_rev = request.form.get('max_reviews')
+        if max_rev and max_rev.strip().isdigit():
+            target.max_reviews = int(max_rev)
+
+        db.session.commit()
+        flash('Target scraper berhasil diperbarui.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Gagal memperbarui target: {str(e)}', 'danger')
+        
+    return redirect(url_for('admin_bp.admin_dashboard', _anchor='scraper'))
+
 @admin_bp.route('/delete_scrape_target/<uuid:id>')
 def delete_scrape_target(id):
     if not session.get('logged_in'):
         return redirect(url_for('admin_bp.admin_login'))
     target = ScrapeTarget.query.get_or_404(id)
     try:
+        mongo_uri = current_app.config.get('MONGO_URI')
+        if mongo_uri:
+            from pymongo import MongoClient
+            client = MongoClient(mongo_uri, serverSelectionTimeoutMS=2000)
+            db_mongo = client['review_tempat_bersejarah_tegal']
+            collection = db_mongo['reviews_data']
+            collection.delete_many({"target_id": str(target.target_id)})
+            
+            from app.services.scraper_service import wordcloud_cache, analytics_cache
+            wordcloud_cache.clear()
+            analytics_cache.clear()
+
         db.session.delete(target)
         db.session.commit()
-        flash('Target scraping berhasil dihapus.', 'success')
+        flash('Target scraping dan data ulasan terkait berhasil dihapus.', 'success')
     except Exception as e:
         db.session.rollback()
         flash(f'Gagal menghapus target: {str(e)}', 'danger')
     return redirect(url_for('admin_bp.admin_dashboard', _anchor='scraper'))
 
+@admin_bp.route('/scrape/clear', methods=['POST'])
+def clear_scrape_data():
+    if not session.get('logged_in'):
+        return jsonify({"status": "error", "message": "Unauthorized"}), 401
+    
+    try:
+        mongo_uri = current_app.config.get('MONGO_URI')
+        if mongo_uri:
+            from pymongo import MongoClient
+            client = MongoClient(mongo_uri, serverSelectionTimeoutMS=2000)
+            db_mongo = client['review_tempat_bersejarah_tegal']
+            collection = db_mongo['reviews_data']
+            collection.delete_many({})
+            
+            from app.services.scraper_service import wordcloud_cache, analytics_cache
+            wordcloud_cache.clear()
+            analytics_cache.clear()
+
+        return jsonify({"status": "success", "message": "Semua data ulasan di MongoDB berhasil dikosongkan!"}), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
 @admin_bp.route('/scrape/trigger', methods=['POST'])
 def trigger_scrape():
     if not session.get('logged_in'):
-        return {"status": "error", "message": "Unauthorized"}, 401
+        return jsonify({"status": "error", "message": "Unauthorized"}), 401
     
     mongo_uri = current_app.config.get('MONGO_URI')
     if ScraperService.progress["running"]:
-        return {"status": "error", "message": "Scraping sedang berjalan di latar belakang"}, 400
+        return jsonify({"status": "error", "message": "Scraping sedang berjalan di latar belakang"}), 400
     
     ScraperService.run_scraping_job(mongo_uri)
-    return {"status": "success", "message": "Scraping dimulai di latar belakang"}, 200
+    return jsonify({"status": "success", "message": "Scraping dimulai di latar belakang"}), 200
 
 @admin_bp.route('/scrape/status', methods=['GET'])
 def get_scrape_status():
     if not session.get('logged_in'):
-        return {"status": "error", "message": "Unauthorized"}, 401
-    return {"status": "success", "data": ScraperService.progress}, 200
-
+        return jsonify({"status": "error", "message": "Unauthorized"}), 401
+    return jsonify({"status": "success", "data": ScraperService.progress}), 200
 
 @admin_bp.route('/add_food_metadata', methods=['POST'])
 def add_food_metadata():
@@ -800,13 +887,25 @@ def update_food_metadata(id):
         food.nama_makanan = request.form.get('nama_makanan') or food.nama_makanan
         food.deskripsi = request.form.get('deskripsi') or food.deskripsi
 
+        if request.form.get('delete_video_flag') == 'yes':
+            if food.video_url and not food.video_url.startswith(('http://', 'https://')):
+                delete_video(food.video_url)
+            food.video_url = None
+
         video_file = request.files.get('video_file')
+        video_url_input = request.form.get('video_url')
+        
         if video_file and video_file.filename != '':
             if food.video_url and not food.video_url.startswith(('http://', 'https://')):
                 delete_video(food.video_url)
             food.video_url = save_video(video_file)
-        elif request.form.get('video_url'):
-            food.video_url = request.form.get('video_url')
+        elif video_url_input is not None and video_url_input.strip() != '':
+            if food.video_url and not food.video_url.startswith(('http://', 'https://')):
+                delete_video(food.video_url)
+            food.video_url = video_url_input.strip()
+        elif video_url_input is not None and video_url_input.strip() == '':
+            if food.video_url and food.video_url.startswith(('http://', 'https://')):
+                food.video_url = None
 
         db.session.commit()
         flash('Metadata makanan berhasil diperbarui.', 'success')
@@ -851,13 +950,45 @@ def add_badge():
         flash(f'Error: {str(e)}', 'danger')
     return redirect(url_for('admin_bp.admin_dashboard', _anchor='badges'))
 
+@admin_bp.route('/update_badge/<uuid:id>', methods=['POST'])
+def update_badge(id):
+    if not session.get('logged_in'):
+        return redirect(url_for('admin_bp.admin_login'))
+    
+    badge = Badge.query.get_or_404(id)
+    try:
+        badge.nama_badge = request.form.get('nama_badge') or badge.nama_badge
+        badge.deskripsi = request.form.get('deskripsi') or badge.deskripsi
+        
+        poin_val = request.form.get('syarat_poin')
+        if poin_val and poin_val.strip() != '':
+            badge.syarat_poin = int(poin_val)
+
+        file = request.files.get('badge_image')
+        if file and file.filename != '':
+            new_image = save_image(file)
+            if new_image:
+                if badge.image_url:
+                    delete_file(badge.image_url)
+                badge.image_url = new_image
+
+        db.session.commit()
+        flash('Lencana misi berhasil diperbarui.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Gagal memperbarui lencana: {str(e)}', 'danger')
+    
+    return redirect(url_for('admin_bp.admin_dashboard', _anchor='badges'))
+
 @admin_bp.route('/delete_badge/<uuid:id>')
 def delete_badge(id):
     if not session.get('logged_in'):
         return redirect(url_for('admin_bp.admin_login'))
     badge = Badge.query.get_or_404(id)
     try:
-        delete_file(badge.image_url)
+        UserBadge.query.filter_by(badge_id=id).delete()
+        if badge.image_url:
+            delete_file(badge.image_url)
         db.session.delete(badge)
         db.session.commit()
         flash('Lencana berhasil dihapus.', 'success')
@@ -871,24 +1002,38 @@ def add_quiz():
     if not session.get('logged_in'):
         return redirect(url_for('admin_bp.admin_login'))
     try:
-        culture_id_str = request.form.get('culture_id')
-        culture_id = uuid.UUID(culture_id_str) if culture_id_str else None
+        culture_id = None
+        food_id = None
+        
+        target_composite = request.form.get('target_composite')
+        if target_composite and '|' in target_composite:
+            t_type, t_id_str = target_composite.split('|', 1)
+            if t_type == 'culture':
+                culture_id = uuid.UUID(t_id_str)
+            elif t_type == 'food':
+                food_id = uuid.UUID(t_id_str)
 
-        opsi_a = request.form.get('opsi_a', '')
-        opsi_b = request.form.get('opsi_b', '')
-        opsi_c = request.form.get('opsi_c', '')
-        opsi_d = request.form.get('opsi_d', '')
-        opsi_jawaban = {"A": opsi_a, "B": opsi_b, "C": opsi_c, "D": opsi_d}
+        opsi_jawaban = {
+            "A": request.form.get('opsi_a', ''),
+            "B": request.form.get('opsi_b', ''),
+            "C": request.form.get('opsi_c', ''),
+            "D": request.form.get('opsi_d', '')
+        }
 
-        new_quiz = Quiz()
-        new_quiz.id = uuid.uuid4()
-        new_quiz.culture_id = culture_id
-        new_quiz.pertanyaan = request.form.get('pertanyaan')
-        new_quiz.opsi_jawaban = opsi_jawaban
-        new_quiz.jawaban_benar = request.form.get('jawaban_benar')
-        new_quiz.poin_reward = int(request.form.get('poin_reward') or 50)
-        new_quiz.image_url = save_image(request.files.get('quiz_image'))
-        new_quiz.admin_id = session.get('user_id')
+        new_quiz = Quiz(
+            id=uuid.uuid4(), # type: ignore
+            culture_id=culture_id,# type: ignore
+            food_id=food_id,# type: ignore
+            pertanyaan=request.form.get('pertanyaan'),# type: ignore
+            opsi_jawaban=opsi_jawaban,# type: ignore
+            jawaban_benar=request.form.get('jawaban_benar'),# type: ignore
+            poin_reward=int(request.form.get('poin_reward') or 50),# type: ignore
+            admin_id=session.get('user_id')# type: ignore
+        )
+        
+        file = request.files.get('quiz_image')
+        if file and file.filename != '':
+            new_quiz.image_url = save_image(file)
 
         db.session.add(new_quiz)
         db.session.commit()
@@ -898,12 +1043,58 @@ def add_quiz():
         flash(f'Error: {str(e)}', 'danger')
     return redirect(url_for('admin_bp.admin_dashboard', _anchor='quiz'))
 
+@admin_bp.route('/update_quiz/<uuid:id>', methods=['POST'])
+def update_quiz(id):
+    if not session.get('logged_in'):
+        return redirect(url_for('admin_bp.admin_login'))
+    
+    quiz = Quiz.query.get_or_404(id)
+    try:
+        target_composite = request.form.get('target_composite')
+        if target_composite and '|' in target_composite:
+            t_type, t_id_str = target_composite.split('|', 1)
+            if t_type == 'culture':
+                quiz.culture_id = uuid.UUID(t_id_str)
+                quiz.food_id = None
+            elif t_type == 'food':
+                quiz.food_id = uuid.UUID(t_id_str)
+                quiz.culture_id = None
+
+        quiz.pertanyaan = request.form.get('pertanyaan') or quiz.pertanyaan
+        quiz.jawaban_benar = request.form.get('jawaban_benar') or quiz.jawaban_benar
+        quiz.poin_reward = int(request.form.get('poin_reward') or quiz.poin_reward)
+
+        opsi_jawaban = {
+            "A": request.form.get('opsi_a', ''),
+            "B": request.form.get('opsi_b', ''),
+            "C": request.form.get('opsi_c', ''),
+            "D": request.form.get('opsi_d', '')
+        }
+        quiz.opsi_jawaban = opsi_jawaban
+
+        file = request.files.get('quiz_image')
+        if file and file.filename != '':
+            new_image = save_image(file)
+            if new_image:
+                if quiz.image_url:
+                    delete_file(quiz.image_url)
+                quiz.image_url = new_image
+
+        db.session.commit()
+        flash('Soal kuis berhasil diperbarui.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Gagal memperbarui kuis: {str(e)}', 'danger')
+    
+    return redirect(url_for('admin_bp.admin_dashboard', _anchor='quiz'))
+
 @admin_bp.route('/delete_quiz/<uuid:id>')
 def delete_quiz(id):
     if not session.get('logged_in'):
         return redirect(url_for('admin_bp.admin_login'))
     quiz = Quiz.query.get_or_404(id)
     try:
+        UserQuizHistory.query.filter_by(quiz_id=id).delete()
         if quiz.image_url:
             delete_file(quiz.image_url)
         db.session.delete(quiz)
