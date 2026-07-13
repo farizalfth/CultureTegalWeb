@@ -13,7 +13,7 @@ if not supabase_url or not supabase_key:
 
 supabase = create_client(supabase_url, supabase_key)
 
-email = "rifyalaidil05@gmail.com"
+email = ""
 password = "123456"
 
 try:
@@ -28,7 +28,6 @@ try:
 except Exception as login_err:
     print(f"[Info] Gagal sign-in, mencoba mendaftarkan akun baru terlebih dahulu...")
     try:
-        # Jika belum terdaftar, kita daftarkan akun baru secara otomatis
         signup_response = supabase.auth.sign_up({
             "email": email,
             "password": password
