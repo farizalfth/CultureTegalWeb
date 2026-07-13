@@ -1,11 +1,21 @@
+import os
+import yaml
 from flask import Blueprint, jsonify, request
+from flasgger import swag_from
 from app.services.event_service import EventService
 from app.services.auth_service import token_required
 
 event_v1_bp = Blueprint('event_v1', __name__)
 
+base_dir = os.path.dirname(os.path.abspath(__file__))
+yml_path = os.path.abspath(os.path.join(base_dir, '..', 'docs', 'events.yml'))
+
+with open(yml_path, 'r', encoding='utf-8') as f:
+    event_specs = yaml.safe_load(f)
+
 @event_v1_bp.route('', methods=['GET'])
 @token_required
+@swag_from(event_specs['get_events_paginated'])
 def get_events(current_user):
     try:
         kategori = request.args.get('kategori', None)

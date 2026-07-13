@@ -1,5 +1,8 @@
-from flask import Blueprint, jsonify, request
+import os
+import yaml
 import uuid
+from flask import Blueprint, jsonify, request
+from flasgger import swag_from
 from app.models import db, ScanHistory, UserQuizHistory, UserFavorite
 from app.services.auth_service import token_required
 from app.services.user_service import UserService
@@ -7,8 +10,23 @@ from app.services.upload_service import save_image, delete_file
 
 user_api = Blueprint('user_api', __name__)
 
+base_dir = os.path.dirname(os.path.abspath(__file__))
+user_yml_path = os.path.abspath(os.path.join(base_dir, '..', 'docs', 'user.yml'))
+gamification_yml_path = os.path.abspath(os.path.join(base_dir, '..', 'docs', 'gamification.yml'))
+auth_yml_path = os.path.abspath(os.path.join(base_dir, '..', 'docs', 'auth.yml'))
+
+with open(user_yml_path, 'r', encoding='utf-8') as f:
+    user_specs = yaml.safe_load(f)
+
+with open(gamification_yml_path, 'r', encoding='utf-8') as f:
+    gamification_specs = yaml.safe_load(f)
+
+with open(auth_yml_path, 'r', encoding='utf-8') as f:
+    auth_specs = yaml.safe_load(f)
+
 @user_api.route('/profile', methods=['GET'])
 @token_required
+@swag_from(user_specs['get_profile'])
 def get_profile(local_user):
     try:
         calculated_level = (local_user.poin // 1000) + 1
@@ -39,6 +57,7 @@ def get_profile(local_user):
 
 @user_api.route('/profile', methods=['PUT'])
 @token_required
+@swag_from(user_specs['update_profile'])
 def update_profile(local_user):
     try:
         data = request.get_json()
@@ -58,6 +77,7 @@ def update_profile(local_user):
 
 @user_api.route('/profile/picture', methods=['POST'])
 @token_required
+@swag_from(user_specs['update_profile_picture'])
 def update_profile_picture(local_user):
     try:
         if 'file' not in request.files:
@@ -89,6 +109,7 @@ def update_profile_picture(local_user):
 
 @user_api.route('/favorites', methods=['GET'])
 @token_required
+@swag_from(user_specs['get_favorites'])
 def get_favorites(local_user):
     try:
         result, error = UserService.get_user_favorites(local_user.id)
@@ -104,6 +125,7 @@ def get_favorites(local_user):
 
 @user_api.route('/favorites/toggle', methods=['POST'])
 @token_required
+@swag_from(user_specs['toggle_favorite'])
 def toggle_favorite(local_user):
     try:
         data = request.get_json()
@@ -126,6 +148,7 @@ def toggle_favorite(local_user):
 
 @user_api.route('/badges', methods=['GET'])
 @token_required
+@swag_from(gamification_specs['get_badges'])
 def get_badges(local_user):
     try:
         result, error = UserService.get_user_badges(local_user.id)
@@ -141,6 +164,7 @@ def get_badges(local_user):
 
 @user_api.route('/leaderboard', methods=['GET'])
 @token_required
+@swag_from(gamification_specs['get_leaderboard'])
 def get_leaderboard(local_user):
     try:
         result, error = UserService.get_leaderboard()
@@ -156,6 +180,7 @@ def get_leaderboard(local_user):
 
 @user_api.route('/stats', methods=['GET'])
 @token_required
+@swag_from(gamification_specs['get_stats'])
 def get_stats(local_user):
     try:
         result, error = UserService.get_user_stats(local_user.id)
@@ -171,6 +196,7 @@ def get_stats(local_user):
 
 @user_api.route('/scan-history', methods=['GET'])
 @token_required
+@swag_from(gamification_specs['get_scan_history'])
 def get_scan_history(local_user):
     try:
         result, error = UserService.get_user_scan_history(local_user.id)
@@ -186,6 +212,7 @@ def get_scan_history(local_user):
 
 @user_api.route('/onesignal', methods=['POST'])
 @token_required
+@swag_from(auth_specs['register_device'])
 def register_device(local_user):
     try:
         data = request.get_json()
@@ -212,6 +239,7 @@ def register_device(local_user):
 
 @user_api.route('/onesignal/logout', methods=['POST'])
 @token_required
+@swag_from(auth_specs['unregister_device'])
 def unregister_device(local_user):
     try:
         data = request.get_json()
@@ -231,6 +259,7 @@ def unregister_device(local_user):
 
 @user_api.route('/reset-progress', methods=['POST'])
 @token_required
+@swag_from(auth_specs['reset_progress'])
 def reset_progress(local_user):
     try:
         db.session.query(ScanHistory).filter_by(user_id=local_user.id).delete()
@@ -249,6 +278,7 @@ def reset_progress(local_user):
     
 @user_api.route('/claim-badge', methods=['POST'])
 @token_required
+@swag_from(gamification_specs['claim_badge'])
 def claim_action_badge(local_user):
     try:
         data = request.get_json()
@@ -297,6 +327,7 @@ def claim_action_badge(local_user):
 
 @user_api.route('/delete-account', methods=['DELETE'])
 @token_required
+@swag_from(auth_specs['delete_account'])
 def self_delete_account(local_user):
     try:
         from app.services.auth_service import supabase

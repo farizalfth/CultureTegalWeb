@@ -1,5 +1,7 @@
 tags:
-  - Authentication
+  - Authentication & Security
+summary: Sinkronisasi data user Supabase ke SQLite
+description: Melakukan sinkronisasi otomatis detail user (dari token auth Supabase) ke database lokal SQLite.
 security:
   - Bearer: []
 parameters:
@@ -11,16 +13,16 @@ parameters:
       properties:
         nama:
           type: string
-          example: Nadhif
+          example: Laksmana Bahari
         provider:
           type: string
           example: google
         profile_picture:
           type: string
-          example: https://link-gambar.com/pic.jpg
+          example: https://lh3.googleusercontent.com/a/avatar
 responses:
   200:
-    description: Sinkronisasi data pengguna berhasil
+    description: Sinkronisasi sukses
     schema:
       type: object
       properties:
@@ -35,9 +37,9 @@ responses:
               example: 550e8400-e29b-41d4-a716-446655440000
             nama:
               type: string
-              example: Nadhif
+              example: Laksmana Bahari
             email:
               type: string
-              example: user@email.com
+              example: laksmana@example.com
   401:
-    description: Token otorisasi tidak valid
+    description: Token otorisasi tidak valid atau tidak disertakan

@@ -1,0 +1,29 @@
+get_news:
+  tags:
+    - News & Articles
+  summary: Mengambil daftar berita dan artikel budaya (Paginated)
+  description: Menyajikan artikel berita terverifikasi mengenai pelestarian cagar budaya dan kemajuan UMKM Kota Tegal, diurutkan dari terbitan terbaru.
+  security:
+    - Bearer: []
+  parameters:
+    - in: query
+      name: kategori
+      type: string
+      required: false
+      description: Filter berita berdasarkan kategori (Seni, Tradisi, Kuliner, Wisata, UMKM, Edukasi).
+    - in: query
+      name: search
+      type: string
+      required: false
+      description: Pencarian kata kunci judul berita secara parsial.
+    - in: query
+      name: page
+      type: integer
+      default: 1
+    - in: query
+      name: per_page
+      type: integer
+      default: 10
+  responses:
+    200:
+      description: Daftar berita berhasil dimuat

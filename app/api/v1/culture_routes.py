@@ -1,13 +1,22 @@
 import os
+import yaml
 from flask import Blueprint, jsonify, request
+from flasgger import swag_from
 from app.models import Review
 from app.services.culture_service import CultureService
 from app.services.auth_service import token_required
 
 culture_v1_bp = Blueprint('culture_v1', __name__)
 
+base_dir = os.path.dirname(os.path.abspath(__file__))
+yml_path = os.path.abspath(os.path.join(base_dir, '..', 'docs', 'explore.yml'))
+
+with open(yml_path, 'r', encoding='utf-8') as f:
+    explore_specs = yaml.safe_load(f)
+
 @culture_v1_bp.route('', methods=['GET'])
 @token_required
+@swag_from(explore_specs['get_cultures'])
 def get_cultures(current_user):
     try:
         kategori = request.args.get('kategori', None)
@@ -43,6 +52,7 @@ def get_cultures(current_user):
 
 @culture_v1_bp.route('/<string:site_id>', methods=['GET'])
 @token_required
+@swag_from(explore_specs['get_culture_detail'])
 def get_culture_detail(current_user, site_id):
     try:
         data = CultureService.get_culture_by_id(site_id)
@@ -66,6 +76,7 @@ def get_culture_detail(current_user, site_id):
     
 @culture_v1_bp.route('/<string:site_id>/reviews', methods=['POST'])
 @token_required
+@swag_from(explore_specs['add_review'])
 def add_review(current_user, site_id):
     try:
         data = request.get_json()
@@ -112,6 +123,7 @@ def add_review(current_user, site_id):
 
 @culture_v1_bp.route('/<string:site_id>/reviews', methods=['PUT'])
 @token_required
+@swag_from(explore_specs['update_review'])
 def update_review(current_user, site_id):
     try:
         data = request.get_json()
@@ -145,6 +157,7 @@ def update_review(current_user, site_id):
 
 @culture_v1_bp.route('/<string:site_id>/reviews', methods=['DELETE'])
 @token_required
+@swag_from(explore_specs['delete_review'])
 def delete_review(current_user, site_id):
     try:
         success, message = CultureService.delete_culture_review(
@@ -164,6 +177,7 @@ def delete_review(current_user, site_id):
     
 @culture_v1_bp.route('/<string:site_id>/reviews/list', methods=['GET'])
 @token_required
+@swag_from(explore_specs['get_site_reviews'])
 def get_site_reviews(current_user, site_id):
     try:
         page = request.args.get('page', 1, type=int)
@@ -184,6 +198,7 @@ def get_site_reviews(current_user, site_id):
 
 @culture_v1_bp.route('/wordcloud/<string:name>', methods=['GET'])
 @token_required
+@swag_from(explore_specs['get_culture_wordcloud'])
 def get_culture_wordcloud(current_user, name):
     try:
         mongo_uri = os.getenv('MONGO_URI')

@@ -1,0 +1,28 @@
+search_map:
+  tags:
+    - Search Services
+  summary: Pencarian peta terintegrasi (Cultures, UMKM, Events)
+  description: Melakukan kueri pencarian teks global pada objek budaya, produk UMKM, dan event. Jika koordinat GPS user disertakan, hasil pencarian akan otomatis terurut berdasarkan jarak terdekat.
+  security:
+    - Bearer: []
+  parameters:
+    - in: query
+      name: q
+      type: string
+      required: false
+      description: Kata kunci nama, deskripsi, atau toko yang dicari.
+    - in: query
+      name: lat
+      type: number
+      format: float
+      required: false
+      description: Koordinat latitude real-time user.
+    - in: query
+      name: lon
+      type: number
+      format: float
+      required: false
+      description: Koordinat longitude real-time user.
+  responses:
+    200:
+      description: Hasil pencarian sukses diurutkan berdasarkan jarak terdekat

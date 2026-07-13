@@ -1,50 +1,176 @@
-tags:
-  - Event
-security:
-  - Bearer: []
-responses:
-  200:
-    description: Berhasil mengambil data event
-    schema:
-      type: object
-      properties:
-        status:
-          type: string
-          example: success
-        data:
-          type: array
-          items:
+get_events_simplified:
+  tags:
+    - Event Services
+  summary: Mengambil daftar event (Sederhana)
+  description: Menyajikan daftar ringkas seluruh event budaya Tegal yang terdaftar di sistem untuk tampilan kalender cepat atau widget.
+  security:
+    - Bearer: []
+  responses:
+    200:
+      description: Berhasil mengambil data event sederhana
+      schema:
+        type: object
+        properties:
+          status:
+            type: string
+            example: success
+          data:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  example: e3cf45d1-12ef-4682-9382-7212efcdabef
+                title:
+                  type: string
+                  example: Festival Bahari Tegal
+                category:
+                  type: string
+                  example: Budaya
+                status:
+                  type: string
+                  example: Sedang Berjalan
+                date:
+                  type: string
+                  example: 17 - 19 Juni 2026
+                time:
+                  type: string
+                  example: 09.00 - 22.00 WIB
+                location:
+                  type: string
+                  example: Alun-Alun Kota Tegal
+                address:
+                  type: string
+                  example: Jl. Pancasila No.1, Tegal, Jawa Tengah
+                image:
+                  type: string
+                  example: 177196762_1.png
+                is_recurring:
+                  type: boolean
+                  example: false
+  401:
+    description: Otorisasi Token gagal
+
+get_events_paginated:
+  tags:
+    - Event Services
+  summary: Mengambil daftar event (Paginated & Filtered)
+  description: Mengambil data event budaya berdasarkan kategori, status pelaksanaan (Berjalan, Mendatang, Selesai), kata kunci pencarian, dengan fitur paginasi lengkap.
+  security:
+    - Bearer: []
+  parameters:
+    - in: query
+      name: kategori
+      type: string
+      required: false
+      description: Filter berdasarkan kategori event (misal Budaya, UMKM, Edukasi).
+    - in: query
+      name: status
+      type: string
+      enum: [Berjalan, Mendatang, Selesai]
+      required: false
+      description: Filter berdasarkan status waktu pelaksanaan event.
+    - in: query
+      name: search
+      type: string
+      required: false
+      description: Pencarian judul event secara parsial.
+    - in: query
+      name: page
+      type: integer
+      default: 1
+      required: false
+    - in: query
+      name: per_page
+      type: integer
+      default: 10
+      required: false
+  responses:
+    200:
+      description: Sukses memuat data event paginated
+      schema:
+        type: object
+        properties:
+          status:
+            type: string
+            example: success
+          message:
+            type: string
+            example: Data event berhasil dimuat
+          data:
             type: object
             properties:
-              id:
-                type: string
-                example: 550e8400-e29b-41d4-a716-446655440000
-              title:
-                type: string
-                example: Festival Bahari
-              category:
-                type: string
-                example: Budaya
-              status:
-                type: string
-                example: Akan Datang
-              date:
-                type: string
-                example: Sabtu, 15 Juli 2026
-              time:
-                type: string
-                example: 08:00 - 15:00 WIB
-              location:
-                type: string
-                example: Alun-Alun Tegal
-              address:
-                type: string
-                example: Jl. Pancasila No. 1
-              image:
-                type: string
-                example: uploads/event.jpg
-              is_recurring:
+              current_page:
+                type: integer
+                example: 1
+              has_next:
                 type: boolean
                 example: false
-  401:
-    description: Token otorisasi tidak valid
+              pages:
+                type: integer
+                example: 1
+              total:
+                type: integer
+                example: 4
+              items:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      example: e3cf45d1-12ef-4682-9382-7212efcdabef
+                    name:
+                      type: string
+                      example: Festival Bahari Tegal
+                    category:
+                      type: string
+                      example: Budaya
+                    status:
+                      type: string
+                      example: Sedang Berlangsung
+                    schedule:
+                      type: string
+                      example: 17 - 19 Juni 2026
+                    full_date:
+                      type: string
+                      example: 17 - 19 Juni 2026
+                    time:
+                      type: string
+                      example: 09.00 - 22.00 WIB
+                    location:
+                      type: string
+                      example: Alun-Alun Kota Tegal
+                    detailed_address:
+                      type: string
+                      example: Jl. Pancasila No.1, Tegal, Jawa Tengah
+                    audience:
+                      type: string
+                      example: Terbuka untuk umum
+                    ticket_price:
+                      type: string
+                      example: Gratis
+                    description:
+                      type: string
+                      example: Festival tahunan seni rakyat pesisir...
+                    latitude:
+                      type: number
+                      format: float
+                      example: -6.8672
+                    longitude:
+                      type: number
+                      format: float
+                      example: 109.1380
+                    image_url:
+                      type: string
+                      example: http://localhost:5000/static/uploads/177196762_1.png
+                    is_recurring:
+                      type: boolean
+                      example: false
+                    badge_top:
+                      type: string
+                      example: "17"
+                    badge_bottom:
+                      type: string
+                      example: "Jun"

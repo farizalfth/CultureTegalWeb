@@ -1,12 +1,23 @@
+import os
+import yaml
 from flask import Blueprint, request, jsonify
+from flasgger import swag_from
 from app.services.scan_service import ScanService
 from app.services.ai_scan_service import AIScanService
 from app.services.auth_service import token_required
 from app.models import db
+
 scan_bp = Blueprint('scan', __name__)
+
+base_dir = os.path.dirname(os.path.abspath(__file__))
+yml_path = os.path.abspath(os.path.join(base_dir, '..', 'docs', 'scans.yml'))
+
+with open(yml_path, 'r', encoding='utf-8') as f:
+    scan_specs = yaml.safe_load(f)
 
 @scan_bp.route('/qr', methods=['POST'])
 @token_required
+@swag_from(scan_specs['scan_qr'])
 def scan_qr(current_user):
     data = request.get_json()
     if not data or 'site_id' not in data:
@@ -21,6 +32,7 @@ def scan_qr(current_user):
 
 @scan_bp.route('/geofence', methods=['POST'])
 @token_required
+@swag_from(scan_specs['scan_geofence'])
 def scan_geofence(current_user):
     data = request.get_json()
     if not data or 'site_id' not in data or 'latitude' not in data or 'longitude' not in data:
@@ -38,6 +50,7 @@ def scan_geofence(current_user):
 
 @scan_bp.route('/read', methods=['POST'])
 @token_required
+@swag_from(scan_specs['scan_read'])
 def scan_read(current_user):
     data = request.get_json()
     if not data or 'site_id' not in data:
@@ -52,6 +65,7 @@ def scan_read(current_user):
 
 @scan_bp.route('/ai', methods=['POST'])
 @token_required
+@swag_from(scan_specs['scan_ai'])
 def scan_ai(current_user):
     if 'file' not in request.files:
         return jsonify({"status": "error", "message": "No file part"}), 400
@@ -71,6 +85,7 @@ def scan_ai(current_user):
 
 @scan_bp.route('/ai/history', methods=['GET'])
 @token_required
+@swag_from(scan_specs['get_ai_scan_history'])
 def get_ai_scan_history(current_user):
     result, error = AIScanService.get_user_ai_history(current_user.id)
     if error:
@@ -84,6 +99,7 @@ def get_ai_scan_history(current_user):
 
 @scan_bp.route('/ai/history/<uuid:scan_id>', methods=['DELETE'])
 @token_required
+@swag_from(scan_specs['delete_ai_scan_history'])
 def delete_ai_scan_history(current_user, scan_id):
     from app.models import AIScanHistory
     from app.services.upload_service import delete_file

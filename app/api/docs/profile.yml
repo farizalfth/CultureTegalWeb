@@ -1,5 +1,7 @@
 tags:
-  - User
+  - User Profile
+summary: Ambil profil dasar user (Sederhana)
+description: Mengembalikan informasi ringkas user saat ini yang terikat dengan session token.
 security:
   - Bearer: []
 responses:
@@ -19,7 +21,7 @@ responses:
               example: 550e8400-e29b-41d4-a716-446655440000
             nama:
               type: string
-              example: Nadhif
+              example: Nadhif Bahari
             email:
               type: string
               example: user@email.com
@@ -36,6 +38,6 @@ responses:
               type: integer
               example: 5
   401:
-    description: Token otorisasi tidak valid
+    description: Token tidak valid
   404:
-    description: Profil tidak ditemukan di database
+    description: User tidak ditemukan

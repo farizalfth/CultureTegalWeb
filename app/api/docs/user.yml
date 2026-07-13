@@ -1,0 +1,123 @@
+get_profile:
+  tags:
+    - User Profile
+  summary: Mengambil profil lengkap user aktif
+  description: Mengembalikan profil lengkap user beserta perhitungan level otomatis berdasarkan poin yang terkumpul.
+  security:
+    - Bearer: []
+  responses:
+    200:
+      description: Profil berhasil diambil
+      schema:
+        type: object
+        properties:
+          status:
+            type: string
+            example: success
+          data:
+            type: object
+            properties:
+              id:
+                type: string
+                example: 550e8400-e29b-41d4-a716-446655440000
+              nama:
+                type: string
+                example: Nadhif
+              email:
+                type: string
+                example: user@email.com
+              profile_picture:
+                type: string
+                example: http://localhost:5000/static/uploads/avatar.png
+              points:
+                type: string
+                example: "1.250"
+              level:
+                type: integer
+                example: 2
+
+update_profile:
+  tags:
+    - User Profile
+  summary: Perbarui nama dan nomor telepon user
+  description: Memperbarui field profil nama dan nomor telepon di database lokal SQLite.
+  security:
+    - Bearer: []
+  parameters:
+    - in: body
+      name: body
+      required: true
+      schema:
+        type: object
+        required:
+          - nama
+          - no_telp
+        properties:
+          nama:
+            type: string
+            example: Nadhif Ardiansyah
+          no_telp:
+            type: string
+            example: "081234567890"
+  responses:
+    200:
+      description: Profil berhasil diperbarui
+
+update_profile_picture:
+  tags:
+    - User Profile
+  summary: Unggah foto profil baru (Multipart File)
+  description: Mengunggah berkas gambar foto profil baru dalam format biner multipart/form-data. Foto lama akan otomatis terhapus dari server.
+  security:
+    - Bearer: []
+  parameters:
+    - in: formData
+      name: file
+      type: file
+      required: true
+      description: File gambar (png, jpg, jpeg, gif).
+  consumes:
+    - multipart/form-data
+  responses:
+    200:
+      description: Foto profil berhasil diperbarui
+
+get_favorites:
+  tags:
+    - User Favorites
+  summary: Ambil daftar item yang difavoritkan
+  description: Mengembalikan daftar seluruh tempat budaya, produk UMKM, dan event yang disimpan atau difavoritkan oleh user.
+  security:
+    - Bearer: []
+  responses:
+    200:
+      description: Daftar favorit berhasil dimuat
+
+toggle_favorite:
+  tags:
+    - User Favorites
+  summary: Toggle status favorit item (Simpan/Hapus)
+  description: Menambahkan ke daftar favorit jika belum ada, atau menghapus dari daftar favorit jika sudah ada di database.
+  security:
+    - Bearer: []
+  parameters:
+    - in: body
+      name: body
+      required: true
+      schema:
+        type: object
+        required:
+          - target_type
+          - target_id
+        properties:
+          target_type:
+            type: string
+            enum: [culture, umkm, event]
+            example: culture
+          target_id:
+            type: string
+            format: uuid
+            example: d3b07384-d113-4ec6-a5cc-91e3e4d9c4d8
+  responses:
+    200:
+      description: Status favorit berhasil di-toggle

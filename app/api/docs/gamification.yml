@@ -1,0 +1,66 @@
+get_badges:
+  tags:
+    - Gamification & Badges
+  summary: Mengambil seluruh daftar lencana misi
+  description: Menampilkan semua lencana di sistem beserta status apakah user sudah membukanya (is_unlocked true/false).
+  security:
+    - Bearer: []
+  responses:
+    200:
+      description: Daftar lencana berhasil diambil
+
+get_leaderboard:
+  tags:
+    - Gamification & Badges
+  summary: Mengambil klasemen papan peringkat (Top 10)
+  description: Menampilkan 10 user teratas dengan akumulasi poin tertinggi di platform Tegal Culture.
+  security:
+    - Bearer: []
+  responses:
+    200:
+      description: Data papan peringkat berhasil dimuat
+
+get_stats:
+  tags:
+    - Gamification & Badges
+  summary: Statistik pencapaian user
+  description: Menyajikan akumulasi statistik performa user (jumlah tempat yang discan, kuis benar, lencana dikoleksi, level, dan total poin).
+  security:
+    - Bearer: []
+  responses:
+    200:
+      description: Data statistik berhasil diambil
+
+get_scan_history:
+  tags:
+    - Gamification & Badges
+  summary: Riwayat pemindaian lokasi budaya
+  description: Menampilkan daftar lengkap tempat bersejarah yang pernah dikunjungi dan diverifikasi (scanned) oleh user.
+  security:
+    - Bearer: []
+  responses:
+    200:
+      description: Riwayat scan berhasil diambil
+
+claim_badge:
+  tags:
+    - Gamification & Badges
+  summary: Klaim lencana misi secara manual
+  description: Membuka lencana misi berdasarkan nama, menambah poin reward lencana ke saldo poin user, dan menaikkan level jika ambang batas terpenuhi.
+  security:
+    - Bearer: []
+  parameters:
+    - in: body
+      name: body
+      required: true
+      schema:
+        type: object
+        required:
+          - badge_name
+        properties:
+          badge_name:
+            type: string
+            example: "Mata Elang"
+  responses:
+    200:
+      description: Lencana berhasil diklaim dan poin ditambahkan

@@ -1,5 +1,7 @@
 tags:
-  - Culture
+  - Culture / Explore
+summary: Mengambil semua data tempat budaya (Sederhana)
+description: Menyajikan daftar singkat seluruh objek budaya dan sejarah Tegal untuk pemetaan di peta atau UI statis.
 security:
   - Bearer: []
 responses:
@@ -18,24 +20,26 @@ responses:
             properties:
               id:
                 type: string
-                example: 550e8400-e29b-41d4-a716-446655440000
+                example: d3b07384-d113-4ec6-a5cc-91e3e4d9c4d8
               title:
                 type: string
-                example: Kelenteng Tek Hay Kiong
+                example: Klenteng Tek Hay Kiong
               subtitle:
                 type: string
-                example: Pusat Sejarah
+                example: Simbol Toleransi & Akulturasi
               category:
                 type: string
-                example: Sejarah
+                example: Tradisi
               image:
                 type: string
-                example: uploads/169123456_image.png
+                example: 177196762_1.png
               latitude:
                 type: number
-                example: -6.8653
+                format: float
+                example: -6.8642
               longitude:
                 type: number
-                example: 109.1402
+                format: float
+                example: 109.1384
   401:
-    description: Token otorisasi tidak valid atau tidak ditemukan
+    description: Otorisasi Token gagal

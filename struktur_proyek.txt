@@ -28,6 +28,8 @@ Struktur Direktori Proyek:
 │   │   │   ├── umkm_routes.py
 │   │   │   └── user_routes.py
 │   │   └── v1_routes.py
+│   ├── model_ai
+│   │   └── food_detector.onnx
 │   ├── models.py
 │   ├── services
 │   │   ├── __init__.py
@@ -55,7 +57,72 @@ Struktur Direktori Proyek:
 │   │   │   ├── 2.png
 │   │   │   ├── 3.png
 │   │   │   └── 4.png
-│   │   └── js
+│   │   ├── js
+│   │   └── uploads
+│   │       ├── 1779196762_1.png
+│   │       ├── 1779196762_3.png
+│   │       ├── 1779196762_4.png
+│   │       ├── 1779197585_3.png
+│   │       ├── 1779198707_2.png
+│   │       ├── 1779203739_2.png
+│   │       ├── 1779233172_1.png
+│   │       ├── 1779318990_2.png
+│   │       ├── 1779319078_4.png
+│   │       ├── 1781622398_images_1.jpeg
+│   │       ├── 1781622408_kuc.jpg
+│   │       ├── 1781622418_c4d8c64b-547a-4631-a55c-d0c471e3e4d9.jpgtplv-aphluv4xwc-resize-jpeg_700_0.jpg
+│   │       ├── 1781622495_images_1.jpeg
+│   │       ├── 1781622504_4.png
+│   │       ├── 1781622517_tanjakan-2.jpg
+│   │       ├── 1781622526_manfaat-kopi_169.jpeg
+│   │       ├── 1781624316_kuc.jpg
+│   │       ├── 1781624374_image-161.png
+│   │       ├── 1781624374_images_1.jpeg
+│   │       ├── 1781624390_WhatsApp_Image_2026-05-21_at_00.01.07.jpeg
+│   │       ├── 1781624390_WhatsApp_Image_2026-05-21_at_00.01.07_1.jpeg
+│   │       ├── 1781624490_images_1.jpeg
+│   │       ├── 1781624507_3.png
+│   │       ├── 1781624514_kucing-rumahan-unsplash.jpeg
+│   │       ├── 1781624521_manfaat-kopi_169.jpeg
+│   │       ├── 1781624529_ilustrasi-seorang-wanita-minum-kopi_169_1.jpeg
+│   │       ├── 1781624537_tanjakan-2.jpg
+│   │       ├── 1781624549_kuc.jpg
+│   │       ├── 1781624622_images_1.jpeg
+│   │       ├── 1781624622_kuc.jpg
+│   │       ├── 1781624642_meutya-hafid-3_169.jpeg
+│   │       ├── 1781624688_ilustrasi-seorang-wanita-minum-kopi_169_1.jpeg
+│   │       ├── 1781624688_kopiii-article-1680609744.jpeg
+│   │       ├── 1781624688_manfaat-kopi_169.jpeg
+│   │       ├── 1781624701_image-161.png
+│   │       ├── 1781624701_images_1.jpeg
+│   │       ├── 1781624701_kuc.jpg
+│   │       ├── 1781624710_67b596f3ed0e0.jpeg
+│   │       ├── 1781624710_meutya-hafid-3_169.jpeg
+│   │       ├── 1783803383_imgi_16_.png
+│   │       ├── 1783818044_imgi_32_.png
+│   │       ├── 1783824898_kuc.jpg
+│   │       ├── 1783844711_image-161.png
+│   │       ├── 1783848264_scaled_3e73cc8a-c1d3-4936-9290-f2247cb696a51475930516295220471.jpg
+│   │       ├── 1783850018_lkk.jpeg
+│   │       ├── 1783856073_meutya-hafid-3_169.jpeg
+│   │       ├── 1783856119_kopiii-article-1680609744.jpeg
+│   │       ├── debug_screenshot.png
+│   │       ├── review
+│   │       │   ├── 1781690305_024a3a30_review.png
+│   │       │   ├── 1782205623_2be46f56_review.png
+│   │       │   ├── 1782422440_f9a0a268_review.png
+│   │       │   ├── 1782425688_733b5a7a_review.png
+│   │       │   ├── 1782426199_3e7c8b30_review.png
+│   │       │   ├── 1782571891_69c74162_review.png
+│   │       │   ├── 1782575907_7222e885_review.png
+│   │       │   └── 1782966809_7bd9056f_review.png
+│   │       └── videos
+│   │           ├── 1783846326_Komp_1.mp4
+│   │           ├── 1783846866_Komp_1.mp4
+│   │           ├── 1783846881_Komp_1.mp4
+│   │           ├── 1783847489_Komp_1.mp4
+│   │           ├── 1783847498_Komp_1.mp4
+│   │           └── 1783847508_Komp_1.mp4
 │   ├── templates
 │   │   ├── admin
 │   │   │   ├── dashboard.html
@@ -89,33 +156,17 @@ Struktur Direktori Proyek:
 ├── config.py
 ├── dest.py
 ├── legacy_app_backup.py
-├── migrations
-│   ├── README
-│   ├── alembic.ini
-│   ├── env.py
-│   ├── script.py.mako
-│   └── versions
-│       ├── 00b47ada4018_add_raw_date_table_event.py
-│       ├── 09bc71264012_add_culture_facilities_association_table.py
-│       ├── 108052b1f28a_add_reminder_flags_to_favorites.py
-│       ├── 186d9f71229d_add_created_at_to_user.py
-│       ├── 334c2e086d78_add_strict_uuid_mapping_to_scrape_.py
-│       ├── 3c7c555711eb_initial_migration.py
-│       ├── 619e62314a72_add_coordinate_and_contact_to_umkms.py
-│       ├── 8501f7412345_add_raw_end_date_column.py
-│       ├── afaf62a5bfbe_add_user_devices_table.py
-│       ├── bea75fd2f656_integrate_gamification_ai_and_scrape_.py
-│       ├── d90ceba5e1b3_add_max_reviews_to_scrape_targets.py
-│       ├── f0853d06f6c2_add_ai_scan_history_table.py
-│       └── f130003d0db2_add_food_metadata_and_normalize_ai_scan_.py
 ├── project.py
 ├── requirements.txt
 ├── run.py
 ├── seed.py
+├── seed_class.py
 ├── seed_event.py
 ├── seed_facility_icon.py
 ├── seed_news.py
 ├── static
+│   └── uploads
+│       └── test_screenshot.png
 ├── struktur_proyek.txt
 ├── test_filter.py
 └── test_scraper.py

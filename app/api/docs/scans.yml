@@ -1,0 +1,128 @@
+scan_qr:
+  tags:
+    - Scans & Verification
+  summary: Verifikasi kunjungan via Scan QR Code
+  description: Melakukan verifikasi kehadiran fisik dengan memindai QR Code di lokasi. Memberikan reward 100 XP/Poin jika kunjungan pertama.
+  security:
+    - Bearer: []
+  parameters:
+    - in: body
+      name: body
+      required: true
+      schema:
+        type: object
+        required:
+          - site_id
+        properties:
+          site_id:
+            type: string
+            format: uuid
+            example: d3b07384-d113-4ec6-a5cc-91e3e4d9c4d8
+  responses:
+    200:
+      description: Verifikasi QR sukses
+
+scan_geofence:
+  tags:
+    - Scans & Verification
+  summary: Verifikasi kunjungan via Geofencing GPS
+  description: Memverifikasi kehadiran fisik berdasarkan koordinat GPS real-time user. Radius toleransi wajib di bawah 100 meter dari pusat koordinat lokasi.
+  security:
+    - Bearer: []
+  parameters:
+    - in: body
+      name: body
+      required: true
+      schema:
+        type: object
+        required:
+          - site_id
+          - latitude
+          - longitude
+        properties:
+          site_id:
+            type: string
+            format: uuid
+            example: d3b07384-d113-4ec6-a5cc-91e3e4d9c4d8
+          latitude:
+            type: number
+            format: float
+            example: -6.8642
+          longitude:
+            type: number
+            format: float
+            example: 109.1384
+  responses:
+    200:
+      description: Presensi geofence sukses
+
+scan_read:
+  tags:
+    - Scans & Verification
+  summary: Verifikasi literasi membaca (Read Explorer)
+  description: Memberikan reward 10 XP ketika pertama kali user tuntas membaca deskripsi mendalam suatu objek budaya.
+  security:
+    - Bearer: []
+  parameters:
+    - in: body
+      name: body
+      required: true
+      schema:
+        type: object
+        required:
+          - site_id
+        properties:
+          site_id:
+            type: string
+            format: uuid
+            example: d3b07384-d113-4ec6-a5cc-91e3e4d9c4d8
+  responses:
+    200:
+      description: XP membaca berhasil diklaim
+
+scan_ai:
+  tags:
+    - Scans & Verification
+  summary: Deteksi Kuliner Tradisional menggunakan AI (ONNX)
+  description: Mengunggah gambar kuliner khas Tegal (Kupat Glabed, Olos, Sate, Sega Ponggol, Soto Tauco, Tahu Aci) untuk dideteksi oleh server AI model. Kunjungan pertama kuliner baru memberikan reward 50 XP.
+  security:
+    - Bearer: []
+  consumes:
+    - multipart/form-data
+  parameters:
+    - in: formData
+      name: file
+      type: file
+      required: true
+      description: File gambar makanan (jpg, jpeg, png).
+  responses:
+    200:
+      description: Pemrosesan klasifikasi model AI sukses
+
+get_ai_scan_history:
+  tags:
+    - Scans & Verification
+  summary: Ambil seluruh riwayat deteksi kuliner AI
+  description: Mengembalikan daftar komprehensif riwayat gambar kuliner tradisional Tegal yang pernah dipindai oleh user bersangkutan.
+  security:
+    - Bearer: []
+  responses:
+    200:
+      description: Daftar riwayat deteksi sukses dimuat
+
+delete_ai_scan_history:
+  tags:
+    - Scans & Verification
+  summary: Hapus satu riwayat pemindaian kuliner AI
+  description: Menghapus record riwayat scan AI tertentu dan menghapus file gambarnya secara bersih dari server.
+  security:
+    - Bearer: []
+  parameters:
+    - in: path
+      name: scan_id
+      type: string
+      format: uuid
+      required: true
+  responses:
+    200:
+      description: Riwayat berhasil dihapus

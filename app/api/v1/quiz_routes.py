@@ -1,5 +1,8 @@
+import os
+import yaml
 import uuid
 from flask import Blueprint, request, jsonify
+from flasgger import swag_from
 from app.models import Quiz, CultureSite, UserQuizHistory, FoodMetadata
 from app.services.quiz_service import QuizService
 from app.services.auth_service import token_required
@@ -7,8 +10,15 @@ from app.models import db, AIScanHistory
 
 quiz_bp = Blueprint('quiz', __name__)
 
+base_dir = os.path.dirname(os.path.abspath(__file__))
+yml_path = os.path.abspath(os.path.join(base_dir, '..', 'docs', 'quizzes.yml'))
+
+with open(yml_path, 'r', encoding='utf-8') as f:
+    quiz_specs = yaml.safe_load(f)
+
 @quiz_bp.route('', methods=['GET'])
 @token_required
+@swag_from(quiz_specs['get_all_quizzes'])
 def get_all_quizzes(current_user):
     solved_quizzes = db.session.query(UserQuizHistory.quiz_id).filter(
         UserQuizHistory.user_id == current_user.id,
@@ -57,6 +67,7 @@ def get_all_quizzes(current_user):
 
 @quiz_bp.route('/culture/<uuid:culture_id>', methods=['GET'])
 @token_required
+@swag_from(quiz_specs['get_culture_quizzes'])
 def get_culture_quizzes(current_user, culture_id):
     quizzes = QuizService.get_quizzes_by_culture(culture_id)
     result = []
@@ -72,6 +83,7 @@ def get_culture_quizzes(current_user, culture_id):
 
 @quiz_bp.route('/<uuid:quiz_id>/submit', methods=['POST'])
 @token_required
+@swag_from(quiz_specs['submit_quiz'])
 def submit_quiz(current_user, quiz_id):
     data = request.get_json()
     if not data or 'jawaban' not in data:

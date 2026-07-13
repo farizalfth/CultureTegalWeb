@@ -1,47 +1,237 @@
-tags:
-  - UMKM
-security:
-  - Bearer: []
-responses:
-  200:
-    description: Berhasil mengambil data UMKM
-    schema:
-      type: object
-      properties:
-        status:
-          type: string
-          example: success
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-                example: 550e8400-e29b-41d4-a716-446655440000
-              name:
-                type: string
-                example: Tahu Aci
-              price:
-                type: string
-                example: Rp 15.000
-              store_name:
-                type: string
-                example: Tahu Murni
-              category:
-                type: string
-                example: Kuliner
-              rating:
-                type: number
-                example: 4.5
-              image:
-                type: string
-                example: uploads/umkm.jpg
-              no_whatsapp:
-                type: string
-                example: "08123456789"
-              link_eksternal:
-                type: string
-                example: https://gofood.link
+get_umkms_simplified:
+  tags:
+    - UMKM & Culinary Catalog
+  summary: Mengambil semua data UMKM (Sederhana)
+  description: Menyajikan katalog ringkas seluruh produk dan toko UMKM Tegal untuk promosi ekonomi kreatif pada halaman peta utama.
+  security:
+    - Bearer: []
+  responses:
+    200:
+      description: Berhasil mengambil data UMKM sederhana
+      schema:
+        type: object
+        properties:
+          status:
+            type: string
+            example: success
+          data:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  example: f8d1e3d3-a442-43cf-87dd-4b3342ff22bb
+                name:
+                  type: string
+                  example: Tahu Aci Tegal
+                price:
+                  type: string
+                  example: Rp 15.000
+                store_name:
+                  type: string
+                  example: Tahu Murni Sinar Jaya
+                category:
+                  type: string
+                  example: Kuliner
+                rating:
+                  type: number
+                  format: float
+                  example: 4.8
+                image:
+                  type: string
+                  example: uploads/umkm.png
+                no_whatsapp:
+                  type: string
+                  example: "628123456789"
+                link_eksternal:
+                  type: string
+                  example: https://shopee.co.id/tahu_aci
   401:
-    description: Token otorisasi tidak valid
+    description: Otorisasi Token gagal
+
+get_all_umkm:
+  tags:
+    - UMKM & Culinary Catalog
+  summary: Mengambil katalog produk UMKM (Paginated & Sorted)
+  description: Menampilkan katalog produk UMKM Tegal dengan filter kategori (Kuliner, Fashion, Kriya) dan pengurutan harga (Termurah/Termahal).
+  security:
+    - Bearer: []
+  parameters:
+    - in: query
+      name: kategori
+      type: string
+      required: false
+      description: Filter kategori produk (Semua, Kuliner, Fashion, Kriya).
+    - in: query
+      name: search
+      type: string
+      required: false
+      description: Kata kunci pencarian produk atau nama toko.
+    - in: query
+      name: sort
+      type: string
+      enum: [Termurah, Termahal]
+      required: false
+      description: Pengurutan berdasarkan harga produk.
+    - in: query
+      name: page
+      type: integer
+      default: 1
+    - in: query
+      name: per_page
+      type: integer
+      default: 10
+  responses:
+    200:
+      description: Katalog UMKM berhasil dimuat
+
+get_umkm_detail:
+  tags:
+    - UMKM & Culinary Catalog
+  summary: Detail lengkap satu produk UMKM
+  description: Mengembalikan detail rill satu produk UMKM, alamat fisik toko, koordinat peta, nomor WhatsApp pemilik, dan rata-rata ulasan.
+  security:
+    - Bearer: []
+  parameters:
+    - in: path
+      name: umkm_id
+      type: string
+      format: uuid
+      required: true
+  responses:
+    200:
+      description: Detail produk ditemukan
+    404:
+      description: Produk tidak ditemukan
+
+add_review:
+  tags:
+    - UMKM Reviews
+  summary: Tambahkan ulasan baru produk UMKM
+  description: Mengirimkan ulasan berupa rating (1.0 - 5.0) dan komentar, serta maksimal 3 gambar pendukung dalam format Base64.
+  security:
+    - Bearer: []
+  parameters:
+    - in: path
+      name: umkm_id
+      type: string
+      format: uuid
+      required: true
+    - in: body
+      name: body
+      required: true
+      schema:
+        type: object
+        required:
+          - rating
+          - komentar
+        properties:
+          rating:
+            type: number
+            format: float
+            example: 4.5
+          komentar:
+            type: string
+            example: Tahu acinya renyah dan gurih sekali, masih panas pas sampai!
+          review_images_base64:
+            type: array
+            items:
+              type: string
+  responses:
+    201:
+      description: Ulasan berhasil dibuat
+
+update_review:
+  tags:
+    - UMKM Reviews
+  summary: Perbarui ulasan produk UMKM
+  description: Memperbarui isi rating, komentar, dan gambar ulasan yang dikirim sebelumnya.
+  security:
+    - Bearer: []
+  parameters:
+    - in: path
+      name: umkm_id
+      type: string
+      format: uuid
+      required: true
+    - in: body
+      name: body
+      required: true
+      schema:
+        type: object
+        required:
+          - rating
+          - komentar
+        properties:
+          rating:
+            type: number
+            format: float
+          komentar:
+            type: string
+          review_images_base64:
+            type: array
+            items:
+              type: string
+  responses:
+    200:
+      description: Ulasan berhasil diperbarui
+
+delete_review:
+  tags:
+    - UMKM Reviews
+  summary: Hapus ulasan produk UMKM
+  description: Menghapus ulasan secara permanen dari basis data.
+  security:
+    - Bearer: []
+  parameters:
+    - in: path
+      name: umkm_id
+      type: string
+      format: uuid
+      required: true
+  responses:
+    200:
+      description: Ulasan berhasil dihapus
+
+get_umkm_reviews:
+  tags:
+    - UMKM Reviews
+  summary: Ambil daftar ulasan produk UMKM (Paginated)
+  description: Mengambil ulasan-ulasan rill dari user untuk produk UMKM spesifik secara paginasi.
+  security:
+    - Bearer: []
+  parameters:
+    - in: path
+      name: umkm_id
+      type: string
+      format: uuid
+      required: true
+    - in: query
+      name: page
+      type: integer
+      default: 1
+    - in: query
+      name: per_page
+      type: integer
+      default: 10
+  responses:
+    200:
+      description: Daftar ulasan berhasil dimuat
+
+get_umkm_wordcloud:
+  tags:
+    - UMKM & Culinary Catalog
+  summary: Mengambil kata kunci ulasan khusus produk UMKM (Word Cloud)
+  description: Menyediakan frekuensi kata kunci dari ulasan produk UMKM yang telah dibersihkan dari stopwords untuk divisualisasikan dalam bentuk awan kata.
+  security:
+    - Bearer: []
+  parameters:
+    - in: path
+      name: name
+      type: string
+      required: true
+      description: Nama produk UMKM spesifik.
+  responses:
+    200:
+      description: Frekuensi kata berhasil dimuat

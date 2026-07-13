@@ -1,0 +1,56 @@
+get_all_quizzes:
+  tags:
+    - Quizzes & Knowledge
+  summary: Mengambil semua daftar kuis interaktif
+  description: Menampilkan daftar kuis umum, kuis tempat budaya, dan kuis kuliner tradisional (hanya muncul jika kuliner tersebut sudah pernah dideteksi via AI Scan).
+  security:
+    - Bearer: []
+  responses:
+    200:
+      description: Daftar kuis berhasil dimuat
+
+get_culture_quizzes:
+  tags:
+    - Quizzes & Knowledge
+  summary: Ambil kuis khusus tempat budaya tertentu
+  description: Menampilkan kumpulan soal kuis edukatif yang dikhususkan pada objek cagar budaya tertentu.
+  security:
+    - Bearer: []
+  parameters:
+    - in: path
+      name: culture_id
+      type: string
+      format: uuid
+      required: true
+  responses:
+    200:
+      description: Daftar kuis lokasi berhasil dimuat
+
+submit_quiz:
+  tags:
+    - Quizzes & Knowledge
+  summary: Kirim jawaban kuis untuk dinilai
+  description: Menyerahkan jawaban pilihan ganda (A, B, C, atau D). Jika jawaban benar untuk pertama kalinya, poin reward kuis ditambahkan ke profil user.
+  security:
+    - Bearer: []
+  parameters:
+    - in: path
+      name: quiz_id
+      type: string
+      format: uuid
+      required: true
+    - in: body
+      name: body
+      required: true
+      schema:
+        type: object
+        required:
+          - jawaban
+        properties:
+          jawaban:
+            type: string
+            enum: [A, B, C, D]
+            example: A
+  responses:
+    200:
+      description: Jawaban diproses (Mengembalikan nilai status kebenaran correct true/false)

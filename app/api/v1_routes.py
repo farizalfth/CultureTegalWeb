@@ -1,4 +1,5 @@
 import os
+import yaml
 from flask import Blueprint, jsonify
 from flasgger import swag_from
 from app.models import CultureSite, Event, UMKM, User
@@ -6,6 +7,12 @@ from app.services.auth_service import token_required
 
 api_v1 = Blueprint('api_v1', __name__, url_prefix='/api/v1')
 base_dir = os.path.dirname(os.path.abspath(__file__))
+
+with open(os.path.abspath(os.path.join(base_dir, 'docs', 'events.yml')), 'r', encoding='utf-8') as f:
+    event_specs = yaml.safe_load(f)
+
+with open(os.path.abspath(os.path.join(base_dir, 'docs', 'umkms.yml')), 'r', encoding='utf-8') as f:
+    umkm_specs = yaml.safe_load(f)
 
 @api_v1.route('/ping', methods=['GET'])
 @swag_from(os.path.join(base_dir, 'docs/ping.yml'))
@@ -34,7 +41,7 @@ def get_cultures(current_user):
         return jsonify({"status": "error", "message": str(e)}), 500
 
 @api_v1.route('/events', methods=['GET'])
-@swag_from(os.path.join(base_dir, 'docs/events.yml'))
+@swag_from(event_specs['get_events_simplified'])
 @token_required
 def get_events(current_user):
     try:
@@ -58,7 +65,7 @@ def get_events(current_user):
         return jsonify({"status": "error", "message": str(e)}), 500
 
 @api_v1.route('/umkms', methods=['GET'])
-@swag_from(os.path.join(base_dir, 'docs/umkms.yml'))
+@swag_from(umkm_specs['get_umkms_simplified'])
 @token_required
 def get_umkms(current_user):
     try:

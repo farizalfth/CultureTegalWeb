@@ -1,0 +1,340 @@
+get_cultures:
+  tags:
+    - Explore / Culture Sites
+  summary: Mengambil daftar tempat budaya (Paginated)
+  description: Mengambil data tempat budaya berdasarkan kategori, status slider, kata kunci pencarian, dengan fitur paginasi lengkap.
+  security:
+    - Bearer: []
+  parameters:
+    - in: query
+      name: kategori
+      type: string
+      required: false
+      description: Filter berdasarkan kategori tempat budaya (misal Sejarah, Tradisi, Kuliner, Wisata).
+    - in: query
+      name: is_slider
+      type: boolean
+      required: false
+      description: Filter untuk mendapatkan data khusus slider banner (true/false).
+    - in: query
+      name: search
+      type: string
+      required: false
+      description: Pencarian nama tempat budaya secara parsial (case-insensitive).
+    - in: query
+      name: page
+      type: integer
+      default: 1
+      required: false
+      description: Nomor halaman data yang ingin diambil.
+    - in: query
+      name: per_page
+      type: integer
+      default: 10
+      required: false
+      description: Jumlah data per halaman.
+  responses:
+    200:
+      description: Sukses memuat data budaya paginated
+      schema:
+        type: object
+        properties:
+          status:
+            type: string
+            example: success
+          message:
+            type: string
+            example: Data tempat budaya berhasil dimuat
+          data:
+            type: object
+            properties:
+              current_page:
+                type: integer
+                example: 1
+              has_next:
+                type: boolean
+                example: false
+              pages:
+                type: integer
+                example: 1
+              total:
+                type: integer
+                example: 7
+              items:
+                type: array
+                items:
+                  $ref: '#/definitions/CultureSiteDetail'
+
+get_culture_detail:
+  tags:
+    - Explore / Culture Sites
+  summary: Mengambil detail lengkap satu tempat budaya
+  description: Mengambil detail mendalam satu objek budaya menggunakan ID UUID, termasuk galeri, daftar fasilitas tersemat, dan ulasan user.
+  security:
+    - Bearer: []
+  parameters:
+    - in: path
+      name: site_id
+      type: string
+      format: uuid
+      required: true
+      description: ID UUID unik tempat budaya.
+  responses:
+    200:
+      description: Detail tempat budaya ditemukan
+      schema:
+        type: object
+        properties:
+          status:
+            type: string
+            example: success
+          data:
+            $ref: '#/definitions/CultureSiteDetail'
+    404:
+      description: Tempat budaya tidak ditemukan
+
+add_review:
+  tags:
+    - Culture Reviews
+  summary: Tambah ulasan baru untuk tempat budaya
+  description: Mengirimkan ulasan rill berupa rating (1.0 - 5.0), komentar teks, serta maksimal 3 gambar pendukung dalam format Base64.
+  security:
+    - Bearer: []
+  parameters:
+    - in: path
+      name: site_id
+      type: string
+      format: uuid
+      required: true
+    - in: body
+      name: body
+      required: true
+      schema:
+        type: object
+        required:
+          - rating
+          - komentar
+        properties:
+          rating:
+            type: number
+            format: float
+            minimum: 1
+            maximum: 5
+            example: 4.8
+          komentar:
+            type: string
+            example: Tempat bersejarah yang menakjubkan dan terawat!
+          review_images_base64:
+            type: array
+            items:
+              type: string
+            description: Array berisi string gambar Base64 (Maksimal 3 gambar).
+  responses:
+    201:
+      description: Ulasan berhasil ditambahkan
+    400:
+      description: Validasi gagal atau user sudah memberikan ulasan sebelumnya (gunakan PUT untuk edit).
+
+update_review:
+  tags:
+    - Culture Reviews
+  summary: Perbarui ulasan tempat budaya
+  description: Memperbarui rating, komentar, atau gambar ulasan yang telah dikirimkan sebelumnya oleh user yang bersangkutan.
+  security:
+    - Bearer: []
+  parameters:
+    - in: path
+      name: site_id
+      type: string
+      format: uuid
+      required: true
+    - in: body
+      name: body
+      required: true
+      schema:
+        type: object
+        required:
+          - rating
+          - komentar
+        properties:
+          rating:
+            type: number
+            format: float
+            minimum: 1
+            maximum: 5
+            example: 5.0
+          komentar:
+            type: string
+            example: Sunting ulasan - Pelayanan di sekitar lokasi sudah meningkat jauh!
+          review_images_base64:
+            type: array
+            items:
+              type: string
+  responses:
+    200:
+      description: Ulasan berhasil diperbarui
+    404:
+      description: Ulasan sebelumnya tidak ditemukan
+
+delete_review:
+  tags:
+    - Culture Reviews
+  summary: Hapus ulasan tempat budaya
+  description: Menghapus secara permanen ulasan tempat budaya beserta berkas gambar yang tersimpan di server lokal.
+  security:
+    - Bearer: []
+  parameters:
+    - in: path
+      name: site_id
+      type: string
+      format: uuid
+      required: true
+  responses:
+    200:
+      description: Ulasan berhasil dihapus
+    404:
+      description: Ulasan tidak ditemukan
+
+get_site_reviews:
+  tags:
+    - Culture Reviews
+  summary: Mengambil daftar ulasan tempat budaya (Paginated)
+  description: Mengambil semua ulasan yang dikirimkan oleh user untuk tempat budaya tertentu dengan format paginasi.
+  security:
+    - Bearer: []
+  parameters:
+    - in: path
+      name: site_id
+      type: string
+      format: uuid
+      required: true
+    - in: query
+      name: page
+      type: integer
+      default: 1
+    - in: query
+      name: per_page
+      type: integer
+      default: 10
+  responses:
+    200:
+      description: Daftar ulasan berhasil dimuat
+
+get_culture_wordcloud:
+  tags:
+    - Explore / Culture Sites
+  summary: Mengambil kata kunci ulasan khusus cagar budaya (Word Cloud)
+  description: Menyajikan frekuensi kata kunci dari ulasan cagar budaya spesifik yang telah disanitasi dari stopwords untuk visualisasi Word Cloud di aplikasi mobile.
+  security:
+    - Bearer: []
+  parameters:
+    - in: path
+      name: name
+      type: string
+      required: true
+      description: Nama lokasi cagar budaya spesifik.
+  responses:
+    200:
+      description: Frekuensi kata berhasil dimuat
+
+definitions:
+  CultureSiteDetail:
+    type: object
+    properties:
+      id:
+        type: string
+        example: d3b07384-d113-4ec6-a5cc-91e3e4d9c4d8
+      nama_tempat:
+        type: string
+        example: Klenteng Tek Hay Kiong
+      subtitle:
+        type: string
+        example: Simbol Toleransi & Akulturasi
+      kategori:
+        type: string
+        example: Tradisi
+      tahun_dibangun:
+        type: string
+        example: Abad 17
+      lokasi_singkat:
+        type: string
+        example: Tegal Barat
+      durasi_kunjungan:
+        type: string
+        example: 45-60 mnt
+      jarak_estimasi:
+        type: string
+        example: 1.2 km
+      deskripsi:
+        type: string
+        example: Deskripsi detail tentang Klenteng Tek Hay Kiong...
+      fun_fact:
+        type: string
+        example: Nama 'Tek Hay Kiong' memiliki arti harfiah 'Istana Penenang Samudra'.
+      latitude:
+        type: number
+        format: float
+        example: -6.8642
+      longitude:
+        type: number
+        format: float
+        example: 109.1384
+      image_url:
+        type: string
+        example: http://localhost:5000/static/uploads/177196762_1.png
+      gallery:
+        type: array
+        items:
+          type: string
+        example: ["http://localhost:5000/static/uploads/177196762_4.png"]
+      video_url:
+        type: string
+        nullable: true
+        example: null
+      is_slider:
+        type: boolean
+        example: true
+      facilities:
+        type: array
+        items:
+          type: object
+          properties:
+            id:
+              type: string
+              example: 123e4567-e89b-12d3-a456-426614174000
+            nama_fasilitas:
+              type: string
+              example: Area Parkir
+            icon_key:
+              type: string
+              example: parking
+      reviews:
+        type: array
+        items:
+          type: object
+          properties:
+            id:
+              type: string
+              example: 7bd9056f-7cfd-46ee-b141-89dcfd0e6cfd
+            user_id:
+              type: string
+              example: 550e8400-e29b-41d4-a716-446655440000
+            user_name:
+              type: string
+              example: Laksmana
+            user_avatar:
+              type: string
+              example: https://i.pravatar.cc/150
+            created_at:
+              type: string
+              example: "2026-06-18T10:30:00.000Z"
+            rating:
+              type: number
+              example: 4.8
+            komentar:
+              type: string
+              example: Tempat bersejarah yang menakjubkan!
+            review_images:
+              type: array
+              items:
+                type: string

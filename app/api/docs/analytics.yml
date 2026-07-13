@@ -1,0 +1,33 @@
+public_analytics:
+  tags:
+    - Data Analytics
+  summary: Dashboard sentiment analisis review global
+  description: Menyediakan data agregasi analitik teks ulasan dari MongoDB Cloud, mencakup rasio sentimen ulasan (positif, netral, negatif) dan daftar 5 destinasi terfavorit.
+  security:
+    - Bearer: []
+  parameters:
+    - in: query
+      name: location
+      type: string
+      default: global_all
+      description: Nama lokasi spesifik, atau isi 'global_all' untuk memuat statistik keseluruhan kota.
+  responses:
+    200:
+      description: Data agregasi analitik berhasil diproses
+
+wordcloud_frequencies:
+  tags:
+    - Data Analytics
+  summary: Ambil frekuensi kata kunci review (Word Cloud)
+  description: Melakukan tokenisasi, sanitasi, pembuangan stopwords Bahasa Indonesia, dan menghitung frekuensi kemunculan kata kunci ulasan untuk digambarkan dalam visualisasi Word Cloud di aplikasi mobile.
+  security:
+    - Bearer: []
+  parameters:
+    - in: path
+      name: name
+      type: string
+      required: true
+      description: Nama lokasi atau isi 'global_all' untuk representasi agregat seluruh ulasan kota.
+  responses:
+    200:
+      description: Analisis Word Cloud berhasil diproduksi

@@ -1,8 +1,10 @@
 tags:
   - System
+summary: Periksa status aktif API
+description: Mengembalikan status operasional dasar dari server API Tegal Culture.
 responses:
   200:
-    description: API beroperasi dengan normal
+    description: API aktif dan berjalan normal
     schema:
       type: object
       properties:

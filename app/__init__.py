@@ -84,21 +84,29 @@ def create_app():
     }
 
     swagger_template = {
-        "swagger": "2.0",
-        "info": {
-            "title": "Tegal Culture API",
-            "description": "Dokumentasi REST API untuk aplikasi mobile Tegal Culture.",
-            "version": "1.0.0"
-        },
-        "securityDefinitions": {
-            "Bearer": {
-                "type": "apiKey",
-                "name": "Authorization",
-                "in": "header",
-                "description": "Format pengisian: Bearer <Token_JWT_Supabase>"
-            }
+    "swagger": "2.0",
+    "info": {
+        "title": "Tegal Culture API Documentation",
+        "description": "API Gateway resmi untuk platform Tegal Culture. \n\n"
+                      "**Base URL:** `https://tegalculture.my.id/api/v1` \n"
+                      "**Authentication:** Menggunakan Bearer Token (JWT) dari Supabase.",
+        "version": "1.0.0",
+    },
+    "host": "tegalculture.my.id",  
+    "basePath": "/api/v1",         
+    "schemes": [
+        "https",                   
+        "http"
+    ],
+    "securityDefinitions": {
+        "Bearer": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header",
+            "description": "Masukkan token dengan format: Bearer <token_anda>"
         }
     }
+}
 
     db.init_app(app)
     migrate.init_app(app, db)

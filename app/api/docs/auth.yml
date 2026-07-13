@@ -1,0 +1,67 @@
+register_device:
+  tags:
+    - Authentication & Security
+  summary: Daftarkan ID perangkat OneSignal (Push Notifications)
+  description: Mendaftarkan OneSignal Subscription Player ID milik perangkat user untuk menerima pengingat jadwal event cagar budaya yang disimpan.
+  security:
+    - Bearer: []
+  parameters:
+    - in: body
+      name: body
+      required: true
+      schema:
+        type: object
+        required:
+          - onesignal_id
+        properties:
+          onesignal_id:
+            type: string
+            example: "3f518e80-d6e2-45e0-9e6b-e3a1f1cd48cf"
+  responses:
+    200:
+      description: Perangkat berhasil didaftarkan untuk notifikasi
+
+unregister_device:
+  tags:
+    - Authentication & Security
+  summary: Cabut pendaftaran perangkat OneSignal (Logout)
+  description: Menghapus ID OneSignal perangkat saat melakukan logout untuk menghentikan pengiriman push notification ke gawai tersebut.
+  security:
+    - Bearer: []
+  parameters:
+    - in: body
+      name: body
+      required: true
+      schema:
+        type: object
+        required:
+          - onesignal_id
+        properties:
+          onesignal_id:
+            type: string
+            example: "3f518e80-d6e2-45e0-9e6b-e3a1f1cd48cf"
+  responses:
+    200:
+      description: Device berhasil dicabut
+
+reset_progress:
+  tags:
+    - Authentication & Security
+  summary: Reset seutuhnya progres gamifikasi user
+  description: Menghapus total riwayat presensi kunjungan, riwayat pengerjaan kuis, daftar favorit, dan mengembalikan saldo poin/XP user ke 0 (Level 1).
+  security:
+    - Bearer: []
+  responses:
+    200:
+      description: Progres akun berhasil dibersihkan tanpa sisa
+
+delete_account:
+  tags:
+    - Authentication & Security
+  summary: Hapus akun secara permanen (Self-Deletion)
+  description: Menghapus profil user secara permanen dari database lokal SQLite serta mencabut keanggotaan autentikasi dari server admin Supabase Auth. Tindakan ini ireversibel.
+  security:
+    - Bearer: []
+  responses:
+    200:
+      description: Akun berhasil dihapus secara permanen
