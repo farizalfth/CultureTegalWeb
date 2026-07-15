@@ -22,16 +22,16 @@ class AIScanService:
         if not os.path.exists(model_directory):
             os.makedirs(model_directory)
 
-        model_path = os.path.join(model_directory, 'food_classifier.onnx')
-        model_type = "classification"
+        model_path = os.path.join(model_directory, 'food_detector.onnx')
+        model_type = "yolo"
         use_letterbox = True
-        input_size = (224, 224)
+        input_size = (640, 640)
 
         if not os.path.exists(model_path):
-            model_path = os.path.join(model_directory, 'food_detector.onnx')
+            model_path = os.path.join(model_directory, 'food_classifier.onnx')
             if os.path.exists(model_path):
-                model_type = "yolo"
-                input_size = (640, 640)
+                model_type = "classification"
+                input_size = (224, 224)
 
         predicted_key, confidence = AIModelService.run_inference(
             local_image_path,

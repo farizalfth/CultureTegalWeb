@@ -43,7 +43,15 @@ class AIModelService:
     def run_inference(image_path, model_path, model_type="classification", use_letterbox=True, input_size=(224, 224)):
         labels = ["kupat_glabed", "olos", "sate", "sega_ponggol", "soto_tauco", "tahu_aci"]
 
+        print(f"[DIAGNOSTIC] Entering run_inference")
+        print(f"[DIAGNOSTIC] cv2 loaded: {cv2 is not None}")
+        print(f"[DIAGNOSTIC] ort loaded: {ort is not None}")
+        print(f"[DIAGNOSTIC] model_path: {model_path}")
+        print(f"[DIAGNOSTIC] model_path exists: {os.path.exists(model_path)}")
+        print(f"[DIAGNOSTIC] model_type: {model_type}")
+
         if not os.path.exists(model_path) or cv2 is None or ort is None:
+            print("[DIAGNOSTIC] WARNING: Silent fallback triggered! Checking conditions.")
             import random
             predicted_class = random.choice(labels)
             confidence = round(random.uniform(0.85, 0.98), 2)
@@ -51,6 +59,7 @@ class AIModelService:
 
         img = cv2.imread(image_path)
         if img is None:
+            print(f"[DIAGNOSTIC] Error: Failed to read image at path: {image_path}")
             import random
             return random.choice(labels), 0.90
 
@@ -73,16 +82,19 @@ class AIModelService:
             outputs = session.run(None, {input_name: img_data})
             
             if not isinstance(outputs, list) or len(outputs) == 0:
+                print("[DIAGNOSTIC] Error: Outputs list is empty or invalid")
                 import random
                 return random.choice(labels), 0.90
                 
             predictions = outputs[0]
 
             if not isinstance(predictions, np.ndarray):
+                print("[DIAGNOSTIC] Error: Predictions is not ndarray")
                 import random
                 return random.choice(labels), 0.90
 
             if model_type == "classification":
+                print("[DIAGNOSTIC] Notice: Running classification mode. No bounding boxes will be drawn.")
                 logits = predictions[0]
                 exp_logits = np.exp(logits - np.max(logits))
                 probs = exp_logits / np.sum(exp_logits)
@@ -93,7 +105,9 @@ class AIModelService:
                 return labels[0], confidence
 
             elif model_type in ["yolo", "object_detection"]:
+                print("[DIAGNOSTIC] Notice: Running YOLO detection mode")
                 if len(predictions.shape) != 3 or predictions.shape[2] != 6:
+                    print(f"[DIAGNOSTIC] Error: Invalid shape for YOLO26: {predictions.shape}")
                     import random
                     return random.choice(labels), 0.85
 
@@ -134,14 +148,18 @@ class AIModelService:
                         box_drawn = True
 
                 if box_drawn:
+                    print(f"[DIAGNOSTIC] Success: Bounding boxes drawn! Overwriting: {image_path}")
                     cv2.imwrite(image_path, img)
+                else:
+                    print("[DIAGNOSTIC] Notice: No bounding boxes met the confidence threshold of 0.25")
 
                 if max_conf > 0.25 and best_class_idx < len(labels):
                     return labels[best_class_idx], max_conf
 
                 import random
                 return random.choice(labels), 0.85
-        except Exception:
+        except Exception as e:
+            print(f"[DIAGNOSTIC] Exception during inference process: {str(e)}")
             import random
             return random.choice(labels), 0.90
 
