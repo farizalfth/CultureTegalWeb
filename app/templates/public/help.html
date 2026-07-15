@@ -1,0 +1,238 @@
+{% extends 'layouts/base.html' %}
+{% block content %}
+<style>
+    .help-header {
+        background: linear-gradient(135deg, #FFF9F3 0%, #FDF2E9 100%);
+        border-radius: 30px;
+        padding: 50px 30px;
+        border: 1px solid rgba(211, 84, 0, 0.05);
+        margin-bottom: 40px;
+    }
+    
+    .category-title {
+        color: #5d4037;
+        font-weight: 800;
+        font-size: 1.25rem;
+        letter-spacing: -0.3px;
+        border-bottom: 2px solid rgba(211, 84, 0, 0.15);
+        padding-bottom: 10px;
+        margin-top: 40px;
+        margin-bottom: 25px;
+    }
+
+    .accordion-button:not(.collapsed) {
+        background-color: rgba(211, 84, 0, 0.05);
+        color: #D35400;
+        font-weight: 700;
+    }
+
+    .accordion-button:focus {
+        box-shadow: none;
+        border-color: rgba(211, 84, 0, 0.2);
+    }
+
+    .help-card {
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+        border: 1px solid rgba(0,0,0,0.01);
+    }
+</style>
+
+<div class="container py-5">
+    <div class="help-header text-center" data-aos="fade-up">
+        <span class="badge-accent mb-3" style="background-color: rgba(211, 84, 0, 0.1); color: #D35400; font-size: 0.85rem; font-weight: 700; padding: 8px 16px; border-radius: 30px; display: inline-block;">SUPPORT CENTER</span>
+        <h1 class="fw-bold" style="color: #5d4037; font-size: 2.5rem; letter-spacing: -1px;">Pusat Bantuan Tegal Culture</h1>
+        <p class="text-muted mx-auto mb-0" style="max-width: 700px; font-size: 0.95rem; line-height: 1.6;">
+            Selamat datang di layanan bantuan terpadu. Kami telah mendokumentasikan panduan operasional teknis rill untuk membantumu menyelesaikan kendala sistem secara instan dan mandiri.
+        </p>
+    </div>
+
+    <div class="row justify-content-center" data-aos="fade-up">
+        <div class="col-lg-10">
+            <div class="card help-card p-4 p-md-5 bg-white">
+                
+                <h4 class="category-title"><i class="fa-solid fa-user-shield me-2 text-primary"></i> Kategori A: Pendaftaran, OTP & Google Sign-In (Supabase Auth)</h4>
+                <div class="accordion accordion-flush" id="authAccordion">
+                    <div class="accordion-item border-bottom py-1">
+                        <h2 class="accordion-header" id="authH1">
+                            <button class="accordion-button collapsed fw-bold text-dark bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#authC1">
+                                Bagaimana cara kerja kode OTP Email saat pendaftaran baru?
+                            </button>
+                        </h2>
+                        <div id="authC1" class="accordion-collapse collapse" data-bs-parent="#authAccordion">
+                            <div class="accordion-body text-muted" style="line-height: 1.7; font-size: 0.9rem;">
+                                Saat mendaftar menggunakan email dan kata sandi, sistem keamanan kami (didukung oleh Supabase Auth) akan mengirimkan kode verifikasi OTP (One-Time Password) ke email Anda. Masukkan kode tersebut pada halaman verifikasi. Kode OTP ini memiliki batas waktu kedaluwarsa maksimal 15 menit. Jika Anda tidak menerimanya, silakan periksa folder "Spam" atau "Promosi". Jika dalam 60 detik kode belum masuk, Anda dapat mengetuk tombol "Kirim ulang" setelah penghitung waktu mundur selesai.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item border-bottom py-1">
+                        <h2 class="accordion-header" id="authH2">
+                            <button class="accordion-button collapsed fw-bold text-dark bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#authC2">
+                                Mengapa muncul galat "Gagal mendapatkan ID Token" saat masuk dengan Google?
+                            </button>
+                        </h2>
+                        <div id="authC2" class="accordion-collapse collapse" data-bs-parent="#authAccordion">
+                            <div class="accordion-body text-muted" style="line-height: 1.7; font-size: 0.9rem;">
+                                Fitur "Daftar/Masuk dengan Google" membutuhkan komunikasi rill antara Google Play Services di perangkat seluler Anda dengan server otentikasi. Kendala ini biasanya terjadi jika koneksi internet Anda tidak stabil, Google Play Services di ponsel Anda belum diperbarui, atau sertifikat tanda tangan rilis (SHA-1 Keystore) sedang mengalami proses pembaruan berkala di Google Play Console. Pastikan jaringan internet Anda lancar dan coba kembali.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item border-bottom py-1">
+                        <h2 class="accordion-header" id="authH3">
+                            <button class="accordion-button collapsed fw-bold text-dark bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#authC3">
+                                Apa itu proses sinkronisasi akun ("auth/sync") di latar belakang?
+                            </button>
+                        </h2>
+                        <div id="authC3" class="accordion-collapse collapse" data-bs-parent="#authAccordion">
+                            <div class="accordion-body text-muted" style="line-height: 1.7; font-size: 0.9rem;">
+                                Setelah Anda berhasil memverifikasi email melalui Supabase, sistem seluler akan mengirimkan token akses ke server backend Flask kami via endpoint "/auth/sync" untuk mendaftarkan nama, email, dan mengatur ID notifikasi OneSignal Anda ke database utama. Jika proses sinkronisasi ini terganggu oleh jaringan, Anda mungkin akan diminta untuk melakukan masuk ulang (*re-login*) demi memastikan data profil Anda tersinkronisasi sempurna di server.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item border-bottom py-1">
+                        <h2 class="accordion-header" id="authH4">
+                            <button class="accordion-button collapsed fw-bold text-dark bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#authC4">
+                                Mengapa muncul pesan "Tautan Tidak Valid" saat memulihkan kata sandi?
+                            </button>
+                        </h2>
+                        <div id="authC4" class="accordion-collapse collapse" data-bs-parent="#authAccordion">
+                            <div class="accordion-body text-muted" style="line-height: 1.7; font-size: 0.9rem;">
+                                Pesan ini muncul jika Anda mengklik tautan pemulihan kata sandi (*Password Reset Link*) yang dikirimkan ke email Anda setelah masa berlakunya habis (melebihi batas waktu kedaluwarsa tautan keamanan), atau jika tautan tersebut sudah pernah diklik sebelumnya. Silakan masuk kembali ke menu "Lupa kata sandi?" di aplikasi untuk meminta pengiriman kode OTP pemulihan yang baru.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h4 class="category-title"><i class="fa-solid fa-brain me-2 text-primary"></i> Kategori B: Fitur Pindai AI Kuliner (YOLO26 Nano)</h4>
+                <div class="accordion accordion-flush" id="aiAccordion">
+                    <div class="accordion-item border-bottom py-1">
+                        <h2 class="accordion-header" id="aiH1">
+                            <button class="accordion-button collapsed fw-bold text-dark bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#aiC1">
+                                Bagaimana cara kerja teknologi pemindai AI makanan di aplikasi ini?
+                            </button>
+                        </h2>
+                        <div id="aiC1" class="accordion-collapse collapse" data-bs-parent="#aiAccordion">
+                            <div class="accordion-body text-muted" style="line-height: 1.7; font-size: 0.9rem;">
+                                Aplikasi kami menggunakan model jaringan saraf tiruan super-ringan (YOLO26 Nano) yang dirancang khusus untuk berjalan secara efisien di server Flask. Karena kami memprioritaskan keringan beban komputasi agar baterai ponsel Anda tidak boros, model ini dilatih menggunakan dataset gambar kuliner khas lokal yang terkelola secara terbatas. Akurasi deteksi ini bersifat probabilistik (perkiraan) dan sangat dipengaruhi oleh kecerahan ruangan, bayangan, serta sudut pengambilan gambar makanan.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item border-bottom py-1">
+                        <h2 class="accordion-header" id="aiH2">
+                            <button class="accordion-button collapsed fw-bold text-dark bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#aiC2">
+                                Mengapa hasil pindaian hanya menampilkan satu (1) kotak deteksi (Bounding Box)?
+                            </button>
+                        </h2>
+                        <div id="aiC2" class="accordion-collapse collapse" data-bs-parent="#aiAccordion">
+                            <div class="accordion-body text-muted" style="line-height: 1.7; font-size: 0.9rem;">
+                                Demi kenyamanan visual antarmuka pengguna di layar ponsel serta menjaga kecepatan transfer data seluler, backend Flask kami menerapkan filter penyaringan deteksi tunggal (*Single Bounding Box Filter*). Sistem server secara otomatis menyaring hasil pengolahan data dan hanya merender tepat satu (1) kotak batas dengan tingkat skor kepercayaan (*confidence score*) tertinggi (Argmax) untuk ditampilkan kembali ke layar aplikasi Anda.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item border-bottom py-1">
+                        <h2 class="accordion-header" id="aiH3">
+                            <button class="accordion-button collapsed fw-bold text-dark bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#aiC3">
+                                Kenapa saya tidak mendapatkan tambahan poin saat memindai makanan yang sama?
+                            </button>
+                        </h2>
+                        <div id="aiC3" class="accordion-collapse collapse" data-bs-parent="#aiAccordion">
+                            <div class="accordion-body text-muted" style="line-height: 1.7; font-size: 0.9rem;">
+                                Untuk menghargai eksplorasi kuliner yang beragam, hadiah berupa penambahan +50 Poin Kuis hanya diberikan untuk aktivitas pemindaian makanan pertama kali (Unique Scan). Memindai hidangan yang sama (misalnya memindai Tahu Aci berulang kali) tidak akan menambahkan poin kembali ke akun Anda untuk mencegah eksploitasi perolehan skor secara tidak adil.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h4 class="category-title"><i class="fa-solid fa-map-location-dot me-2 text-primary"></i> Kategori C: Peta Budaya & GPS Geofencing</h4>
+                <div class="accordion accordion-flush" id="gpsAccordion">
+                    <div class="accordion-item border-bottom py-1">
+                        <h2 class="accordion-header" id="gpsH1">
+                            <button class="accordion-button collapsed fw-bold text-dark bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#gpsC1">
+                                Bagaimana aplikasi mendeteksi jarak saya dengan lokasi cagar budaya?
+                            </button>
+                        </h2>
+                        <div id="gpsC1" class="accordion-collapse collapse" data-bs-parent="#gpsAccordion">
+                            <div class="accordion-body text-muted" style="line-height: 1.7; font-size: 0.9rem;">
+                                Ketika Anda mengakses halaman detail budaya, aplikasi seluler menggunakan rumus matematika Haversine secara lokal untuk menghitung jarak kelengkungan bumi antara titik koordinat sensor GPS ponsel Anda dengan titik koordinat absolut cagar budaya yang terdaftar di database kami. Jarak ini kemudian diperbarui secara rill di layar Anda.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item border-bottom py-1">
+                        <h2 class="accordion-header" id="gpsH2">
+                            <button class="accordion-button collapsed fw-bold text-dark bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#gpsC2">
+                                Mengapa batas verifikasi kunjungan geofencing dibatasi tepat 100 meter?
+                            </button>
+                        </h2>
+                        <div id="gpsC2" class="accordion-collapse collapse" data-bs-parent="#gpsAccordion">
+                            <div class="accordion-body text-muted" style="line-height: 1.7; font-size: 0.9rem;">
+                                Pembatasan radius maksimal 100 meter adalah standar presisi yang kami tetapkan untuk memastikan Anda benar-benar melakukan kunjungan fisik rill di area cagar budaya sebelum mengklaim hadiah +100 Poin Kunjungan. Ketika Anda mengetuk tombol "Klaim", koordinat lokasi Anda akan dikirimkan ke server Flask (`/scans/geofence`) untuk divalidasi keabsahannya. Pastikan Anda mengizinkan akses lokasi tingkat "Presisi Tinggi" (*Fine Location*) pada ponsel Anda.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h4 class="category-title"><i class="fa-solid fa-medal me-2 text-primary"></i> Kategori D: Kuis Budaya, Lencana & Leveling Akun</h4>
+                <div class="accordion accordion-flush" id="badgeAccordion">
+                    <div class="accordion-item border-bottom py-1">
+                        <h2 class="accordion-header" id="badgeH1">
+                            <button class="accordion-button collapsed fw-bold text-dark bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#badgeC1">
+                                Bagaimana rumus perhitungan kenaikan level akun saya?
+                            </button>
+                        </h2>
+                        <div id="badgeC1" class="accordion-collapse collapse" data-bs-parent="#badgeAccordion">
+                            <div class="accordion-body text-muted" style="line-height: 1.7; font-size: 0.9rem;">
+                                Setiap kali Anda melakukan aktivitas eksplorasi, server kami akan menambahkan nilai XP (Experience Points) ke profil Anda. Level akun Anda dihitung menggunakan rumus pembagian sisa kelipatan 1.000 XP. Artinya, level akun Anda akan meningkat tepat 1 tingkat setiap kali Anda berhasil mengumpulkan akumulasi kelipatan 1.000 XP (misalnya Level 2 dicapai pada 1.000 XP, Level 3 pada 2.000 XP, dan seterusnya). Anda dapat memantau bar kemajuan level pada tab "Profil".
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item border-bottom py-1">
+                        <h2 class="accordion-header" id="badgeH2">
+                            <button class="accordion-button collapsed fw-bold text-dark bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#badgeC2">
+                                Mengapa poin kuis saya tidak bertambah setelah mengulang jawaban kuis yang sama?
+                            </button>
+                        </h2>
+                        <div id="badgeC2" class="accordion-collapse collapse" data-bs-parent="#badgeAccordion">
+                            <div class="accordion-body text-muted" style="line-height: 1.7; font-size: 0.9rem;">
+                                Poin kuis budaya bernilai +50 Poin hanya ditambahkan ke akun Anda ketika Anda berhasil menjawab kuis tersebut dengan benar untuk pertama kalinya. Setelah kuis berstatus "Selesai" (ditandai dengan warna hijau), Anda masih dapat membuka kuis tersebut untuk mengulas kembali materi sejarahnya, namun menjawab ulang kuis yang sudah selesai tidak akan menambahkan poin tambahan ke akun Anda.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h4 class="category-title"><i class="fa-solid fa-bag-shopping me-2 text-primary"></i> Kategori E: Toko Budaya (UMKM Lokal)</h4>
+                <div class="accordion accordion-flush" id="shopAccordion">
+                    <div class="accordion-item border-bottom py-1">
+                        <h2 class="accordion-header" id="shopH1">
+                            <button class="accordion-button collapsed fw-bold text-dark bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#shopC1">
+                                Mengapa pengalihan tombol "Hubungi Toko" via WhatsApp tidak merespon?
+                            </button>
+                        </h2>
+                        <div id="shopC1" class="accordion-collapse collapse" data-bs-parent="#shopAccordion">
+                            <div class="accordion-body text-muted" style="line-height: 1.7; font-size: 0.9rem;">
+                                Fitur interaksi UMKM kami menggunakan protokol pengalihan tautan resmi WhatsApp API (`wa.me`). Fitur ini membutuhkan aplikasi WhatsApp resmi terinstal di ponsel Anda. Jika tombol tidak merespon atau menampilkan pesan kesalahan, hal ini umumnya disebabkan karena pemilik toko mendaftarkan format nomor ponsel yang tidak standar di database (misalnya menyertakan tanda hubung, spasi, atau lupa menggunakan kode negara "62"). Laporkan toko tersebut ke tim admin kami jika Anda menemui kendala ini.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h4 class="category-title"><i class="fa-solid fa-user-slash me-2 text-primary"></i> Kategori F: Kebijakan Layanan, Pemblokiran & Penghapusan Data</h4>
+                <div class="accordion accordion-flush" id="banAccordion">
+                    <div class="accordion-item border-bottom py-1">
+                        <h2 class="accordion-header" id="banH1">
+                            <button class="accordion-button collapsed fw-bold text-dark bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#banC1">
+                                Akun saya berstatus "Ditangguhkan" (Suspended) dengan kode error 403, apa artinya?
+                            </button>
+                        </h2>
+                        <div id="banC1" class="accordion-collapse collapse" data-bs-parent="#banAccordion">
+                            <div class="accordion-body text-muted" style="line-height: 1.7; font-size: 0.9rem;">
+                                Status ditangguhkan (*suspended*) berarti hak akses masuk akun Anda telah dinonaktifkan secara manual oleh Administrator sistem melalui panel admin utama Flask kami karena adanya indikasi pelanggaran aturan komunitas, laporan ketidaklayakan ulasan, atau aktivitas mencurigakan lainnya yang merugikan integritas data platform. Sanksi ini mengunci seluruh sesi Supabase Auth Anda. Jika Anda merasa penangguhan ini adalah kekeliruan, silakan ajukan klarifikasi melalui email pengembang.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

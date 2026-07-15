@@ -1,0 +1,35 @@
+{% extends 'layouts/base.html' %}
+{% block content %}
+<div class="container py-5" style="margin-top: 100px;">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card border-0 shadow-sm p-4 p-md-5" style="border-radius: 20px;">
+                <h1 class="fw-bold mb-4" style="color: #2B2B2B;">Syarat & Ketentuan Penggunaan</h1>
+                <p class="text-muted small mb-4">Terakhir diperbarui: 15 Juli 2026</p>
+                
+                <p class="lead" style="font-size: 1rem; color: #555;">Dengan mengunduh, menginstal, atau menggunakan aplikasi seluler dan platform Tegal Culture, Anda menyatakan setuju dan tunduk pada seluruh ketentuan hukum yang berlaku di bawah ini.</p>
+                
+                <hr class="my-4" style="border-color: #eee;">
+
+                <h3 class="fw-bold mt-4 mb-3" style="font-size: 1.25rem; color: #D35400;">1. PELEPASAN TANGGUNG JAWAB FITUR ALERGI & ALIMENTASI (CULINARY DISCLAIMER)</h3>
+                <p style="text-align: justify; line-height: 1.6;">Fitur pemindai kuliner bertenaga kecerdasan buatan (Smart AI Food Scanner) di dalam Tegal Culture ditujukan murni sebagai media pelestarian informasi, apresiasi, dan edukasi budaya kuliner tradisional khas Kota Tegal. Fitur ini <strong>SAMA SEKALI BUKAN</strong> rujukan medis, kesehatan, diet, atau panduan keselamatan pangan.</p>
+                <p style="text-align: justify; line-height: 1.6;">Pengguna bertanggung jawab penuh atas segala tindakan konsumsi pangan, verifikasi higienitas, deteksi bahan alergen, dan kepatuhan diet pribadi. Tegal Culture, pengembang, dan afiliasinya tidak bertanggung jawab atas segala bentuk kerugian medis, keracunan makanan, reaksi alergi fisik, cidera, atau kematian yang diakibatkan oleh konsumsi makanan setelah menggunakan aplikasi ini.</p>
+
+                <h3 class="fw-bold mt-4 mb-3" style="font-size: 1.25rem; color: #D35400;">2. DISKLAIMER SIFAT PROBABILISTIK & DESAIN ARSITEKTUR MODEL AI</h3>
+                <p style="text-align: justify; line-height: 1.6;">Anda memahami dan menyetujui bahwa klasifikasi citra makanan diproses menggunakan model jaringan saraf tiruan super-ringan kelas edge computing (<strong>YOLO26 Nano</strong>) dengan dataset pelatihan terkelola secara terbatas. AI ini bersifat probabilistik (berdasarkan perhitungan estimasi probabilitas kecocokan piksel) sehingga akurasinya **tidak bernilai 100% mutlak**.</p>
+                <p style="text-align: justify; line-height: 1.6;">Demi menjaga kecepatan eksekusi data pada perangkat seluler, efisiensi memori, dan kenyamanan visual antarmuka pengguna, sistem kami menggunakan mekanisme penyaringan keputusan tunggal (<strong>Single Bounding Box Filter</strong>). Aplikasi Tegal Culture secara sadar **hanya merender dan menampilkan tepat satu (1) kotak batas (bounding box) deteksi dengan tingkat akurasi kepercayaan tertinggi** dari hasil pengolahan data model di server, serta mengabaikan prediksi sekunder lainnya.</p>
+
+                <h3 class="fw-bold mt-4 mb-3" style="font-size: 1.25rem; color: #D35400;">3. PELEPASAN TANGGUNG JAWAB KEAMANAN PERJALANAN (TRAVEL DISCLAIMER)</h3>
+                <p style="text-align: justify; line-height: 1.6;">Layanan Peta Budaya (*Map Explore*) dan panduan rute navigasi eksternal disediakan sebagai sarana referensi visual letak geografis cagar budaya. Tegal Culture tidak memberikan jaminan keamanan jalur fisik, kondisi lalu lintas rill, atau kelayakan navigasi jalan.</p>
+                <p style="text-align: justify; line-height: 1.6;">Pengguna bertanggung jawab secara mandiri atas keselamatan diri, pematuhan hukum lalu lintas, penghormatan area milik pribadi, serta perizinan lokal saat mengunjungi situs fisik cagar budaya. Kami melepaskan segala tuntutan ganti rugi atas cidera fisik, kecelakaan berkendara, penilangan hukum, kerusakan properti, kehilangan materi, atau tindak kriminalitas yang dialami pengguna saat melakukan aktivitas jelajah budaya di lapangan.</p>
+
+                <h3 class="fw-bold mt-4 mb-3" style="font-size: 1.25rem; color: #2B2B2B;">4. Ketentuan Akun & Integritas Geofencing</h3>
+                <p style="text-align: justify; line-height: 1.6;">Segala bentuk rekayasa lokasi satelit (seperti penggunaan *Mock Location*, emulator, atau aplikasi *Fake GPS*) untuk memanipulasi klaim Poin Kunjungan fisik cagar budaya adalah tindakan pelanggaran ketentuan layanan. Kami berhak menangguhkan (*suspend*) akun Anda secara permanen tanpa pemberitahuan sebelumnya jika terdeteksi melakukan penyalahgunaan sistem.</p>
+
+                <h3 class="fw-bold mt-4 mb-3" style="font-size: 1.25rem; color: #2B2B2B;">5. Batasan Ganti Rugi Hukum</h3>
+                <p style="text-align: justify; line-height: 1.6;">Dalam batas maksimal yang diizinkan oleh hukum yang berlaku, Tegal Culture tidak akan bertanggung jawab atas kerusakan tidak langsung, insidental, atau hukuman ganti rugi finansial apa pun yang timbul akibat ketidakmampuan perangkat Anda dalam mengakses sistem server kami.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

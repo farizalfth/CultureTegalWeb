@@ -1,0 +1,81 @@
+{% extends 'layouts/base.html' %}
+{% block content %}
+<div class="container py-5" style="margin-top: 100px;">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card border-0 shadow-sm p-4 p-md-5" style="border-radius: 20px;">
+                <h1 class="fw-bold mb-4" style="color: #2B2B2B;">Kebijakan Privasi Tegal Culture</h1>
+                <p class="text-muted small mb-4">Terakhir diperbarui: 15 Juli 2026</p>
+                
+                <p class="lead" style="font-size: 1rem; color: #555;">Tegal Culture berkomitmen penuh untuk melindungi privasi pengguna kami. Kebijakan Privasi ini menjelaskan bagaimana kami mengumpulkan, menggunakan, mentransmisikan, dan melindungi data pribadi Anda saat menggunakan aplikasi seluler dan situs web Tegal Culture.</p>
+                
+                <hr class="my-4" style="border-color: #eee;">
+
+                <h3 class="fw-bold mt-4 mb-3" style="font-size: 1.25rem; color: #2B2B2B;">1. Deklarasi Izin Aplikasi (Application Permissions)</h3>
+                <p>Aplikasi seluler kami meminta izin akses ke beberapa fitur perangkat Anda melalui sistem operasi Android untuk mendukung fungsionalitas fitur interaktif:</p>
+                
+                <div class="table-responsive my-3">
+                    <table class="table table-bordered align-middle" style="font-size: 0.85rem;">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 30%;">Izin Android (Permission)</th>
+                                <th>Fungsi dan Alasan Penggunaan (Purpose)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="font-monospace text-primary">ACCESS_FINE_LOCATION</td>
+                                <td>Mengakses lokasi geografis presisi perangkat Anda (GPS) saat aplikasi aktif. Digunakan secara ketat untuk memverifikasi kehadiran fisik Anda di dalam radius 100 meter dari objek cagar budaya guna mengklaim Poin Jelajah (Geofencing Visit Verification) serta memetakan posisi Anda di fitur Peta Budaya interaktif.</td>
+                            </tr>
+                            <tr>
+                                <td class="font-monospace text-primary">ACCESS_COARSE_LOCATION</td>
+                                <td>Mengakses perkiraan lokasi perangkat Anda melalui menara seluler atau jaringan Wi-Fi sebagai cadangan verifikasi geofencing jika sinyal GPS presisi tidak tersedia.</td>
+                            </tr>
+                            <tr>
+                                <td class="font-monospace text-primary">CAMERA</td>
+                                <td>Mengakses kamera fisik perangkat Anda. Izin ini digunakan secara eksklusif saat Anda membuka fitur Pindai AI Kuliner untuk memotret secara langsung hidangan tradisional khas Tegal guna dianalisis oleh model klasifikasi kecerdasan buatan.</td>
+                            </tr>
+                            <tr>
+                                <td class="font-monospace text-primary">READ_EXTERNAL_STORAGE / READ_MEDIA_IMAGES</td>
+                                <td>Mengakses penyimpanan galeri foto pada perangkat Anda. Izin ini digunakan untuk memungkinkan Anda memilih foto kuliner tradisional yang sudah tersimpan sebelumnya di galeri untuk dipindai oleh AI.</td>
+                            </tr>
+                            <tr>
+                                <td class="font-monospace text-primary">POST_NOTIFICATIONS</td>
+                                <td>Izin sistem untuk memunculkan pemberitahuan push (Push Notifications) pada perangkat Android 13 ke atas melalui sistem integrasi OneSignal untuk menyampaikan pembaruan info event kebudayaan, pencapaian lencana baru, dan notifikasi kuis.</td>
+                            </tr>
+                            <tr>
+                                <td class="font-monospace text-primary">INTERNET</td>
+                                <td>Memungkinkan aplikasi melakukan pertukaran data dua arah dengan server Flask API, modul otentikasi Supabase, dan sistem OneSignal.</td>
+                            </tr>
+                            <tr>
+                                <td class="font-monospace text-primary">ACCESS_NETWORK_STATE</td>
+                                <td>Memantau status konektivitas internet perangkat Anda untuk memastikan kestabilan koneksi sebelum mengirim data ke server.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 class="fw-bold mt-4 mb-3" style="font-size: 1.25rem; color: #2B2B2B;">2. Pengumpulan dan Pemrosesan Informasi</h3>
+                <ul>
+                    <li><strong>Informasi Profil Akun</strong>: Nama lengkap dan alamat email yang divalidasi secara aman melalui layanan otentikasi Supabase.</li>
+                    <li><strong>Media Unggulan (Food Scanner)</strong>: Foto makanan tradisional yang Anda potret atau pilih dari galeri dikirim secara aman ke server Flask API kami untuk diklasifikasikan secara waktu nyata menggunakan model kecerdasan buatan YOLO26. Foto ini disimpan secara terenkripsi untuk keperluan riwayat pindaian pribadi Anda dan dapat dihapus kapan saja.</li>
+                    <li><strong>Data Lokasi</strong>: Koordinat geografis Anda hanya dibaca saat Anda menekan tombol "Klaim" atau "Jelajah Sekarang" dan tidak pernah dilacak secara pasif di latar belakang (background location) saat aplikasi ditutup.</li>
+                </ul>
+
+                <h3 class="fw-bold mt-4 mb-3" style="font-size: 1.25rem; color: #2B2B2B;">3. Keamanan Data & Enkripsi Transit</h3>
+                <p>Kami menerapkan langkah-langkah keamanan tingkat tinggi untuk melindungi data Anda:</p>
+                <ul>
+                    <li><strong>Enkripsi dalam Perjalanan (Encryption in Transit)</strong>: Seluruh komunikasi data, termasuk pengunggahan gambar makanan, koordinat lokasi, dan kredensial akun antara aplikasi seluler dan server Flask API kami dilindungi menggunakan enkripsi standar industri tertinggi melalui protokol aman <strong>HTTPS (SSL/TLS 1.3)</strong> untuk mencegah penyadapan data oleh pihak ketiga di jaringan.</li>
+                    <li><strong>Penyimpanan Aman (Storage Security)</strong>: Sesi otentikasi pengguna di sisi klien disimpan menggunakan enkripsi perangkat keras lokal melalui pustaka <em>Flutter Secure Storage</em>.</li>
+                </ul>
+
+                <h3 class="fw-bold mt-4 mb-3" style="font-size: 1.25rem; color: #2B2B2B;">4. Hak Penghapusan Data (Data Erasure Rights)</h3>
+                <p>Anda dapat mengakses menu <strong>Akun -> Hapus Akun</strong> di dalam aplikasi mobile Tegal Culture. Setelah dikonfirmasi, sistem kami akan secara otomatis menghapus seluruh informasi pribadi Anda, riwayat pemindaian makanan, poin kuis, lencana pencapaian, serta kredensial otentikasi Supabase Anda dari server kami secara permanen dan tidak dapat dipulihkan kembali.</p>
+
+                <h3 class="fw-bold mt-4 mb-3" style="font-size: 1.25rem; color: #2B2B2B;">5. Hubungi Kami</h3>
+                <p>Jika Anda memiliki pertanyaan mengenai Kebijakan Privasi ini, silakan hubungi tim pengembang kami melalui email resmi di <a href="mailto:tegalculture.id@gmail.com" class="text-decoration-none" style="color: #E67E22; font-weight: bold;">tegalculture.id@gmail.com</a>.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

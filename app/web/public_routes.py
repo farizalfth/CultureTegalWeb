@@ -25,3 +25,19 @@ def umkm_public():
 @public_bp.route('/tentang')
 def tentang():
     return render_template('public/tentang.html')
+
+@public_bp.route('/about')
+def about():
+    return render_template('public/tentang.html')
+
+@public_bp.route('/privacy-policy')
+def privacy_policy():
+    return render_template('public/privacy_policy.html')
+
+@public_bp.route('/help')
+def help():
+    return render_template('public/help.html')
+
+@public_bp.route('/terms-of-service')
+def terms_of_service():
+    return render_template('public/terms.html')
