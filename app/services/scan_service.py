@@ -35,7 +35,7 @@ class ScanService:
 
         points_earned = 0
         if not existing_scan:
-            points_earned = 100
+            points_earned = 10000
             user.poin += points_earned
             user.total_xp += points_earned
 
@@ -87,7 +87,7 @@ class ScanService:
 
         points_earned = 0
         if not existing_scan:
-            points_earned = 100
+            points_earned = 10000
             user.poin += points_earned
             user.total_xp += points_earned
 
@@ -135,7 +135,7 @@ class ScanService:
 
         points_earned = 0
         if not existing_scan:
-            points_earned = 10
+            points_earned = 2000
             user.poin += points_earned
             user.total_xp += points_earned
 
